@@ -1,25 +1,25 @@
 pipeline {
     agent any
-    
+
     environment {
-        DOCKERHUB_USERNAME = 'your-dockerhub-username'
-        DOCKERHUB_PASSWORD = credentials('dockerhub-credentials-id')
-        IMAGE_NAME = "your-dockerhub-username/gns3-builder:latest"
-        KUBE_DEPLOYMENT = "gns3-deployment"
-        KUBE_NAMESPACE = "default"
+        DOCKER_CREDENTIALS_ID = 'roseaw-dockerhub'  
+        DOCKER_IMAGE = 'cithit/gns3-builder'  // Ensure the correct image name (remove '=' typo)
+        IMAGE_TAG = "build-${BUILD_NUMBER}"
+        GITHUB_URL = 'https://github.com/miamioh-cit/gns3-project-deploy.git'
+        KUBECONFIG = credentials('roseaw-225')  
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/your-repo/your-script-repo.git'
+                git url: "${GITHUB_URL}", branch: 'main'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t $IMAGE_NAME ."
+                    sh "docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} ."
                 }
             }
         }
@@ -27,8 +27,10 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
-                    sh "echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin"
-                    sh "docker push $IMAGE_NAME"
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                        sh "docker push ${DOCKER_IMAGE}:${IMAGE_TAG}"
+                    }
                 }
             }
         }
@@ -36,12 +38,23 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    sh """
-                    kubectl set image deployment/$KUBE_DEPLOYMENT gns3-container=$IMAGE_NAME -n $KUBE_NAMESPACE
-                    kubectl rollout status deployment/$KUBE_DEPLOYMENT -n $KUBE_NAMESPACE
-                    """
+                    withKubeConfig([credentialsId: "${KUBECONFIG}"]) {
+                        sh """
+                        kubectl set image deployment/gns3-deployment gns3-container=${DOCKER_IMAGE}:${IMAGE_TAG} -n default
+                        kubectl rollout status deployment/gns3-deployment -n default
+                        """
+                    }
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Deployment Successful! Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
+        }
+        failure {
+            echo "❌ Deployment Failed!"
         }
     }
 }
