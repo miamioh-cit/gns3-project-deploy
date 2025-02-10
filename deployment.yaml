@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gns3-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gns3
+  template:
+    metadata:
+      labels:
+        app: gns3
+    spec:
+      containers:
+        - name: gns3-container
+          image: cithit/gns3-project-deploy:latest
+          ports:
+            - containerPort: 80
