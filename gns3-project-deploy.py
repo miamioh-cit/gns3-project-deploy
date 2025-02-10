@@ -1,11 +1,10 @@
 import time
 from gns3fy import Gns3Connector, Project, Node, Link
-from getpass import getpass
+
+# Manually add the new lab name and IP addresses for all machines, comma seperated.
 
 LAB_NAME = "281-test-5"
-
 IP_ADDRS = [“10.48.229.96”, “10.48.229.88“, “10.48.229.67“, “10.48.229.57“, “10.48.229.54“, "10.48.229.68“, 1“0.48.229.76“, “10.48.229.52“, “10.48.229.51“, “10.48.229.65“, “10.48.229.85“, “10.48.229.89”, “10.48.229.92“, “10.48.229.87“, “10.48.229.86“, “10.48.229.84“, "10.48.229.82“, “10.48.229.81“, “10.48.229.61“, “10.48.229.62“, “10.48.229.74“, “10.48.229.73“, “10.48.229.72”, “10.48.229.78”, “10.48.229.48“]
-
 GNS3_USER = "gns3"
 GNS3_PW = "gns3"
 
@@ -171,7 +170,7 @@ for IP_ADD in IP_ADDRS:
 
     #Confirm completion of the script with the user.
     print("-----------------------------------------------------------------------")
-    print("Nodes created, started and linked.  Here are the links:")
+    print("Nodes created, started and linked.")
     print("-----------------------------------------------------------------------")
     lab.links_summary()
     print("-----------------------------------------------------------------------")
