@@ -59,12 +59,6 @@ pipeline {
         
                         echo "🚀 Applying deployment.yaml to Kubernetes..."
                         kubectl apply -f deployment.yaml || echo "❌ Failed to apply deployment"
-        
-                        echo "📌 Getting deployment status..."
-                        kubectl rollout status deployment/gns3-deployment -n default || echo "⚠️ Rollout status check failed"
-        
-                        echo "✅ Deployment process finished!"
-                        """
                     }
                 }
             }
