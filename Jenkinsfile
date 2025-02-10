@@ -35,24 +35,41 @@ pipeline {
             }
         }
 
-stage('Deploy to Dev Environment') {
-    steps {
-        script {
-            // Read Kubernetes configuration using the specified KUBECONFIG
-            withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
-                def kubeConfig = readFile(KUBECONFIG)
-                writeFile file: "/tmp/kubeconfig", text: kubeConfig
-
-                // Update deployment.yaml to use the new image tag
-                sh """
-                export KUBECONFIG=/tmp/kubeconfig
-                sed -i 's|${DOCKER_IMAGE}:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|' deployment.yaml
-                kubectl apply -f deployment.yaml
-                """
-            }
-        }
+        stage('Deploy to Dev Environment') {
+            steps {
+                script {
+                    // Read Kubernetes configuration using the specified KUBECONFIG
+                    withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
+                        def kubeConfig = readFile(KUBECONFIG)
+                        writeFile file: "/tmp/kubeconfig", text: kubeConfig
+        
+                        echo "🔧 Using Kubernetes config from credentials."
+        
+                        // Update deployment.yaml to use the new image tag
+                        sh """
+                        export KUBECONFIG=/tmp/kubeconfig
+                        echo "📂 Current Kubernetes Context:"
+                        kubectl config current-context || echo "⚠️ Failed to get context"
+        
+                        echo "🔍 Checking available namespaces:"
+                        kubectl get namespaces || echo "⚠️ Failed to list namespaces"
+        
+                        echo "🔄 Updating deployment.yaml with new image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
+                        sed -i 's|${DOCKER_IMAGE}:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|' deployment.yaml
+        
+                        echo "🚀 Applying deployment.yaml to Kubernetes..."
+                        kubectl apply -f deployment.yaml || echo "❌ Failed to apply deployment"
+        
+                        echo "📌 Getting deployment status..."
+                        kubectl rollout status deployment/gns3-deployment -n default || echo "⚠️ Rollout status check failed"
+        
+                        echo "✅ Deployment process finished!"
+                        """
+                    }
+                }
     }
 }
+
 
     }
 
