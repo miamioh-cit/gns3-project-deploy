@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS_ID = 'roseaw-dockerhub'  
-        DOCKER_IMAGE = 'cithit/gns3-builder'  // Ensure the correct image name (remove '=' typo)
+        DOCKER_IMAGE = 'cithit/gns3-project-deploy' 
         IMAGE_TAG = "build-${BUILD_NUMBER}"
         GITHUB_URL = 'https://github.com/miamioh-cit/gns3-project-deploy.git'
         KUBECONFIG = credentials('roseaw-225')  
