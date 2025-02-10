@@ -35,18 +35,25 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    withKubeConfig([credentialsId: "${KUBECONFIG}"]) {
-                        sh """
-                        kubectl set image deployment/gns3-deployment gns3-container=${DOCKER_IMAGE}:${IMAGE_TAG} -n default
-                        kubectl rollout status deployment/gns3-deployment -n default
-                        """
-                    }
-                }
+stage('Deploy to Dev Environment') {
+    steps {
+        script {
+            // Read Kubernetes configuration using the specified KUBECONFIG
+            withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
+                def kubeConfig = readFile(KUBECONFIG)
+                writeFile file: "/tmp/kubeconfig", text: kubeConfig
+
+                // Update deployment.yaml to use the new image tag
+                sh """
+                export KUBECONFIG=/tmp/kubeconfig
+                sed -i 's|${DOCKER_IMAGE}:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|' deployment.yaml
+                kubectl apply -f deployment.yaml
+                """
             }
         }
+    }
+}
+
     }
 
     post {
