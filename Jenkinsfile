@@ -48,11 +48,6 @@ pipeline {
                         // Update deployment.yaml to use the new image tag
                         sh """
                         export KUBECONFIG=/tmp/kubeconfig
-                        echo "📂 Current Kubernetes Context:"
-                        kubectl config current-context || echo "⚠️ Failed to get context"
-        
-                        echo "🔍 Checking available namespaces:"
-                        kubectl get namespaces || echo "⚠️ Failed to list namespaces"
         
                         echo "🔄 Updating deployment.yaml with new image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
                         sed -i 's|${DOCKER_IMAGE}:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|' deployment.yaml
