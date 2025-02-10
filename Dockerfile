@@ -6,10 +6,10 @@ WORKDIR /app
 
 # Copy your script and requirements
 COPY requirements.txt .
-COPY 281build-new.py .
+COPY gns3-project-deploy.py .
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the script
-CMD ["python", "281build-new.py"]
+CMD ["python", "gns3-project-deploy.py"]
