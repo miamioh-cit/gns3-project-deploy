@@ -57,17 +57,16 @@ pipeline {
                     }
                 }
             }
+        } 
+        
+    }
+        
+    post {
+        success {
+            echo "✅ Deployment Successful! Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
         }
-        
-        
-            }
-        
-            post {
-                success {
-                    echo "✅ Deployment Successful! Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
-                }
-                failure {
-                    echo "❌ Deployment Failed!"
-                }
-            }
+        failure {
+            echo "❌ Deployment Failed!"
         }
+    }
+}
