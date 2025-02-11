@@ -69,8 +69,8 @@ for IP_ADD in IP_ADDRS:
 
     #Create and Start Indiana Windows 10 Client No. 1
     lab.create_node(name='in-win10-01', template='Windows 10 w/ Edge', x='-188', y='-68')
-    win10_oh1=lab.get_node("in-win10-01")
-    win10_oh1.start()
+    win10_in1=lab.get_node("in-win10-01")
+    win10_in1.start()
 
     #Create and Start Ohio Windows 10 Client No. 1
     lab.create_node(name='ohio-win10-01', template='Windows 10 w/ Edge', x='-200', y='400')
