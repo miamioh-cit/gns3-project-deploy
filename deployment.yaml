@@ -17,7 +17,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: gns3-container
-          image: cithit/gns3-project-deploy:latest
+          image: cithit/gns3-project-deploy
           imagePullPolicy: Always  # Ensures the latest image is always pulled
           livenessProbe:
             httpGet:
