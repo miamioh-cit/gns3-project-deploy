@@ -16,6 +16,21 @@ pipeline {
             }
         }
 
+        stage('Verify Deployment Files') {
+            steps {
+                script {
+                    sh '''
+                    echo "📂 Checking if deployment.yaml exists..."
+                    if [ ! -f deployment.yaml ]; then
+                        echo "⚠️ deployment.yaml not found! Fetching from GitHub..."
+                        curl -o deployment.yaml https://raw.githubusercontent.com/miamioh-cit/vm-deploy/main/deployment.yaml
+                    fi
+                    ls -la
+                    '''
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
@@ -39,15 +54,17 @@ pipeline {
             steps {
                 script {
                     withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
-                        def kubeConfig = readFile(KUBECONFIG)
-                        writeFile file: "/tmp/kubeconfig", text: kubeConfig
-
                         sh '''
                         export KUBECONFIG=/tmp/kubeconfig
                         echo "🔄 Updating deployment.yaml with new image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
-                        sed -i "s|cithit/gns3-builder:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|" deployment.yaml
-                        kubectl apply -f deployment.yaml
-                        kubectl rollout status deployment gns3-deployment
+                        if [ -f deployment.yaml ]; then
+                            sed -i "s|cithit/gns3-builder:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|" deployment.yaml
+                            kubectl apply -f deployment.yaml
+                            kubectl rollout status deployment gns3-deployment
+                        else
+                            echo "❌ deployment.yaml not found! Aborting deployment."
+                            exit 1
+                        fi
                         '''
                     }
                 }
