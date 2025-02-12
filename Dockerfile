@@ -12,4 +12,4 @@ COPY gns3-project-deploy.py .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the script
-# CMD ["python", "gns3-project-deploy.py"]
+CMD ["python", "gns3-project-deploy.py"]
