@@ -38,11 +38,15 @@ for IP_ADD in IP_ADDRS:
         # Check server version
         print(f"✅ GNS3 Version: {server.get_version()}")
 
-        # Check if project already exists
-        existing_projects = [p.name for p in server.projects]
-        if LAB_NAME in existing_projects:
-            print(f"⚠️ Project '{LAB_NAME}' already exists on {IP_ADD}, skipping...")
-            continue
+        # Retrieve and check existing projects
+        try:
+            existing_projects = [p.name for p in server.get_projects()]
+            if LAB_NAME in existing_projects:
+                print(f"⚠️ Project '{LAB_NAME}' already exists on {IP_ADD}, skipping...")
+                continue
+        except Exception as e:
+            print(f"❌ Error retrieving projects from {IP_ADD}: {e}")
+            continue  # Skip this server if we can't fetch projects
 
         # Create a new project
         lab = server.create_project(name=LAB_NAME)
