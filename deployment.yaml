@@ -13,6 +13,8 @@ spec:
       labels:
         app: gns3
     spec:
+      hostNetwork: true  # Allows the container to use the host network
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: gns3-container
           image: cithit/gns3-project-deploy:latest
