@@ -42,13 +42,13 @@ pipeline {
                         def kubeConfig = readFile(KUBECONFIG)
                         writeFile file: "/tmp/kubeconfig", text: kubeConfig
 
-                        sh """
+                        sh '''
                         export KUBECONFIG=/tmp/kubeconfig
                         echo "🔄 Updating deployment.yaml with new image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
-                        sed -i 's|cithit/gns3-builder:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|' deployment.yaml
+                        sed -i "s|cithit/gns3-builder:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|" deployment.yaml
                         kubectl apply -f deployment.yaml
                         kubectl rollout status deployment gns3-deployment
-                        """
+                        '''
                     }
                 }
             }
@@ -58,14 +58,14 @@ pipeline {
             steps {
                 script {
                     withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
-                        sh """
+                        sh '''
                         export KUBECONFIG=/tmp/kubeconfig
                         echo "⏳ Waiting for pod to be ready..."
                         POD_NAME=$(kubectl get pods -l app=gns3 -o jsonpath="{.items[0].metadata.name}")
 
                         echo "🚀 Running Python script inside container: $POD_NAME"
-                        kubectl exec -it $POD_NAME -- python /app/gns3_deploy.py
-                        """
+                        kubectl exec -it "$POD_NAME" -- python /app/gns3_deploy.py
+                        '''
                     }
                 }
             }
