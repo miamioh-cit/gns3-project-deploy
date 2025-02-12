@@ -1,181 +1,137 @@
 import time
 from gns3fy import Gns3Connector, Project, Node, Link
 
-# Manually add the new lab name and IP addresses for all machines, comma seperated.
-
+# Lab Configuration
 LAB_NAME = "latest"
 IP_ADDRS = ["10.48.229.96", "10.48.229.88", "10.48.229.67"]
 GNS3_USER = "gns3"
 GNS3_PW = "gns3"
 
-
-for IP_ADD in IP_ADDRS:
-#Add Server Credentials, IP Address and Make a Connection
-
-    SERVER_URL = "http://" + IP_ADD + ":80"
-    server = Gns3Connector(url=SERVER_URL, user=GNS3_USER, cred=GNS3_PW)
-
-    # Verify connectivity by checking the server version
-    print("Connecting to GNS3 server to verify uniqueness of Project name", server.get_version(), "at", SERVER_URL)
-
-    #Verify that lab name is unique, then create a new project on the server.
+# Function to create nodes
+def create_and_start_node(lab, name, template, x, y):
     try:
+        node = lab.create_node(name=name, template=template, x=x, y=y)
+        if not node:
+            raise ValueError(f"❌ Node '{name}' creation failed!")
+        print(f"✅ Node '{name}' created successfully.")
+        node = lab.get_node(name)
+        node.start()
+        print(f"🚀 Node '{name}' started.")
+    except Exception as e:
+        print(f"⚠️ Failed to create/start node '{name}': {e}")
+
+# Function to create links
+def create_link_safe(lab, node1, iface1, node2, iface2):
+    try:
+        lab.create_link(node1, iface1, node2, iface2)
+        print(f"🔗 Link created: {node1} ({iface1}) ↔ {node2} ({iface2})")
+    except Exception as e:
+        print(f"❌ Failed to create link between {node1} and {node2}: {e}")
+
+# Connect to each GNS3 server and create the project
+for IP_ADD in IP_ADDRS:
+    SERVER_URL = f"http://{IP_ADD}:80"
+    try:
+        print(f"🔍 Connecting to GNS3 server at {SERVER_URL} ...")
+        server = Gns3Connector(url=SERVER_URL, user=GNS3_USER, cred=GNS3_PW)
+
+        # Check server version
+        print(f"✅ GNS3 Version: {server.get_version()}")
+
+        # Check if project already exists
+        existing_projects = [p.name for p in server.projects]
+        if LAB_NAME in existing_projects:
+            print(f"⚠️ Project '{LAB_NAME}' already exists on {IP_ADD}, skipping...")
+            continue
+
+        # Create a new project
         lab = server.create_project(name=LAB_NAME)
-    except:
-        print("=========================================================")
-        print("Error: May not be a unique Lab Name!")
-        print("=========================================================")
-        from sys import exit
-        exit()
+        print(f"✅ Created project '{LAB_NAME}' on {IP_ADD}")
 
-    #If lab name is unique, confirm with user.
-    print("-----------------------------------------------------------------------")
-    print("Project name is unique, nodes are being created.")
-    print("-----------------------------------------------------------------------")
-    print("Please wait until script runs before entering the project in GNS3!")
-    print("-----------------------------------------------------------------------")
+        # Open the project
+        lab = Project(name=LAB_NAME, connector=server)
+        lab.get()
+        if lab.status != "opened":
+            print(f"⚠️ Project '{LAB_NAME}' was not opened successfully, skipping...")
+            continue
 
-    # Now open the project from the server
-    lab = Project(name=LAB_NAME, connector=server)
-    lab.get()
-    lab.open()
+        print("🚀 Creating network topology...")
 
-    #Build Cloud
-    lab.create_node(name='internet', template='Cloud', x='76', y='-76')
+        # Create and start nodes
+        create_and_start_node(lab, "internet", "Cloud", 76, -76)
+        create_and_start_node(lab, "offsite-switch", "Cisco IOSvL2 15.2.1", -33, -175)
+        create_and_start_node(lab, "ohio-switch", "Cisco IOSvL2 15.2.1", -19, 280)
+        create_and_start_node(lab, "ky-switch-1", "Cisco IOSvL2 15.2.1", 163, 275)
+        create_and_start_node(lab, "ky-switch-2", "Cisco IOSvL2 15.2.1", 334, 275)
 
-    #Create Switches
-    lab.create_node(name='offsite-switch', template='Cisco IOSvL2 15.2.1', x='-33', y='-175')
-    sw1=lab.get_node("offsite-switch")
-    sw1.start()
+        # Create and start Windows 10 Clients
+        clients = [
+            ("offsite-win10", 50, -300),
+            ("in-win10-01", -188, -68),
+            ("ohio-win10-01", -200, 400),
+            ("ohio-win10-02", -116, 400),
+            ("ohio-win10-03", -28, 400),
+            ("ky-win10-01", 129, 400),
+            ("ky-win10-02", 208, 400),
+            ("ky-win10-03", 285, 400),
+            ("ky-win10-04", 367, 400),
+        ]
+        for name, x, y in clients:
+            create_and_start_node(lab, name, "Windows 10 w/ Edge", x, y)
 
-    lab.create_node(name='ohio-switch', template='Cisco IOSvL2 15.2.1', x='-19', y='280')
-    sw2=lab.get_node("ohio-switch")
-    sw2.start()
+        # Create and start Routers
+        routers = [
+            ("in-edge", -113, 32),
+            ("offsite-router", -37, -72),
+            ("ky-edge", 46, 24),
+            ("ky-int", 149, 96),
+            ("oh-edge", -31, 91),
+            ("oh-int", -31, 192),
+        ]
+        for name, x, y in routers:
+            create_and_start_node(lab, name, "Cisco IOSv 15.5(3)M", x, y)
 
-    lab.create_node(name='ky-switch-1', template='Cisco IOSvL2 15.2.1', x='163', y='275')
-    sw3=lab.get_node("ky-switch-1")
-    sw3.start()
+        # Create and start Windows Server 2022 Servers
+        servers = [
+            ("offsite-web", -75, -300),
+            ("ohio-web", -172, 183),
+        ]
+        for name, x, y in servers:
+            create_and_start_node(lab, name, "Windows Server 2022", x, y)
 
-    lab.create_node(name='ky-switch-2', template='Cisco IOSvL2 15.2.1', x='334', y='275')
-    sw4=lab.get_node("ky-switch-2")
-    sw4.start()
+        # Create links
+        links = [
+            ("offsite-web", "Ethernet0", "offsite-switch", "Gi0/0"),
+            ("offsite-win10", "NIC1", "offsite-switch", "Gi0/1"),
+            ("offsite-switch", "Gi0/2", "offsite-router", "Gi0/0"),
+            ("in-edge", "Gi0/0", "offsite-router", "Gi0/1"),
+            ("ky-edge", "Gi0/0", "offsite-router", "Gi0/2"),
+            ("ky-edge", "Gi0/1", "ky-int", "Gi0/1"),
+            ("ky-edge", "Gi0/2", "oh-edge", "Gi0/0"),
+            ("in-edge", "Gi0/1", "oh-edge", "Gi0/1"),
+            ("oh-edge", "Gi0/2", "oh-int", "Gi0/0"),
+            ("internet", "eth0", "ky-edge", "Gi0/3"),
+            ("oh-int", "Gi0/1", "ohio-switch", "Gi0/0"),
+            ("ohio-win10-01", "NIC1", "ohio-switch", "Gi0/1"),
+            ("ohio-win10-02", "NIC1", "ohio-switch", "Gi0/2"),
+            ("ohio-win10-03", "NIC1", "ohio-switch", "Gi0/3"),
+            ("ohio-web", "Ethernet0", "oh-int", "Gi0/2"),
+            ("in-win10-01", "NIC1", "in-edge", "Gi0/2"),
+            ("ky-int", "Gi0/0", "ky-switch-1", "Gi0/0"),
+            ("ky-switch-1", "Gi0/1", "ky-switch-2", "Gi0/0"),
+            ("ky-win10-01", "NIC1", "ky-switch-1", "Gi0/2"),
+            ("ky-win10-02", "NIC1", "ky-switch-1", "Gi0/3"),
+            ("ky-win10-03", "NIC1", "ky-switch-2", "Gi1/0"),
+            ("ky-win10-04", "NIC1", "ky-switch-2", "Gi1/1"),
+        ]
+        for src, src_iface, dst, dst_iface in links:
+            create_link_safe(lab, src, src_iface, dst, dst_iface)
 
-    #*******Create and Start Windows 10 Clients*********
+        # Confirm completion
+        print("✅ Nodes created, started, and linked successfully!")
+        lab.links_summary()
+        print(f"🎉 {LAB_NAME} build is complete. Open the project in GNS3.")
 
-    #Create and Start Offsite Windows 10 Client
-    lab.create_node(name='offsite-win10', template='Windows 10 w/ Edge', x='50', y='-300')
-    win10_off=lab.get_node("offsite-win10")
-    win10_off.start()
-
-    #Create and Start Indiana Windows 10 Client No. 1
-    lab.create_node(name='in-win10-01', template='Windows 10 w/ Edge', x='-188', y='-68')
-    win10_in1=lab.get_node("in-win10-01")
-    win10_in1.start()
-
-    #Create and Start Ohio Windows 10 Client No. 1
-    lab.create_node(name='ohio-win10-01', template='Windows 10 w/ Edge', x='-200', y='400')
-    win10_oh1=lab.get_node("ohio-win10-01")
-    win10_oh1.start()
-
-    #Create and Start Ohio Windows 10 Client No. 2
-    lab.create_node(name='ohio-win10-02', template='Windows 10 w/ Edge', x='-116', y='400')
-    win10_oh2=lab.get_node("ohio-win10-02")
-    win10_oh2.start()
-
-    #Create and Start Ohio Windows 10 Client No. 3
-    lab.create_node(name='ohio-win10-03', template='Windows 10 w/ Edge', x='-28', y='400')
-    win10_oh3=lab.get_node("ohio-win10-03")
-    win10_oh3.start()
-
-    #Create and Start Kentucky Windows 10 Client No. 1
-    lab.create_node(name='ky-win10-01', template='Windows 10 w/ Edge', x='129', y='400')
-    win10_ky1=lab.get_node("ky-win10-01")
-    win10_ky1.start()
-
-    #Create and Start Kentucky Windows 10 Client No. 2
-    lab.create_node(name='ky-win10-02', template='Windows 10 w/ Edge', x='208', y='400')
-    win10_ky2=lab.get_node("ky-win10-02")
-    win10_ky2.start()
-
-    #Create and Start Kentucky Windows 10 Client No. 3
-    lab.create_node(name='ky-win10-03', template='Windows 10 w/ Edge', x='285', y='400')
-    win10_ky3=lab.get_node("ky-win10-03")
-    win10_ky3.start()
-
-    #Create and Start Kentucky Windows 10 Client No. 4
-    lab.create_node(name='ky-win10-04', template='Windows 10 w/ Edge', x='367', y='400')
-    win10_ky4=lab.get_node("ky-win10-04")
-    win10_ky4.start()
-
-    #Create and start Routers
-
-    lab.create_node(name='in-edge', template='Cisco IOSv 15.5(3)M', x='-113', y='32')
-    router0=lab.get_node("in-edge")
-    router0.start()
-
-    lab.create_node(name='offsite-router', template='Cisco IOSv 15.5(3)M', x='-37', y='-72')
-    router1=lab.get_node("offsite-router")
-    router1.start()
-
-    lab.create_node(name='ky-edge', template='Cisco IOSv 15.5(3)M', x='46', y='24')
-    router2=lab.get_node("ky-edge")
-    router2.start()
-
-    lab.create_node(name='ky-int', template='Cisco IOSv 15.5(3)M', x='149', y='96')
-    router3=lab.get_node("ky-int")
-    router3.start()
-
-    lab.create_node(name='oh-edge', template='Cisco IOSv 15.5(3)M', x='-31', y='91')
-    router4=lab.get_node("oh-edge")
-    router4.start()
-
-    lab.create_node(name='oh-int', template='Cisco IOSv 15.5(3)M', x='-31', y='192')
-    router5=lab.get_node("oh-int")
-    router5.start()
-
-    #Create and Start Windows Server 2022 Servers
-
-    lab.create_node(name='offsite-web', template='Windows Server 2022', x='-75', y='-300')
-    winserver16_1=lab.get_node("offsite-web")
-    winserver16_1.start()
-
-    lab.create_node(name='ohio-web', template='Windows Server 2022', x='-172', y='183')
-    winserver16_3=lab.get_node("ohio-web")
-    winserver16_3.start()
-
-
-    #Link the nodes
-    lab.create_link("offsite-web", "Ethernet0", "offsite-switch", "Gi0/0")
-    lab.create_link("offsite-win10", "NIC1", "offsite-switch", "Gi0/1")
-    lab.create_link("offsite-switch", "Gi0/2", "offsite-router", "Gi0/0")
-    lab.create_link("in-edge", "Gi0/0", "offsite-router", "Gi0/1")
-    lab.create_link("ky-edge", "Gi0/0", "offsite-router", "Gi0/2")
-    lab.create_link("ky-edge", "Gi0/1", "ky-int", "Gi0/1")
-    lab.create_link("ky-edge", "Gi0/2", "oh-edge", "Gi0/0")
-    lab.create_link("in-edge", "Gi0/1", "oh-edge", "Gi0/1")
-    lab.create_link("oh-edge", "Gi0/2", "oh-int", "Gi0/0")
-    lab.create_link("internet", "eth0", "ky-edge", "Gi0/3")
-    lab.create_link("oh-int", "Gi0/1", "ohio-switch", "Gi0/0")
-    lab.create_link("ohio-win10-01", "NIC1", "ohio-switch", "Gi0/1")
-    lab.create_link("ohio-win10-02", "NIC1", "ohio-switch", "Gi0/2")
-    lab.create_link("ohio-win10-03", "NIC1", "ohio-switch", "Gi0/3")
-    lab.create_link("ohio-web", "Ethernet0", "oh-int", "Gi0/2")
-    lab.create_link("in-win10-01", "NIC1", "in-edge", "Gi0/2")
-    lab.create_link("ky-int", "Gi0/0", "ky-switch-1", "Gi0/0")
-    lab.create_link("ky-switch-1", "Gi0/1", "ky-switch-2", "Gi0/0")
-    lab.create_link("ky-win10-01", "NIC1", "ky-switch-1", "Gi0/2")
-    lab.create_link("ky-win10-02", "NIC1", "ky-switch-1", "Gi0/3")
-    lab.create_link("ky-win10-03", "NIC1", "ky-switch-2", "Gi1/0")
-    lab.create_link("ky-win10-04", "NIC1", "ky-switch-2", "Gi1/1")
-
-    #Confirm completion of the script with the user.
-    print("-----------------------------------------------------------------------")
-    print("Nodes created, started and linked.")
-    print("-----------------------------------------------------------------------")
-    lab.links_summary()
-    print("-----------------------------------------------------------------------")
-    print(LAB_NAME + " build is Complete. It is now safe to open the project in GNS3")
-    print("Be sure that you document the links in your Visio Topology!!!!")
-    print("-----------------------------------------------------------------------")
-
-
+    except Exception as e:
+        print(f"❌ Failed to connect to {SERVER_URL} or create project: {e}")
+        continue  # Move to the next IP if there's an error
