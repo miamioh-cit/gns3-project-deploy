@@ -3,10 +3,10 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS_ID = 'roseaw-dockerhub'  
-        DOCKER_IMAGE = 'cithit/gns3-builder'  //<-- Change this to match your DockerHub repo
+        DOCKER_IMAGE = 'cithit/gns3-builder'  
         IMAGE_TAG = "build-${BUILD_NUMBER}"
-        GITHUB_URL = 'https://github.com/miamioh-cit/vm-deploy.git'  //<-- Change this to your repo
-        KUBECONFIG = credentials('roseaw-225')  //<-- Kubernetes credentials in Jenkins
+        GITHUB_URL = 'https://github.com/miamioh-cit/vm-deploy.git'
+        KUBECONFIG = credentials('roseaw-225')  
     }
 
     stages {
@@ -24,6 +24,7 @@ pipeline {
                     if [ ! -f deployment.yaml ]; then
                         echo "⚠️ deployment.yaml not found! Fetching from GitHub..."
                         curl -o deployment.yaml https://raw.githubusercontent.com/miamioh-cit/vm-deploy/main/deployment.yaml
+                        chmod 644 deployment.yaml  # Ensure it's writable
                     fi
                     ls -la
                     '''
@@ -60,7 +61,7 @@ pipeline {
                         if [ -f deployment.yaml ]; then
                             sed -i "s|cithit/gns3-builder:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|" deployment.yaml
                             kubectl apply -f deployment.yaml
-                            kubectl rollout status deployment gns3-deployment
+                            kubectl rollout status deployment gns3-deployment || exit 1
                         else
                             echo "❌ deployment.yaml not found! Aborting deployment."
                             exit 1
@@ -78,10 +79,25 @@ pipeline {
                         sh '''
                         export KUBECONFIG=/tmp/kubeconfig
                         echo "⏳ Waiting for pod to be ready..."
-                        POD_NAME=$(kubectl get pods -l app=gns3 -o jsonpath="{.items[0].metadata.name}")
+
+                        # Retry mechanism to ensure pod is ready
+                        for i in {1..10}; do
+                            POD_NAME=$(kubectl get pods -l app=gns3 -o jsonpath="{.items[0].metadata.name}" 2>/dev/null)
+                            if [ ! -z "$POD_NAME" ]; then
+                                echo "✅ Pod found: $POD_NAME"
+                                break
+                            fi
+                            echo "⏳ Waiting for pod... Attempt $i"
+                            sleep 5
+                        done
+
+                        if [ -z "$POD_NAME" ]; then
+                            echo "❌ No pod found for deployment! Exiting."
+                            exit 1
+                        fi
 
                         echo "🚀 Running Python script inside container: $POD_NAME"
-                        kubectl exec -it "$POD_NAME" -- python /app/gns3_deploy.py
+                        kubectl exec -it "$POD_NAME" -- python /app/gns3_deploy.py || exit 1
                         '''
                     }
                 }
