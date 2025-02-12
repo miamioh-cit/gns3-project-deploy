@@ -7,7 +7,6 @@ WORKDIR /app
 # Copy your script and requirements
 COPY requirements.txt .
 COPY gns3-project-deploy.py .
-COPY deployment.yaml .
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
