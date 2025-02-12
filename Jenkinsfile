@@ -3,10 +3,10 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS_ID = 'roseaw-dockerhub'  
-        DOCKER_IMAGE = 'cithit/gns3-project-deploy'  
+        DOCKER_IMAGE = 'cithit/gns3-project-deploy'  //<-- Change this to match your DockerHub repo
         IMAGE_TAG = "build-${BUILD_NUMBER}"
-        GITHUB_URL = 'https://github.com/miamioh-cit/gns3-project-deploy.git'
-        KUBECONFIG = credentials('taylorw8-225')  
+        GITHUB_URL = 'https://github.com/miamioh-cit/vm-deploy.git'
+        KUBECONFIG = credentials('roseaw-225')  
     }
 
     stages {
@@ -44,8 +44,13 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                        sh "docker push ${DOCKER_IMAGE}:${IMAGE_TAG}"
+                        sh '''
+                        echo "🔑 Logging into DockerHub..."
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin || exit 1
+
+                        echo "📦 Pushing Docker image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
+                        docker push ${DOCKER_IMAGE}:${IMAGE_TAG} || exit 1
+                        '''
                     }
                 }
             }
@@ -57,15 +62,13 @@ pipeline {
                     withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
                         sh '''
                         export KUBECONFIG=/tmp/kubeconfig
-                        echo "🔄 Updating deployment.yaml with new image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
-                        if [ -f deployment.yaml ]; then
-                            sed -i "s|cithit/gns3-builder:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|" deployment.yaml
-                            kubectl apply -f deployment.yaml
-                            kubectl rollout status deployment gns3-deployment || exit 1
-                        else
-                            echo "❌ deployment.yaml not found! Aborting deployment."
-                            exit 1
-                        fi
+                        echo "🚀 Deploying new image to Kubernetes: ${DOCKER_IMAGE}:${IMAGE_TAG}"
+                        
+                        # Directly update the Kubernetes deployment image without modifying YAML
+                        kubectl set image deployment/gns3-deployment gns3-container=${DOCKER_IMAGE}:${IMAGE_TAG} --record
+
+                        # Monitor rollout status
+                        kubectl rollout status deployment gns3-deployment
                         '''
                     }
                 }
