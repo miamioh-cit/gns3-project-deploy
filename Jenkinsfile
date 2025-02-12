@@ -27,9 +27,13 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                        sh "docker push ${DOCKER_IMAGE}:${IMAGE_TAG}"
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", 
+                                                      usernameVariable: 'DOCKER_USER', 
+                                                      passwordVariable: 'DOCKER_PASS')]) {
+                        sh """
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push ${DOCKER_IMAGE}:${IMAGE_TAG}
+                        """
                     }
                 }
             }
@@ -38,29 +42,31 @@ pipeline {
         stage('Deploy to Dev Environment') {
             steps {
                 script {
-                    // Read Kubernetes configuration using the specified KUBECONFIG
-                    withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
-                        def kubeConfig = readFile(KUBECONFIG)
+                    withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG_FILE')]) {
+                        def kubeConfig = readFile(KUBECONFIG_FILE)
                         writeFile file: "/tmp/kubeconfig", text: kubeConfig
-        
+
                         echo "🔧 Using Kubernetes config from credentials."
-        
+
                         // Update deployment.yaml to use the new image tag
                         sh """
                         export KUBECONFIG=/tmp/kubeconfig
-        
+
                         echo "🔄 Updating deployment.yaml with new image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
-                        sed -i 's|${DOCKER_IMAGE}:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|' deployment.yaml
-        
+                        sed -i 's|cithit/gns3-project-deploy:latest|${DOCKER_IMAGE}:${IMAGE_TAG}|' deployment.yaml
+
                         echo "🚀 Applying deployment.yaml to Kubernetes..."
                         kubectl apply -f deployment.yaml || echo "❌ Failed to apply deployment"
+
+                        # Cleanup temp kubeconfig file
+                        rm -f /tmp/kubeconfig
+                        """
                     }
                 }
             }
-        } 
-        
+        }  
     }
-        
+
     post {
         success {
             echo "✅ Deployment Successful! Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
@@ -69,6 +75,4 @@ pipeline {
             echo "❌ Deployment Failed!"
         }
     }
-}
-
 }
