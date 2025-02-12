@@ -4,7 +4,7 @@ from gns3fy import Gns3Connector, Project, Node, Link
 # Manually add the new lab name and IP addresses for all machines, comma seperated.
 
 LAB_NAME = "test-5"
-IP_ADDRS = [“10.48.229.96”, “10.48.229.88“, “10.48.229.67“]
+IP_ADDRS = [10.48.229.96, 10.48.229.88, 10.48.229.67]
 GNS3_USER = "gns3"
 GNS3_PW = "gns3"
 
