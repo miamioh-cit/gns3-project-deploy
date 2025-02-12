@@ -6,7 +6,7 @@ pipeline {
         DOCKER_IMAGE = 'cithit/gns3-project-deploy'  
         IMAGE_TAG = "build-${BUILD_NUMBER}"
         GITHUB_URL = 'https://github.com/miamioh-cit/gns3-project-deploy.git'
-        KUBECONFIG = credentials('roseaw-225')  
+        KUBECONFIG = credentials('taylorw8-225')  
     }
 
     stages {
