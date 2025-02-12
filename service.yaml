@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gns3-service
+  namespace: default
+spec:
+  selector:
+    app: gns3
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30080  # Adjust this port as needed
+  type: NodePort
