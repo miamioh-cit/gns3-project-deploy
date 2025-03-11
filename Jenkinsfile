@@ -55,22 +55,26 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
-                        sh '''
-                        export KUBECONFIG=${KUBECONFIG}
-                        echo "🚀 Deploying new image to Kubernetes: $DOCKER_IMAGE:$IMAGE_TAG"
+stage('Deploy to Kubernetes') {
+    steps {
+        script {
+            withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
+                sh '''
+                export KUBECONFIG=${KUBECONFIG}
+                echo "🚀 Applying deployment.yaml if missing..."
                 
-                        # Directly update the Kubernetes deployment image without modifying YAML
-                        kubectl set image deployment/gns3-deployment gns3-container=$DOCKER_IMAGE:$IMAGE_TAG 
-                        '''
-                    }
-                }
+                kubectl apply -f deployment.yaml || exit 1
+                
+                echo "⏳ Waiting for deployment to be ready..."
+                kubectl rollout status deployment/gns3-deployment --timeout=60s || exit 1
+
+                echo "🔄 Updating deployment image..."
+                kubectl set image deployment/gns3-deployment gns3-container=$DOCKER_IMAGE:$IMAGE_TAG --record || exit 1
+                '''
             }
         }
-
+    }
+}
         stage('Run Python Script in Kubernetes') {
             steps {
                 script {
