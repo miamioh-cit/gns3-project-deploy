@@ -59,7 +59,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
+                    withCredentials([file(credentialsId: 'roseaw-225-2', variable: 'KUBECONFIG')]) {
                         sh '''
                         export KUBECONFIG=${KUBECONFIG}
                         echo "🚀 Applying deployment.yaml..."
