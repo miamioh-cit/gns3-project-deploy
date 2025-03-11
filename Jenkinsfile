@@ -59,7 +59,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'roseaw-225-2', variable: 'KUBECONFIG')]) {
+                    withCredentials([file(credentialsId: 'roseaw2-225', variable: 'KUBECONFIG')]) {
                         sh '''
                         export KUBECONFIG=${KUBECONFIG}
                         echo "🚀 Applying deployment.yaml..."
@@ -83,7 +83,7 @@ pipeline {
         stage('Run Python Script in Kubernetes') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
+                    withCredentials([file(credentialsId: 'roseaw2-225', variable: 'KUBECONFIG')]) {
                         sh '''
                         export KUBECONFIG=${KUBECONFIG}
                         echo "⏳ Waiting for pod to be ready..."
