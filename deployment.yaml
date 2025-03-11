@@ -15,4 +15,4 @@ spec:
     spec:
       containers:
       - name: gns3-container  # <-- Ensure this matches in Jenkins
-        image: cithit/gns3-project:latest
+        image: cithit/gns3-project
