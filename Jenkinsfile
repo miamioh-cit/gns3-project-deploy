@@ -6,7 +6,6 @@ pipeline {
         DOCKER_IMAGE = 'cithit/gns3-project'  //<-- Change this to match your DockerHub repo
         IMAGE_TAG = "build-${BUILD_NUMBER}"
         GITHUB_URL = 'https://github.com/miamioh-cit/gns3-project-deploy.git'
-        KUBECONFIG = credentials('roseaw-225')  
     }
 
     stages {
@@ -56,26 +55,31 @@ pipeline {
             }
         }
 
-    stage('Deploy to Kubernetes') {
-        steps {
-            script {
-                withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
-                    sh '''
-                    export KUBECONFIG=${KUBECONFIG}
-                    echo "🚀 Deploying new image to Kubernetes: $DOCKER_IMAGE:$IMAGE_TAG"
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
+                        sh '''
+                        export KUBECONFIG=${KUBECONFIG}
+                        echo "🚀 Deploying new image to Kubernetes: $DOCKER_IMAGE:$IMAGE_TAG"
                 
-                    # Directly update the Kubernetes deployment image without modifying YAML
-                    kubectl set image deployment/gns3-container gns3-container=$DOCKER_IMAGE:$IMAGE_TAG 
+                        # Directly update the Kubernetes deployment image without modifying YAML
+                        kubectl set image deployment/gns3-deployment gns3-container=$DOCKER_IMAGE:$IMAGE_TAG --record
+                        
+                        # Monitor rollout status
+                        kubectl rollout status deployment/gns3-deployment
+                        '''
                     }
                 }
             }
         }
+
         stage('Run Python Script in Kubernetes') {
             steps {
                 script {
                     withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
                         sh '''
-                        export KUBECONFIG=/tmp/kubeconfig
+                        export KUBECONFIG=${KUBECONFIG}
                         echo "⏳ Waiting for pod to be ready..."
                         for i in {1..10}; do
                             POD_NAME=$(kubectl get pods -l app=gns3 -o jsonpath="{.items[0].metadata.name}" 2>/dev/null)
@@ -103,10 +107,14 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment & Execution Successful! Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
+            script {
+                echo "✅ Deployment & Execution Successful! Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
+            }
         }
         failure {
-            echo "❌ Deployment Failed!"
+            script {
+                echo "❌ Deployment Failed!"
+            }
         }
     }
 }
