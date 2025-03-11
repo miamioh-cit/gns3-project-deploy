@@ -3,10 +3,9 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS_ID = 'roseaw-dockerhub'  
-        DOCKER_IMAGE = 'cithit/gns3-project'
+        DOCKER_IMAGE = 'cithit/gns3-project'  
         IMAGE_TAG = "build-${BUILD_NUMBER}"
         GITHUB_URL = 'https://github.com/miamioh-cit/gns3-project-deploy.git'
-        NAMESPACE = "default"  //<-- Change this if using a different namespace
     }
 
     stages {
@@ -62,56 +61,19 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Run Docker Container Locally') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {  // Fixed credential ID
-                        sh '''
-                        export KUBECONFIG=${KUBECONFIG}
-                        echo "🚀 Applying deployment.yaml..."
-                        
-                        kubectl apply -f deployment.yaml -n ${NAMESPACE} || exit 1
-                        
-                        echo "⏳ Checking available deployments..."
-                        kubectl get deployments -n ${NAMESPACE}
+                    sh '''
+                    echo "🚀 Stopping and Removing Existing Container..."
+                    docker stop gns3-container || true
+                    docker rm gns3-container || true
 
-                        echo "⏳ Waiting for deployment to be ready..."
-                        kubectl rollout status deployment/gns3-deployment -n ${NAMESPACE} --timeout=300s || exit 1
+                    echo "🚀 Running New Docker Container Locally..."
+                    docker run -d --name gns3-container -p 8080:8080 ${DOCKER_IMAGE}:${IMAGE_TAG} || exit 1
 
-                        echo "🔄 Updating deployment image..."
-                        kubectl set image deployment/gns3-deployment gns3-container=${DOCKER_IMAGE}:${IMAGE_TAG} --record -n ${NAMESPACE} || exit 1
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage('Run Python Script in Kubernetes') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {  // Fixed credential ID
-                        sh '''
-                        export KUBECONFIG=${KUBECONFIG}
-                        echo "⏳ Waiting for pod to be ready..."
-                        for i in {1..10}; do
-                            POD_NAME=$(kubectl get pods -l app=gns3 -n ${NAMESPACE} -o jsonpath="{.items[0].metadata.name}" 2>/dev/null)
-                            if [ ! -z "$POD_NAME" ]; then
-                                echo "✅ Pod found: $POD_NAME"
-                                break
-                            fi
-                            echo "⏳ Waiting for pod... Attempt $i"
-                            sleep 5
-                        done
-
-                        if [ -z "$POD_NAME" ]; then
-                            echo "❌ No pod found for deployment! Exiting."
-                            exit 1
-                        fi
-
-                        echo "🚀 Running Python script inside container: $POD_NAME"
-                        kubectl exec -it "$POD_NAME" -n ${NAMESPACE} -- python /app/gns3_deploy.py || exit 1
-                        '''
-                    }
+                    echo "✅ Docker container is running!"
+                    '''
                 }
             }
         }
@@ -120,12 +82,12 @@ pipeline {
     post {
         success {
             script {
-                echo "✅ Deployment & Execution Successful! Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
+                echo "✅ Local Deployment Successful! Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
             }
         }
         failure {
             script {
-                echo "❌ Deployment Failed!"
+                echo "❌ Local Deployment Failed!"
             }
         }
     }
