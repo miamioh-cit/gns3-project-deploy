@@ -52,7 +52,7 @@ pipeline {
                         docker push ${DOCKER_IMAGE}:${IMAGE_TAG} || exit 1
 
                         echo "📦 Pushing Docker image: ${DOCKER_IMAGE}:latest"
-                        docker tag ${DOCKER_IMAGE}:latest || exit 1
+                        docker tag cithit/gns3-project:build-16 cithit/gns3-project:latest || exit 1
                         '''
                     }
                 }
