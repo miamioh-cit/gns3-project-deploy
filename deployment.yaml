@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gns3-deployment   # <-- Ensure this matches the name in Jenkins
-  namespace: gns3         # <-- If using a namespace, it must match
 spec:
   replicas: 1
   selector:
