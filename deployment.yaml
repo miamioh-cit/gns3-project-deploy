@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gns3-project-deployment
+  name: gns3-container
   namespace: default
 spec:
   replicas: 1
