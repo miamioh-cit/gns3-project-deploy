@@ -66,7 +66,7 @@ stage('Deploy to Kubernetes') {
                 kubectl apply -f deployment.yaml || exit 1
                 
                 echo "⏳ Waiting for deployment to be ready..."
-                kubectl rollout status deployment/gns3-deployment --timeout=60s || exit 1
+                kubectl rollout status deployment/gns3-deployment --timeout=260s || exit 1
 
                 echo "🔄 Updating deployment image..."
                 kubectl set image deployment/gns3-deployment gns3-container=$DOCKER_IMAGE:$IMAGE_TAG --record || exit 1
