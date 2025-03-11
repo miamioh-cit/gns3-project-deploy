@@ -50,7 +50,9 @@ pipeline {
 
                         echo "📦 Pushing Docker image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
                         docker push ${DOCKER_IMAGE}:${IMAGE_TAG} || exit 1
-                        docker push ${DOCKER_IMAGE}:latest
+
+                        echo "📦 Pushing Docker image: ${DOCKER_IMAGE}:latest"
+                        docker push ${DOCKER_IMAGE}:latest || exit 1
                         '''
                     }
                 }
