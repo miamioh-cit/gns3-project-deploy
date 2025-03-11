@@ -64,7 +64,7 @@ pipeline {
                         echo "🚀 Deploying new image to Kubernetes: $DOCKER_IMAGE:$IMAGE_TAG"
                 
                         # Directly update the Kubernetes deployment image without modifying YAML
-                        kubectl set image deployment/gns3-deployment gns3-container=$DOCKER_IMAGE:$IMAGE_TAG --record
+                        kubectl set image deployment/gns3-deployment gns3-container=$DOCKER_IMAGE:$IMAGE_TAG 
                         
                         # Monitor rollout status
                         kubectl rollout status deployment/gns3-deployment
