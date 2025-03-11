@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS_ID = 'roseaw-dockerhub'  
-        DOCKER_IMAGE = 'cithit/gns3-project-deploy'  //<-- Change this to match your DockerHub repo
+        DOCKER_IMAGE = 'cithit/gns3-project'  //<-- Change this to match your DockerHub repo
         IMAGE_TAG = "build-${BUILD_NUMBER}"
         GITHUB_URL = 'https://github.com/miamioh-cit/gns3-project-deploy.git'
         KUBECONFIG = credentials('roseaw-225')  
@@ -67,9 +67,6 @@ pipeline {
                     # Directly update the Kubernetes deployment image without modifying YAML
                     kubectl set image deployment/gns3-container gns3-container=$DOCKER_IMAGE:$IMAGE_TAG 
 
-                    # Monitor rollout status
-                    kubectl rollout status deployment/gns3-deployment
-                    '''
                 }
             }
         }
