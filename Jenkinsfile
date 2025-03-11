@@ -73,7 +73,7 @@ pipeline {
                         kubectl rollout status deployment/gns3-deployment -n ${NAMESPACE} --timeout=300s || exit 1
 
                         echo "🔄 Updating deployment image..."
-                        kubectl set image deployment/gns3-deployment gns3-container=${DOCKER_IMAGE}:${IMAGE_TAG} --record -n ${NAMESPACE} || exit 1
+                        kubectl set image deployment/gns3-deployment gns3-container=${DOCKER_IMAGE}:${IMAGE_TAG} || exit 1
                         '''
                     }
                 }
