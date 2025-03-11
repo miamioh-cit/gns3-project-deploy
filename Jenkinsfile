@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS_ID = 'roseaw-dockerhub'  
-        DOCKER_IMAGE = 'cithit/gns3-project'  //<-- Change this to match your DockerHub repo
+        DOCKER_IMAGE = 'cithit/gns3-project'
         IMAGE_TAG = "build-${BUILD_NUMBER}"
         GITHUB_URL = 'https://github.com/miamioh-cit/gns3-project-deploy.git'
         NAMESPACE = "default"  //<-- Change this if using a different namespace
@@ -48,11 +48,14 @@ pipeline {
                         echo "🔑 Logging into DockerHub..."
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin || exit 1
 
+                        echo "📦 Tagging Docker image as latest..."
+                        docker tag ${DOCKER_IMAGE}:${IMAGE_TAG} ${DOCKER_IMAGE}:latest || exit 1
+
                         echo "📦 Pushing Docker image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
                         docker push ${DOCKER_IMAGE}:${IMAGE_TAG} || exit 1
 
                         echo "📦 Pushing Docker image: ${DOCKER_IMAGE}:latest"
-                        docker tag cithit/gns3-project:build-16 cithit/gns3-project:latest || exit 1
+                        docker push ${DOCKER_IMAGE}:latest || exit 1
                         '''
                     }
                 }
@@ -62,7 +65,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'roseaw2-225', variable: 'KUBECONFIG')]) {
+                    withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {  // Fixed credential ID
                         sh '''
                         export KUBECONFIG=${KUBECONFIG}
                         echo "🚀 Applying deployment.yaml..."
@@ -76,7 +79,7 @@ pipeline {
                         kubectl rollout status deployment/gns3-deployment -n ${NAMESPACE} --timeout=300s || exit 1
 
                         echo "🔄 Updating deployment image..."
-                        kubectl set image deployment/gns3-deployment gns3-container=${DOCKER_IMAGE}:${IMAGE_TAG} || exit 1
+                        kubectl set image deployment/gns3-deployment gns3-container=${DOCKER_IMAGE}:${IMAGE_TAG} --record -n ${NAMESPACE} || exit 1
                         '''
                     }
                 }
@@ -86,7 +89,7 @@ pipeline {
         stage('Run Python Script in Kubernetes') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'roseaw2-225', variable: 'KUBECONFIG')]) {
+                    withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {  // Fixed credential ID
                         sh '''
                         export KUBECONFIG=${KUBECONFIG}
                         echo "⏳ Waiting for pod to be ready..."
