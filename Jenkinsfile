@@ -77,8 +77,6 @@ pipeline {
                         sh '''
                         export KUBECONFIG=/tmp/kubeconfig
                         echo "⏳ Waiting for pod to be ready..."
-
-                        # Retry mechanism to ensure pod is ready
                         for i in {1..10}; do
                             POD_NAME=$(kubectl get pods -l app=gns3 -o jsonpath="{.items[0].metadata.name}" 2>/dev/null)
                             if [ ! -z "$POD_NAME" ]; then
