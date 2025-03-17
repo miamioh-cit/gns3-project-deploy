@@ -78,7 +78,7 @@ pipeline {
         stage('Run Python Script in Kubernetes') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'roseaw-225', variable: 'KUBECONFIG')]) {
+                    withCredentials([file(credentialsId: 'roseaw2-225', variable: 'KUBECONFIG')]) {
                         sh '''
                         export KUBECONFIG=/tmp/kubeconfig
                         echo "⏳ Waiting for pod to be ready..."
