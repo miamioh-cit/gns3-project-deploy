@@ -1,7 +1,7 @@
 from gns3fy import Gns3Connector, Project, Node, Link
 from getpass import getpass
 
-LAB_NAME = "281-start"
+LAB_NAME = "281-new"
 # LAB_NAME = input("Input a unique Lab Name: ")
 
 # Base IP address (first three octets remain constant)
