@@ -5,7 +5,7 @@ import logging
 # Enable debug logging
 logging.basicConfig(level=logging.DEBUG)
 
-LAB_NAME = "281-update"
+LAB_NAME = "281-updated"
 
 # Base IP address (first three octets remain constant)
 BASE_IP = "http://10.48.229."
