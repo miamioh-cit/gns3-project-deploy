@@ -6,10 +6,8 @@ LAB_NAME = "281-start"
 
 # List of Server URLs to try
 SERVER_URLS = [
-    "http://10.48.10.159:80",
-    "http://10.48.10.160:80",
     "http://10.48.10.161:80"
-]  # Add more servers as needed
+]  # Add more servers as needed, seperated by a comma.
 
 GNS3_USER = "gns3"
 # GNS3_USER = input("Input your GNS3 Username: ")
