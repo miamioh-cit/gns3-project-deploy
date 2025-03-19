@@ -79,10 +79,10 @@ def create_filtered_node(lab, name, template, x, y):
         logging.error(f"Failed to create node {name}: {e}")
 
 # Build Cloud (check if the template exists)
-if "Cloud" in available_templates:
-    create_filtered_node(lab, name='internet', template='Cloud', x=76, y=-76)
-else:
-    print("Cloud template not found! Skipping 'internet' node.")
+#if "Cloud" in available_templates:
+ #   create_filtered_node(lab, name='internet', template='Cloud', x=76, y=-76)
+#else:
+#    print("Cloud template not found! Skipping 'internet' node.")
 
 # Create Switches
 switches = [
