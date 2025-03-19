@@ -1,9 +1,5 @@
 from gns3fy import Gns3Connector, Project, Node, Link
 from getpass import getpass
-import logging
-
-# Enable debug logging
-logging.basicConfig(level=logging.DEBUG)
 
 LAB_NAME = "281-test8"
 
@@ -74,7 +70,7 @@ lab.open()
 lab.create_node(name='internet', template='Cloud', x='76', y='-76')
 
 #Create Switches
-lab.create_node(name='offsite-switch', template='Cisco IOSvL2', x='-33', y='-175')
+lab.create_node(name='offsite-switch', template='Cisco IOSvL2 ', x='-33', y='-175')
 sw1=lab.get_node("offsite-switch")
 sw1.start()
 
