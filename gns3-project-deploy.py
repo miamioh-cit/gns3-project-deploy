@@ -4,10 +4,11 @@ from getpass import getpass
 LAB_NAME = "281-start"
 # LAB_NAME = input("Input a unique Lab Name: ")
 
-# List of Server URLs to try
-SERVER_URLS = [
-    "http://10.48.10.161:80"
-]  # Add more servers as needed, seperated by a comma.
+# Base IP address (first three octets remain constant)
+BASE_IP = "http://10.48.10."
+
+# List of last octets for the servers
+SERVER_LAST_OCTETS = [159, 160, 161]  # Add more as needed
 
 GNS3_USER = "gns3"
 # GNS3_USER = input("Input your GNS3 Username: ")
@@ -15,15 +16,18 @@ GNS3_USER = "gns3"
 GNS3_PW = "gns3"
 # GNS3_PW = getpass ("Input your GNS3 Password (It won't show as you enter it!: ")
 
+# Generate full server URLs
+SERVER_URLS = [f"{BASE_IP}{octet}:80" for octet in SERVER_LAST_OCTETS]
+
 # Try to connect to each server until one succeeds
 server = None
-for url in SERVER_URLS:
+for SERVER_URL in SERVER_URLS:
     try:
-        server = Gns3Connector(url=url, user=GNS3_USER, cred=GNS3_PW)
-        print(f"Connecting to GNS3 server at {url}, version:", server.get_version())
+        server = Gns3Connector(url=SERVER_URL, user=GNS3_USER, cred=GNS3_PW)
+        print("Connecting to GNS3 server to verify uniqueness of Project name", server.get_version(), "at", SERVER_URL)
         break
     except Exception as e:
-        print(f"Failed to connect to {url}: {e}")
+        print(f"Failed to connect to {SERVER_URL}: {e}")
 
 if server is None:
     print("Could not connect to any GNS3 servers. Exiting.")
