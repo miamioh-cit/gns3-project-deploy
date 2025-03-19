@@ -1,7 +1,8 @@
 from gns3fy import Gns3Connector, Project, Node, Link
 from getpass import getpass
 
-LAB_NAME = input("Input a unique Lab Name: ")
+LAB_NAME = "281-start"
+#LAB_NAME = input("Input a unique Lab Name: ")
 
 #Add Server Credentials, IP Address and Make a Connection
 SERVER_URL = "http://10.48.10.159:80"
