@@ -58,34 +58,6 @@ lab.open()
 available_templates = [template["name"] for template in server.get_templates()]
 logging.debug(f"Available Templates: {available_templates}")
 
-# Function to create nodes while filtering out unwanted fields
-def create_filtered_node(lab, name, template, x, y):
-    data = {
-        "name": name,
-        "compute_id": "local",
-        "x": x,
-        "y": y
-    }
-
-    # Ensure '__pydantic_initialised__' is removed
-    if "__pydantic_initialised__" in data:
-        del data["__pydantic_initialised__"]
-
-    logging.debug(f"Creating node: {data}")
-    
-    try:
-        lab.create_node(**data)
-    except Exception as e:
-        logging.error(f"Failed to create node {name}: {e}")
-
-
-#If lab name is unique, confirm with user.
-print("-----------------------------------------------------------------------")
-print("Project name is unique, nodes are being created.")
-print("-----------------------------------------------------------------------")
-print("Please wait until script runs before entering the project in GNS3!")
-print("-----------------------------------------------------------------------")
-
 # Now open the project from the server
 lab = Project(name=LAB_NAME, connector=server)
 lab.get()
@@ -99,7 +71,7 @@ node_data = {
     'x': 76,
     'y': -76
 }
-node_data.pop('__pydantic_initialised__', None)
+
 #Create Switches
 lab.create_node(name='offsite-switch', template='Cisco IOSvL2', x='-33', y='-175')
 sw1=lab.get_node("offsite-switch")
