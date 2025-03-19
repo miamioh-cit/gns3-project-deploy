@@ -5,7 +5,7 @@ import logging
 # Enable debug logging
 logging.basicConfig(level=logging.DEBUG)
 
-LAB_NAME = "281-test3"
+LAB_NAME = "281-test2"
 
 # Base IP address (first three octets remain constant)
 BASE_IP = "http://10.48.229."
@@ -58,6 +58,13 @@ lab.open()
 available_templates = [template["name"] for template in server.get_templates()]
 logging.debug(f"Available Templates: {available_templates}")
 
+#If lab name is unique, confirm with user.
+print("-----------------------------------------------------------------------")
+print("Project name is unique, nodes are being created.")
+print("-----------------------------------------------------------------------")
+print("Please wait until script runs before entering the project in GNS3!")
+print("-----------------------------------------------------------------------")
+
 # Now open the project from the server
 lab = Project(name=LAB_NAME, connector=server)
 lab.get()
@@ -65,12 +72,6 @@ lab.open()
 
 #Build Cloud
 lab.create_node(name='internet', template='Cloud', x='76', y='-76')
-node_data = {
-    'name': 'internet',
-    'template': 'Cloud',
-    'x': 76,
-    'y': -76
-}
 
 #Create Switches
 lab.create_node(name='offsite-switch', template='Cisco IOSvL2', x='-33', y='-175')
@@ -206,5 +207,3 @@ print("-----------------------------------------------------------------------")
 print(LAB_NAME + " build is Complete. It is now safe to open the project in GNS3")
 print("Be sure that you document the links in your Visio Topology!!!!")
 print("-----------------------------------------------------------------------")
-
-
