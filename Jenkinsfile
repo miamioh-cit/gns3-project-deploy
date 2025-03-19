@@ -12,6 +12,14 @@ pipeline {
             }
         }
 
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    sh "pip3 install --user gns3fy"
+                }
+            }
+        }
+
         stage('Run Code') {
             steps {
                 script {
