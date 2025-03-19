@@ -15,12 +15,12 @@ pipeline {
         stage('Run Code') {
             steps {
                 script {
-                    sh "python3 gns3-project-deploy.py"
+                    sh "python3 gns3-project-deploy.py || exit 1"
                 }
             }
         }
+    }
 
-        
     post {
         success {
             echo "✅ Update Successful!"
@@ -29,5 +29,4 @@ pipeline {
             echo "❌ Update Failed!"
         }
     }
-}
 }
