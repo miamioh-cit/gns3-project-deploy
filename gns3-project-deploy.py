@@ -1,7 +1,7 @@
 from gns3fy import Gns3Connector, Project, Node, Link
 from getpass import getpass
 
-LAB_NAME = "281-test8"
+LAB_NAME = "281-test9"
 
 # Base IP address (first three octets remain constant)
 BASE_IP = "http://10.48.229."
