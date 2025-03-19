@@ -5,7 +5,7 @@ LAB_NAME = "281-start"
 # LAB_NAME = input("Input a unique Lab Name: ")
 
 # Base IP address (first three octets remain constant)
-BASE_IP = "http://10.48.10."
+BASE_IP = "http://10.48.229."
 
 # List of last octets for the servers
 SERVER_LAST_OCTETS = [44]  # Add more as needed, seperated by commas
