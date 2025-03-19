@@ -12,28 +12,6 @@ pipeline {
             }
         }
 
-        stage('Check Python & Pip') {
-            steps {
-                script {
-                    sh """
-                    which python3 || echo '⚠️ Python3 not found!'
-                    which pip3 || echo '⚠️ Pip3 not found!'
-                    python3 --version || echo '⚠️ Python3 not installed!'
-                    pip3 --version || echo '⚠️ Pip3 not installed!'
-                    """
-                }
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    sh "python3 -m ensurepip --default-pip || echo '⚠️ ensurepip failed!'"
-                    sh "python3 -m pip install --user gns3fy || echo '⚠️ Pip install failed!'"
-                }
-            }
-        }
-
         stage('Run Code') {
             steps {
                 script {
