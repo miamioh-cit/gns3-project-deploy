@@ -8,7 +8,7 @@ LAB_NAME = "281-start"
 BASE_IP = "http://10.48.10."
 
 # List of last octets for the servers
-SERVER_LAST_OCTETS = [159, 160, 161]  # Add more as needed
+SERVER_LAST_OCTETS = [159]  # Add more as needed, seperated by commas
 
 GNS3_USER = "gns3"
 # GNS3_USER = input("Input your GNS3 Username: ")
