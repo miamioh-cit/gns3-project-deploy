@@ -1,20 +1,20 @@
 from gns3fy import Gns3Connector, Project, Node, Link
 from getpass import getpass
+import logging
+
+# Enable debug logging
+logging.basicConfig(level=logging.DEBUG)
 
 LAB_NAME = "281-update"
-# LAB_NAME = input("Input a unique Lab Name: ")
 
 # Base IP address (first three octets remain constant)
 BASE_IP = "http://10.48.229."
 
 # List of last octets for the servers
-SERVER_LAST_OCTETS = [44]  # Add more as needed, seperated by commas
+SERVER_LAST_OCTETS = [44]  # Add more as needed, separated by commas
 
 GNS3_USER = "gns3"
-# GNS3_USER = input("Input your GNS3 Username: ")
-
 GNS3_PW = "gns3"
-# GNS3_PW = getpass ("Input your GNS3 Password (It won't show as you enter it!: ")
 
 # Generate full server URLs
 SERVER_URLS = [f"{BASE_IP}{octet}:80" for octet in SERVER_LAST_OCTETS]
@@ -43,29 +43,57 @@ except:
     from sys import exit
     exit()
 
-# If lab name is unique, confirm with user.
 print("-----------------------------------------------------------------------")
 print("Project name is unique, nodes are being created.")
 print("-----------------------------------------------------------------------")
 print("Please wait until script runs before entering the project in GNS3!")
 print("-----------------------------------------------------------------------")
 
-# Now open the project from the server
+# Open the project from the server
 lab = Project(name=LAB_NAME, connector=server)
 lab.get()
 lab.open()
 
-# Build Cloud
-lab.create_node(name='internet', template='Cloud', x='76', y='-76')
+# Verify available templates
+available_templates = [template["name"] for template in server.get_templates()]
+logging.debug(f"Available Templates: {available_templates}")
+
+# Function to create nodes while filtering out unwanted fields
+def create_filtered_node(lab, name, template, x, y):
+    data = {
+        "name": name,
+        "compute_id": "local",
+        "x": x,
+        "y": y
+    }
+
+    # Ensure '__pydantic_initialised__' is removed
+    if "__pydantic_initialised__" in data:
+        del data["__pydantic_initialised__"]
+
+    logging.debug(f"Creating node: {data}")
+    
+    try:
+        lab.create_node(**data)
+    except Exception as e:
+        logging.error(f"Failed to create node {name}: {e}")
+
+# Build Cloud (check if the template exists)
+if "Cloud" in available_templates:
+    create_filtered_node(lab, name='internet', template='Cloud', x=76, y=-76)
+else:
+    print("Cloud template not found! Skipping 'internet' node.")
 
 # Create Switches
-for switch_name, coords in [
-    ('offsite-switch', (-33, -175)),
-    ('ohio-switch', (-19, 280)),
-    ('ky-switch-1', (163, 275)),
-    ('ky-switch-2', (334, 275))
-]:
-    lab.create_node(name=switch_name, template='Cisco IOSvL2', x=coords[0], y=coords[1])
+switches = [
+    ('offsite-switch', -33, -175),
+    ('ohio-switch', -19, 280),
+    ('ky-switch-1', 163, 275),
+    ('ky-switch-2', 334, 275),
+]
+
+for switch_name, (x, y) in switches:
+    create_filtered_node(lab, switch_name, 'Cisco IOSvL2', x, y)
     sw = lab.get_node(switch_name)
     sw.start()
 
@@ -83,7 +111,7 @@ win_clients = [
 ]
 
 for name, x, y in win_clients:
-    lab.create_node(name=name, template='Windows 10 w/ Edge', x=x, y=y)
+    create_filtered_node(lab, name, 'Windows 10 w/ Edge', x, y)
     win = lab.get_node(name)
     win.start()
 
@@ -98,7 +126,7 @@ routers = [
 ]
 
 for name, x, y in routers:
-    lab.create_node(name=name, template='Cisco IOSv', x=x, y=y)
+    create_filtered_node(lab, name, 'Cisco IOSv', x, y)
     router = lab.get_node(name)
     router.start()
 
@@ -109,7 +137,7 @@ servers = [
 ]
 
 for name, x, y in servers:
-    lab.create_node(name=name, template='Windows Server 2022', x=x, y=y)
+    create_filtered_node(lab, name, 'Windows Server 2022', x, y)
     server_node = lab.get_node(name)
     server_node.start()
 
@@ -140,9 +168,11 @@ links = [
 ]
 
 for node1, int1, node2, int2 in links:
-    lab.create_link(node1, int1, node2, int2)
+    try:
+        lab.create_link(node1, int1, node2, int2)
+    except Exception as e:
+        logging.error(f"Failed to create link between {node1} and {node2}: {e}")
 
-# Confirm completion of the script with the user.
 print("-----------------------------------------------------------------------")
 print("Nodes created, started, and linked. Here are the links:")
 print("-----------------------------------------------------------------------")
