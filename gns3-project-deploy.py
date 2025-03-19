@@ -93,7 +93,7 @@ switches = [
 ]
 
 for switch_name, (x, y) in switches:
-    create_filtered_node(lab, switch_name, 'Cisco IOSvL2', x, y)
+    create_filtered_node(lab, switch_name, 'Cisco IOSvL2 15.2.1', x, y)
     sw = lab.get_node(switch_name)
     sw.start()
 
@@ -126,7 +126,7 @@ routers = [
 ]
 
 for name, x, y in routers:
-    create_filtered_node(lab, name, 'Cisco IOSv', x, y)
+    create_filtered_node(lab, name, 'Cisco IOSv 15.5(3)M', x, y)
     router = lab.get_node(name)
     router.start()
 
