@@ -1,5 +1,6 @@
 import logging
-from gns3fy import Gns3Connector, Project, Node, Link
+from gns3fy.gns3fy import Gns3Connector, Project, Node, Link
+
 
 LAB_NAME = "281-test12"
 
