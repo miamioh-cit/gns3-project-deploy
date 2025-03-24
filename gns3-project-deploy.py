@@ -5,7 +5,7 @@ import sys
 LAB_NAME = "281-test12"
 SERVER_URL = "http://10.48.229.44:80"
 
-# 🔌 Connect to GNS3 (no authentication)
+# 🔌 Connect to GNS3 (no auth)
 server = Gns3Connector(url=SERVER_URL)
 print(f"🔗 Connected to GNS3 server at {SERVER_URL} (version: {server.get_version()})")
 
@@ -61,13 +61,16 @@ nodes = [
     ("ohio-web", "Windows Server 2022", -172, 183)
 ]
 
-# 🔧 Create nodes with valid console_type (fallback: "telnet")
+# 🔧 Create nodes with validated console_type
 template_map = {t["name"]: t for t in template_list}
 for name, template, x, y in nodes:
-    console = template_map.get(template, {}).get("console_type", "telnet")
+    console = template_map.get(template, {}).get("console_type")
+    if not console:
+        console = "telnet"
+
     lab.create_node(name=name, template=template, x=x, y=y, console_type=console)
 
-# ▶️ Start nodes
+# ▶️ Start all nodes
 for name, *_ in nodes:
     lab.get_node(name).start()
 
@@ -101,7 +104,7 @@ links = [
 for src, sport, dst, dport in links:
     lab.create_link(src, sport, dst, dport)
 
-# ✅ Done
+# ✅ Summary
 print("✅ All nodes created, started, and linked.")
 print("🔗 Link Summary:")
 lab.links_summary()
