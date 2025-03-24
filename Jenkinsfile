@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         GITHUB_URL = 'https://github.com/miamioh-cit/gns3-project-deploy.git'
+        IMAGE_NAME = 'gns3-deploy'
     }
 
     stages {
@@ -12,17 +13,18 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-    steps {
-        sh 'python3 -m pip install -r requirements.txt'
-    }
-}
-
-
-        stage('Run Code') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    sh "python3 gns3-project-deploy.py || exit 1"
+                    sh "docker build -t ${IMAGE_NAME} ."
+                }
+            }
+        }
+
+        stage('Run GNS3 Deployment in Docker') {
+            steps {
+                script {
+                    sh "docker run --rm ${IMAGE_NAME}"
                 }
             }
         }
@@ -30,10 +32,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Update Successful!"
+            echo "✅ GNS3 Project Deployed Successfully!"
         }
         failure {
-            echo "❌ Update Failed!"
+            echo "❌ GNS3 Project Deployment Failed!"
         }
     }
 }
