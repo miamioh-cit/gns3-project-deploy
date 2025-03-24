@@ -1,15 +1,15 @@
-from gns3fy import Gns3Connector, Project, Node, Link
+from gns3fy import Gns3Connector, Project
 import sys
 
 # 🛠️ Configuration
 LAB_NAME = "281-test12"
 SERVER_URL = "http://10.48.229.44:80"
 
-# 🔌 Connect to GNS3 (no auth)
+# 🔌 Connect to GNS3 server
 server = Gns3Connector(url=SERVER_URL)
 print(f"🔗 Connected to GNS3 server at {SERVER_URL} (version: {server.get_version()})")
 
-# 🚫 Abort if project already exists
+# 🚫 Check if project already exists
 existing = server.get_projects()
 if any(p["name"] == LAB_NAME for p in existing):
     print(f"❌ Project '{LAB_NAME}' already exists. Aborting.")
@@ -19,12 +19,12 @@ if any(p["name"] == LAB_NAME for p in existing):
 server.create_project(name=LAB_NAME)
 print("✅ Project created.")
 
-# 📡 Attach project object
+# 📡 Load and open the project
 lab = Project(name=LAB_NAME, connector=server)
 lab.get()
 lab.open()
 
-# 📦 Required templates
+# 🧰 Required templates
 required_templates = {
     "Cloud", "Cisco IOSvL2 15.2.1", "Windows 10 w/ Edge", "Cisco IOSv 15.5(3)M", "Windows Server 2022"
 }
@@ -32,10 +32,10 @@ template_list = server.get_templates()
 available = {t["name"] for t in template_list}
 missing = required_templates - available
 if missing:
-    print(f"❌ Missing required templates: {missing}")
+    print(f"❌ Missing templates: {missing}")
     sys.exit(1)
 
-# 🧱 Define nodes
+# 📍 Node definitions
 nodes = [
     ("internet", "Cloud", 76, -76),
     ("offsite-switch", "Cisco IOSvL2 15.2.1", -33, -175),
@@ -61,7 +61,7 @@ nodes = [
     ("ohio-web", "Windows Server 2022", -172, 183)
 ]
 
-# 🔧 Create nodes with validated console_type fallback
+# 🔧 Create nodes with fallback console_type
 template_map = {t["name"]: t for t in template_list}
 for name, template, x, y in nodes:
     console = template_map.get(template, {}).get("console_type") or "telnet"
@@ -101,7 +101,7 @@ links = [
 for src, sport, dst, dport in links:
     lab.create_link(src, sport, dst, dport)
 
-# ✅ Summary
+# ✅ Done
 print("✅ All nodes created, started, and linked.")
 print("🔗 Link Summary:")
 lab.links_summary()
