@@ -1,5 +1,5 @@
 import logging
-from gns3fy import Gns3ConnectorV1 as Gns3Connector, Project, Node, Link
+from gns3fy import Gns3Connector, Project, Node, Link
 
 
 
