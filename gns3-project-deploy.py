@@ -61,13 +61,10 @@ nodes = [
     ("ohio-web", "Windows Server 2022", -172, 183)
 ]
 
-# 🔧 Create nodes with validated console_type
+# 🔧 Create nodes with validated console_type fallback
 template_map = {t["name"]: t for t in template_list}
 for name, template, x, y in nodes:
-    console = template_map.get(template, {}).get("console_type")
-    if not console:
-        console = "telnet"
-
+    console = template_map.get(template, {}).get("console_type") or "telnet"
     lab.create_node(name=name, template=template, x=x, y=y, console_type=console)
 
 # ▶️ Start all nodes
