@@ -1,112 +1,151 @@
-from gns3fy import Gns3Connector, Project
-import sys
+import logging
+from gns3fy import Gns3Connector, Project, Node, Link
 
-# 🛠️ Configuration
 LAB_NAME = "281-test12"
-SERVER_URL = "http://10.48.229.44:80"
 
-# 🔌 Connect to GNS3
-server = Gns3Connector(url=SERVER_URL)
-print(f"🔗 Connected to GNS3 server at {SERVER_URL} (version: {server.get_version()})")
+BASE_IP = "http://10.48.229."
 
-# 🚫 Check for existing project
-existing = server.get_projects()
-if any(p["name"] == LAB_NAME for p in existing):
-    print(f"❌ Project '{LAB_NAME}' already exists. Aborting.")
-    sys.exit(1)
+SERVER_LAST_OCTETS = [44]
 
-# 🆕 Create new project
-server.create_project(name=LAB_NAME)
-print("✅ Project created.")
+GNS3_USER = "gns3"
+GNS3_PW = "gns3"
 
-# 📡 Load the project
+SERVER_URLS = [f"{BASE_IP}{octet}:80" for octet in SERVER_LAST_OCTETS]
+
+server = None
+for SERVER_URL in SERVER_URLS:
+    server = Gns3Connector(url=SERVER_URL, user=GNS3_USER, cred=GNS3_PW)
+    print("Connecting to GNS3 server to verify uniqueness of Project name", server.get_version(), "at", SERVER_URL)
+    break
+
+lab = server.create_project(name=LAB_NAME)
+
+print("-----------------------------------------------------------------------")
+print("Project name is unique, nodes are being created.")
+print("-----------------------------------------------------------------------")
+print("Please wait until script runs before entering the project in GNS3!")
+print("-----------------------------------------------------------------------")
+
 lab = Project(name=LAB_NAME, connector=server)
 lab.get()
 lab.open()
 
-# 📦 Required templates
-required_templates = {
-    "Cloud", "Cisco IOSvL2 15.2.1", "Windows 10 w/ Edge", "Cisco IOSv 15.5(3)M", "Windows Server 2022"
-}
-template_list = server.get_templates()
-available = {t["name"] for t in template_list}
-missing = required_templates - available
-if missing:
-    print(f"❌ Missing templates: {missing}")
-    sys.exit(1)
+available_templates = [template["name"] for template in server.get_templates()]
+logging.debug(f"Available Templates: {available_templates}")
 
-# 🧱 Define nodes
-nodes = [
-    ("internet", "Cloud", 76, -76),
-    ("offsite-switch", "Cisco IOSvL2 15.2.1", -33, -175),
-    ("ohio-switch", "Cisco IOSvL2 15.2.1", -19, 280),
-    ("ky-switch-1", "Cisco IOSvL2 15.2.1", 163, 275),
-    ("ky-switch-2", "Cisco IOSvL2 15.2.1", 334, 275),
-    ("offsite-win10", "Windows 10 w/ Edge", 50, -300),
-    ("in-win10-01", "Windows 10 w/ Edge", -188, -68),
-    ("ohio-win10-01", "Windows 10 w/ Edge", -200, 400),
-    ("ohio-win10-02", "Windows 10 w/ Edge", -116, 400),
-    ("ohio-win10-03", "Windows 10 w/ Edge", -28, 400),
-    ("ky-win10-01", "Windows 10 w/ Edge", 129, 400),
-    ("ky-win10-02", "Windows 10 w/ Edge", 208, 400),
-    ("ky-win10-03", "Windows 10 w/ Edge", 285, 400),
-    ("ky-win10-04", "Windows 10 w/ Edge", 367, 400),
-    ("in-edge", "Cisco IOSv 15.5(3)M", -113, 32),
-    ("offsite-router", "Cisco IOSv 15.5(3)M", -37, -72),
-    ("ky-edge", "Cisco IOSv 15.5(3)M", 46, 24),
-    ("ky-int", "Cisco IOSv 15.5(3)M", 149, 96),
-    ("oh-edge", "Cisco IOSv 15.5(3)M", -31, 91),
-    ("oh-int", "Cisco IOSv 15.5(3)M", -31, 192),
-    ("offsite-web", "Windows Server 2022", -75, -300),
-    ("ohio-web", "Windows Server 2022", -172, 183)
-]
+lab.create_node(name='internet', template='Cloud', x=76, y=-76)
 
-# 🧠 Map templates by name
-template_map = {t["name"]: t for t in template_list}
+lab.create_node(name='offsite-switch', template='Cisco IOSvL2 15.2.1', x=-33, y=-175)
+sw1 = lab.get_node("offsite-switch")
+sw1.start()
 
-# 🔧 Create all nodes (with safe console_type fallback)
-for name, template, x, y in nodes:
-    raw_console = template_map.get(template, {}).get("console_type")
-    console = raw_console if raw_console else "telnet"
-    print(f"📦 Creating node '{name}' with template '{template}' using console_type='{console}'")
-    lab.create_node(name=name, template=template, x=x, y=y, console_type=console)
+lab.create_node(name='ohio-switch', template='Cisco IOSvL2 15.2.1', x=-19, y=280)
+sw2 = lab.get_node("ohio-switch")
+sw2.start()
 
-# ▶️ Start nodes
-for name, *_ in nodes:
-    lab.get_node(name).start()
+lab.create_node(name='ky-switch-1', template='Cisco IOSvL2 15.2.1', x=163, y=275)
+sw3 = lab.get_node("ky-switch-1")
+sw3.start()
 
-# 🔗 Link definitions
-links = [
-    ("offsite-web", "Ethernet0", "offsite-switch", "Gi0/0"),
-    ("offsite-win10", "NIC1", "offsite-switch", "Gi0/1"),
-    ("offsite-switch", "Gi0/2", "offsite-router", "Gi0/0"),
-    ("in-edge", "Gi0/0", "offsite-router", "Gi0/1"),
-    ("ky-edge", "Gi0/0", "offsite-router", "Gi0/2"),
-    ("ky-edge", "Gi0/1", "ky-int", "Gi0/1"),
-    ("ky-edge", "Gi0/2", "oh-edge", "Gi0/0"),
-    ("in-edge", "Gi0/1", "oh-edge", "Gi0/1"),
-    ("oh-edge", "Gi0/2", "oh-int", "Gi0/0"),
-    ("internet", "eth0", "ky-edge", "Gi0/3"),
-    ("oh-int", "Gi0/1", "ohio-switch", "Gi0/0"),
-    ("ohio-win10-01", "NIC1", "ohio-switch", "Gi0/1"),
-    ("ohio-win10-02", "NIC1", "ohio-switch", "Gi0/2"),
-    ("ohio-win10-03", "NIC1", "ohio-switch", "Gi0/3"),
-    ("ohio-web", "Ethernet0", "oh-int", "Gi0/2"),
-    ("in-win10-01", "NIC1", "in-edge", "Gi0/2"),
-    ("ky-int", "Gi0/0", "ky-switch-1", "Gi0/0"),
-    ("ky-switch-1", "Gi0/1", "ky-switch-2", "Gi0/0"),
-    ("ky-win10-01", "NIC1", "ky-switch-1", "Gi0/2"),
-    ("ky-win10-02", "NIC1", "ky-switch-1", "Gi0/3"),
-    ("ky-win10-03", "NIC1", "ky-switch-2", "Gi1/0"),
-    ("ky-win10-04", "NIC1", "ky-switch-2", "Gi1/1")
-]
+lab.create_node(name='ky-switch-2', template='Cisco IOSvL2 15.2.1', x=334, y=275)
+sw4 = lab.get_node("ky-switch-2")
+sw4.start()
 
-# 🧷 Create links
-for src, sport, dst, dport in links:
-    lab.create_link(src, sport, dst, dport)
+lab.create_node(name='offsite-win10', template='Windows 10 w/ Edge', x=50, y=-300)
+win10_off = lab.get_node("offsite-win10")
+win10_off.start()
 
-# ✅ Summary
-print("\n✅ All nodes created, started, and linked.")
-print("🔗 Link Summary:")
+lab.create_node(name='in-win10-01', template='Windows 10 w/ Edge', x=-188, y=-68)
+win10_in1 = lab.get_node("in-win10-01")
+win10_in1.start()
+
+lab.create_node(name='ohio-win10-01', template='Windows 10 w/ Edge', x=-200, y=400)
+win10_oh1 = lab.get_node("ohio-win10-01")
+win10_oh1.start()
+
+lab.create_node(name='ohio-win10-02', template='Windows 10 w/ Edge', x=-116, y=400)
+win10_oh2 = lab.get_node("ohio-win10-02")
+win10_oh2.start()
+
+lab.create_node(name='ohio-win10-03', template='Windows 10 w/ Edge', x=-28, y=400)
+win10_oh3 = lab.get_node("ohio-win10-03")
+win10_oh3.start()
+
+lab.create_node(name='ky-win10-01', template='Windows 10 w/ Edge', x=129, y=400)
+win10_ky1 = lab.get_node("ky-win10-01")
+win10_ky1.start()
+
+lab.create_node(name='ky-win10-02', template='Windows 10 w/ Edge', x=208, y=400)
+win10_ky2 = lab.get_node("ky-win10-02")
+win10_ky2.start()
+
+lab.create_node(name='ky-win10-03', template='Windows 10 w/ Edge', x=285, y=400)
+win10_ky3 = lab.get_node("ky-win10-03")
+win10_ky3.start()
+
+lab.create_node(name='ky-win10-04', template='Windows 10 w/ Edge', x=367, y=400)
+win10_ky4 = lab.get_node("ky-win10-04")
+win10_ky4.start()
+
+lab.create_node(name='in-edge', template='Cisco IOSv 15.5(3)M', x=-113, y=32)
+router0 = lab.get_node("in-edge")
+router0.start()
+
+lab.create_node(name='offsite-router', template='Cisco IOSv 15.5(3)M', x=-37, y=-72)
+router1 = lab.get_node("offsite-router")
+router1.start()
+
+lab.create_node(name='ky-edge', template='Cisco IOSv 15.5(3)M', x=46, y=24)
+router2 = lab.get_node("ky-edge")
+router2.start()
+
+lab.create_node(name='ky-int', template='Cisco IOSv 15.5(3)M', x=149, y=96)
+router3 = lab.get_node("ky-int")
+router3.start()
+
+lab.create_node(name='oh-edge', template='Cisco IOSv 15.5(3)M', x=-31, y=91)
+router4 = lab.get_node("oh-edge")
+router4.start()
+
+lab.create_node(name='oh-int', template='Cisco IOSv 15.5(3)M', x=-31, y=192)
+router5 = lab.get_node("oh-int")
+router5.start()
+
+lab.create_node(name='offsite-web', template='Windows Server 2022', x=-75, y=-300)
+winserver16_1 = lab.get_node("offsite-web")
+winserver16_1.start()
+
+lab.create_node(name='ohio-web', template='Windows Server 2022', x=-172, y=183)
+winserver16_3 = lab.get_node("ohio-web")
+winserver16_3.start()
+
+lab.create_link("offsite-web", "Ethernet0", "offsite-switch", "Gi0/0")
+lab.create_link("offsite-win10", "NIC1", "offsite-switch", "Gi0/1")
+lab.create_link("offsite-switch", "Gi0/2", "offsite-router", "Gi0/0")
+lab.create_link("in-edge", "Gi0/0", "offsite-router", "Gi0/1")
+lab.create_link("ky-edge", "Gi0/0", "offsite-router", "Gi0/2")
+lab.create_link("ky-edge", "Gi0/1", "ky-int", "Gi0/1")
+lab.create_link("ky-edge", "Gi0/2", "oh-edge", "Gi0/0")
+lab.create_link("in-edge", "Gi0/1", "oh-edge", "Gi0/1")
+lab.create_link("oh-edge", "Gi0/2", "oh-int", "Gi0/0")
+lab.create_link("internet", "eth0", "ky-edge", "Gi0/3")
+lab.create_link("oh-int", "Gi0/1", "ohio-switch", "Gi0/0")
+lab.create_link("ohio-win10-01", "NIC1", "ohio-switch", "Gi0/1")
+lab.create_link("ohio-win10-02", "NIC1", "ohio-switch", "Gi0/2")
+lab.create_link("ohio-win10-03", "NIC1", "ohio-switch", "Gi0/3")
+lab.create_link("ohio-web", "Ethernet0", "oh-int", "Gi0/2")
+lab.create_link("in-win10-01", "NIC1", "in-edge", "Gi0/2")
+lab.create_link("ky-int", "Gi0/0", "ky-switch-1", "Gi0/0")
+lab.create_link("ky-switch-1", "Gi0/1", "ky-switch-2", "Gi0/0")
+lab.create_link("ky-win10-01", "NIC1", "ky-switch-1", "Gi0/2")
+lab.create_link("ky-win10-02", "NIC1", "ky-switch-1", "Gi0/3")
+lab.create_link("ky-win10-03", "NIC1", "ky-switch-2", "Gi1/0")
+lab.create_link("ky-win10-04", "NIC1", "ky-switch-2", "Gi1/1")
+
+print("-----------------------------------------------------------------------")
+print("Nodes created, started and linked. Here are the links:")
+print("-----------------------------------------------------------------------")
 lab.links_summary()
-print(f"🎉 Project '{LAB_NAME}' is ready in GNS3.")
+print("-----------------------------------------------------------------------")
+print(LAB_NAME + " build is Complete. It is now safe to open the project in GNS3")
+print("-----------------------------------------------------------------------")
