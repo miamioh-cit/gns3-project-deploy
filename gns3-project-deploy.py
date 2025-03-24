@@ -1,15 +1,15 @@
 from gns3fy import Gns3Connector, Project, Node, Link
 import sys
 
-# 🔧 Configuration
+# 🛠️ Configuration
 LAB_NAME = "281-test12"
 SERVER_URL = "http://10.48.229.44:80"
 
-# 🔗 Connect to GNS3
+# 🔌 Connect to GNS3 (no auth)
 server = Gns3Connector(url=SERVER_URL)
 print(f"🔗 Connected to GNS3 server at {SERVER_URL} (version: {server.get_version()})")
 
-# 🚫 Check for existing project
+# 🚫 Abort if project already exists
 existing = server.get_projects()
 if any(p["name"] == LAB_NAME for p in existing):
     print(f"❌ Project '{LAB_NAME}' already exists. Aborting.")
@@ -19,7 +19,7 @@ if any(p["name"] == LAB_NAME for p in existing):
 server.create_project(name=LAB_NAME)
 print("✅ Project created.")
 
-# 🧠 Attach & open
+# 📡 Attach project object
 lab = Project(name=LAB_NAME, connector=server)
 lab.get()
 lab.open()
@@ -60,14 +60,21 @@ nodes = [
     ("ohio-web", "Windows Server 2022", -172, 183)
 ]
 
+# 🔧 Create nodes with telnet console
 for name, template, x, y in nodes:
-    lab.create_node(name=name, template=template, x=x, y=y)
+    lab.create_node(
+        name=name,
+        template=template,
+        x=x,
+        y=y,
+        console_type="telnet"
+    )
 
-# ▶️ Start nodes
+# ▶️ Start all nodes
 for name, *_ in nodes:
     lab.get_node(name).start()
 
-# 🔌 Define links
+# 🔗 Define links
 links = [
     ("offsite-web", "Ethernet0", "offsite-switch", "Gi0/0"),
     ("offsite-win10", "NIC1", "offsite-switch", "Gi0/1"),
@@ -93,10 +100,12 @@ links = [
     ("ky-win10-04", "NIC1", "ky-switch-2", "Gi1/1")
 ]
 
+# 🔌 Create links
 for src, sport, dst, dport in links:
     lab.create_link(src, sport, dst, dport)
 
-# ✅ All done
+# ✅ Summary
 print("✅ All nodes created, started, and linked.")
+print("🔗 Link Summary:")
 lab.links_summary()
 print(f"🎉 {LAB_NAME} is ready in GNS3.")
