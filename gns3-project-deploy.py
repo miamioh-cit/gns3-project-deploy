@@ -5,7 +5,7 @@ import sys
 LAB_NAME = "281-test12"
 SERVER_URL = "http://10.48.229.44:80"
 
-# 🔌 Connect to GNS3 (no auth)
+# 🔌 Connect to GNS3 (no authentication)
 server = Gns3Connector(url=SERVER_URL)
 print(f"🔗 Connected to GNS3 server at {SERVER_URL} (version: {server.get_version()})")
 
@@ -28,7 +28,8 @@ lab.open()
 required_templates = {
     "Cloud", "Cisco IOSvL2 15.2.1", "Windows 10 w/ Edge", "Cisco IOSv 15.5(3)M", "Windows Server 2022"
 }
-available = {t["name"] for t in server.get_templates()}
+template_list = server.get_templates()
+available = {t["name"] for t in template_list}
 missing = required_templates - available
 if missing:
     print(f"❌ Missing required templates: {missing}")
@@ -60,17 +61,13 @@ nodes = [
     ("ohio-web", "Windows Server 2022", -172, 183)
 ]
 
-# 🔧 Create nodes with telnet console
+# 🔧 Create nodes with valid console_type (fallback: "telnet")
+template_map = {t["name"]: t for t in template_list}
 for name, template, x, y in nodes:
-    lab.create_node(
-        name=name,
-        template=template,
-        x=x,
-        y=y,
-        console_type="telnet"
-    )
+    console = template_map.get(template, {}).get("console_type", "telnet")
+    lab.create_node(name=name, template=template, x=x, y=y, console_type=console)
 
-# ▶️ Start all nodes
+# ▶️ Start nodes
 for name, *_ in nodes:
     lab.get_node(name).start()
 
@@ -104,7 +101,7 @@ links = [
 for src, sport, dst, dport in links:
     lab.create_link(src, sport, dst, dport)
 
-# ✅ Summary
+# ✅ Done
 print("✅ All nodes created, started, and linked.")
 print("🔗 Link Summary:")
 lab.links_summary()
