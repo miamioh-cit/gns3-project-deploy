@@ -5,26 +5,26 @@ import sys
 LAB_NAME = "281-test12"
 SERVER_URL = "http://10.48.229.44:80"
 
-# 🔌 Connect to GNS3 server
+# 🔌 Connect to GNS3
 server = Gns3Connector(url=SERVER_URL)
 print(f"🔗 Connected to GNS3 server at {SERVER_URL} (version: {server.get_version()})")
 
-# 🚫 Check if project already exists
+# 🚫 Check for existing project
 existing = server.get_projects()
 if any(p["name"] == LAB_NAME for p in existing):
     print(f"❌ Project '{LAB_NAME}' already exists. Aborting.")
     sys.exit(1)
 
-# 🆕 Create project
+# 🆕 Create new project
 server.create_project(name=LAB_NAME)
 print("✅ Project created.")
 
-# 📡 Load and open the project
+# 📡 Load the project
 lab = Project(name=LAB_NAME, connector=server)
 lab.get()
 lab.open()
 
-# 🧰 Required templates
+# 📦 Required templates
 required_templates = {
     "Cloud", "Cisco IOSvL2 15.2.1", "Windows 10 w/ Edge", "Cisco IOSv 15.5(3)M", "Windows Server 2022"
 }
@@ -35,7 +35,7 @@ if missing:
     print(f"❌ Missing templates: {missing}")
     sys.exit(1)
 
-# 📍 Node definitions
+# 🧱 Define nodes
 nodes = [
     ("internet", "Cloud", 76, -76),
     ("offsite-switch", "Cisco IOSvL2 15.2.1", -33, -175),
@@ -61,17 +61,21 @@ nodes = [
     ("ohio-web", "Windows Server 2022", -172, 183)
 ]
 
-# 🔧 Create nodes with fallback console_type
+# 🧠 Map templates by name
 template_map = {t["name"]: t for t in template_list}
+
+# 🔧 Create all nodes (with safe console_type fallback)
 for name, template, x, y in nodes:
-    console = template_map.get(template, {}).get("console_type") or "telnet"
+    raw_console = template_map.get(template, {}).get("console_type")
+    console = raw_console if raw_console else "telnet"
+    print(f"📦 Creating node '{name}' with template '{template}' using console_type='{console}'")
     lab.create_node(name=name, template=template, x=x, y=y, console_type=console)
 
-# ▶️ Start all nodes
+# ▶️ Start nodes
 for name, *_ in nodes:
     lab.get_node(name).start()
 
-# 🔗 Define links
+# 🔗 Link definitions
 links = [
     ("offsite-web", "Ethernet0", "offsite-switch", "Gi0/0"),
     ("offsite-win10", "NIC1", "offsite-switch", "Gi0/1"),
@@ -97,12 +101,12 @@ links = [
     ("ky-win10-04", "NIC1", "ky-switch-2", "Gi1/1")
 ]
 
-# 🔌 Create links
+# 🧷 Create links
 for src, sport, dst, dport in links:
     lab.create_link(src, sport, dst, dport)
 
-# ✅ Done
-print("✅ All nodes created, started, and linked.")
+# ✅ Summary
+print("\n✅ All nodes created, started, and linked.")
 print("🔗 Link Summary:")
 lab.links_summary()
-print(f"🎉 {LAB_NAME} is ready in GNS3.")
+print(f"🎉 Project '{LAB_NAME}' is ready in GNS3.")
