@@ -33,6 +33,16 @@ lab = Project(name=LAB_NAME, connector=server)
 lab.get()
 lab.open()
 
+#Create and start Switzerland-PC1-VPC
+lab.create_node(name='switzerland-pc1', template='VPC', x='-257', y='-704')
+switzerland-pc1=lab.get_node("switzerland-pc1")
+switzerland-pc1.start()
+
+#Create and start Switzerland-PC2-VPC
+lab.create_node(name='switzerland-pc2', template='VPC', x='-257', y='-629')
+switzerland-pc2=lab.get_node("switzerland-pc2")
+switzerland-pc2.start()
+
 #Create and start Router
 lab.create_node(name='router1', template='Cisco IOSv 15.5(3)M', x='298', y='300')
 router1=lab.get_node("router1")
