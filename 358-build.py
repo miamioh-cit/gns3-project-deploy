@@ -18,8 +18,8 @@ if not SERVER_LAST_OCTETS:
 
 SERVER_URLS = [f"{BASE_IP}{octet}:80" for octet in SERVER_LAST_OCTETS]
 
-GNS3_USER = "cit358-m"
-GNS3_PW = "cit358-m"
+GNS3_USER = "gns3"
+GNS3_PW = "gns3
 
 for SERVER_URL in SERVER_URLS:
     server = Gns3Connector(url=SERVER_URL, user=GNS3_USER, cred=GNS3_PW)
