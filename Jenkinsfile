@@ -13,10 +13,14 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Docker Image (No Cache)') {
             steps {
                 script {
-                    sh "docker build -t ${IMAGE_NAME} ."
+                    // Optional: clean up old layers
+                    sh "docker builder prune -f || true"
+
+                    // Rebuild image without using cache
+                    sh "docker build --no-cache -t ${IMAGE_NAME} ."
                 }
             }
         }
