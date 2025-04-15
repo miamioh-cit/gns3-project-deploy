@@ -1,13 +1,15 @@
 import logging
-from gns3fy import Gns3Connector, Project
+from gns3fy import Gns3Connector, Project, Node, Link
 
 LAB_NAME = "386-test"
+
 BASE_IP = "http://10.48.229."
 
-# Read datastore IPs
+# Read last octets from datastore file
 try:
     with open("datastore", "r") as f:
-        SERVER_LAST_OCTETS = [int(o.strip()) for o in f.read().strip().split(",") if o.strip().isdigit()]
+        content = f.read().strip()
+        SERVER_LAST_OCTETS = [int(octet.strip()) for octet in content.split(",") if octet.strip().isdigit()]
 except Exception as e:
     print("Error reading datastore file:", e)
     SERVER_LAST_OCTETS = []
@@ -16,23 +18,18 @@ if not SERVER_LAST_OCTETS:
     raise ValueError("No valid server last octets found in 'datastore'.")
 
 SERVER_URLS = [f"{BASE_IP}{octet}:80" for octet in SERVER_LAST_OCTETS]
-GNS3_USER = "cit358-m"
-GNS3_PW = "cit358-m"
+
+GNS3_USER = "gns3"
+GNS3_PW = "gns3"
 
 for SERVER_URL in SERVER_URLS:
     server = Gns3Connector(url=SERVER_URL, user=GNS3_USER, cred=GNS3_PW)
     print("Connecting to GNS3 server to verify uniqueness of Project name", server.get_version(), "at", SERVER_URL)
 
-    try:
-        lab = server.create_project(name=LAB_NAME)
-    except:
-        print("=========================================================")
-        print("Error: May not be a unique Lab Name!")
-        print("=========================================================")
-        exit()
+    lab = server.create_project(name=LAB_NAME)
 
     print("-----------------------------------------------------------------------")
-    print("Project name is unique, nodes are being created.")
+    print(f"Project '{LAB_NAME}' created on {SERVER_URL}. Nodes are being created.")
     print("-----------------------------------------------------------------------")
     print("Please wait until script runs before entering the project in GNS3!")
     print("-----------------------------------------------------------------------")
