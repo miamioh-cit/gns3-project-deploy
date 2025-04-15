@@ -42,7 +42,7 @@ for SERVER_URL in SERVER_URLS:
     lab.open()
 
     # Create and start all nodes
-     lab.create_node(name='switzerland-pc1', template='VPC', x='-257', y='-704').start()
+    lab.create_node(name='switzerland-pc1', template='VPC', x='-257', y='-704').start()
     lab.create_node(name='switzerland-pc2', template='VPC', x='-257', y='-629').start()
     lab.create_node(name='switzerland-pc5', template='VPC', x='-257', y='-554').start()
     lab.create_node(name='switzerland-pc6', template='VPC', x='-257', y='-479').start()
