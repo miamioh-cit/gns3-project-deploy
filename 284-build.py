@@ -83,7 +83,7 @@ for SERVER_URL in SERVER_URLS:
     nat1.start()
 
     #Create links
-    lab.create_link("Switch0", "Ethernet0", "NAT1", "NAT0")
+    lab.create_link("Switch0", "Ethernet0", "NAT1", "nat0")
     lab.create_link("Switch0", "Ethernet1", "Switch1", "Ethernet3")
     lab.create_link("Switch0", "Ethernet2", "Switch2", "Ethernet3")
     lab.create_link("Switch1", "Ethernet0", "ADDC-1", "Ethernet0")
