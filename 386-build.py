@@ -353,55 +353,55 @@ for SERVER_URL in SERVER_URLS:
     sw0 = lab.get_node("switzerland-sw1")
     sw0.start()
 
-    lab.create_node(name='switzerland-sw2', template='Cisco IOSvL2 15.2(20170321:233949)', x='-100', y='-623')
+    lab.create_node(name='switzerland-sw2', template='Cisco IOSvL2 15.2.1', x='-100', y='-623')
     sw1 = lab.get_node("switzerland-sw2")
     sw1.start()
 
-    lab.create_node(name='india-sw1', template='Cisco IOSvL2 15.2(20170321:233949)', x='-701', y='-203')
+    lab.create_node(name='india-sw1', template='Cisco IOSvL2 15.2.1', x='-701', y='-203')
     sw2 = lab.get_node("india-sw1")
     sw2.start()
 
-    lab.create_node(name='india-sw2', template='Cisco IOSvL2 15.2(20170321:233949)', x='-850', y='-203')
+    lab.create_node(name='india-sw2', template='Cisco IOSvL2 15.2.1', x='-850', y='-203')
     sw3 = lab.get_node("india-sw2")
     sw3.start()
 
-    lab.create_node(name='japan-sw1', template='Cisco IOSvL2 15.2(20170321:233949)', x='502', y='-203')
+    lab.create_node(name='japan-sw1', template='Cisco IOSvL2 15.2.1', x='502', y='-203')
     sw4 = lab.get_node("japan-sw1")
     sw4.start()
 
-    lab.create_node(name='japan-sw2', template='Cisco IOSvL2 15.2(20170321:233949)', x='656', y='-203')
+    lab.create_node(name='japan-sw2', template='Cisco IOSvL2 15.2.1', x='656', y='-203')
     sw5 = lab.get_node("japan-sw2")
     sw5.start()
 
-    lab.create_node(name='china-sw1', template='Cisco IOSvL2 15.2(20170321:233949)', x='500', y='164')
+    lab.create_node(name='china-sw1', template='Cisco IOSvL2 15.2.1', x='500', y='164')
     sw6 = lab.get_node("china-sw1")
     sw6.start()
 
-    lab.create_node(name='china-sw2', template='Cisco IOSvL2 15.2(20170321:233949)', x='653', y='164')
+    lab.create_node(name='china-sw2', template='Cisco IOSvL2 15.2.1', x='653', y='164')
     sw7 = lab.get_node("china-sw2")
     sw7.start()
 
-    lab.create_node(name='germany-sw1', template='Cisco IOSvL2 15.2(20170321:233949)', x='498', y='536')
+    lab.create_node(name='germany-sw1', template='Cisco IOSvL2 15.2.1', x='498', y='536')
     sw8 = lab.get_node("germany-sw1")
     sw8.start()
 
-    lab.create_node(name='germany-sw2', template='Cisco IOSvL2 15.2(20170321:233949)', x='651', y='536')
+    lab.create_node(name='germany-sw2', template='Cisco IOSvL2 15.2.1', x='651', y='536')
     sw9 = lab.get_node("germany-sw2")
     sw9.start()
 
-    lab.create_node(name='europe-sw1', template='Cisco IOSvL2 15.2(20170321:233949)', x='-700', y='167')
+    lab.create_node(name='europe-sw1', template='Cisco IOSvL2 15.2.1', x='-700', y='167')
     sw10 = lab.get_node("europe-sw1")
     sw10.start()
 
-    lab.create_node(name='europe-sw2', template='Cisco IOSvL2 15.2(20170321:233949)', x='-853', y='167')
+    lab.create_node(name='europe-sw2', template='Cisco IOSvL2 15.2.1', x='-853', y='167')
     sw11 = lab.get_node("europe-sw2")
     sw11.start()
 
-    lab.create_node(name='america-sw1', template='Cisco IOSvL2 15.2(20170321:233949)', x='-700', y='534')
+    lab.create_node(name='america-sw1', template='Cisco IOSvL2 15.2.1', x='-700', y='534')
     sw12 = lab.get_node("america-sw1")
     sw12.start()
 
-    lab.create_node(name='america-sw2', template='Cisco IOSvL2 15.2(20170321:233949)', x='-850', y='534')
+    lab.create_node(name='america-sw2', template='Cisco IOSvL2 15.2.1', x='-850', y='534')
     sw13 = lab.get_node("america-sw2")
     sw13.start()
 
