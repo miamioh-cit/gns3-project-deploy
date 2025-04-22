@@ -7,6 +7,7 @@ WORKDIR /app
 # Copy required files explicitly
 COPY gns3-project-deploy.py /app/
 COPY 281-build.py /app/
+COPY 284-build.py /app/
 COPY 358-build.py /app/
 COPY 386-build.py /app/
 COPY requirements.txt /app/
