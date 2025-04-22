@@ -94,6 +94,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("Switch2", "Ethernet2", "Windows10w/Edge-2", "NIC1")
 
     note_payload = {
+        "type": "note",
         "x": 200,
         "y": 250,
         "text": "Configure default gateway here",
