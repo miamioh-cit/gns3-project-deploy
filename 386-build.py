@@ -541,10 +541,10 @@ for SERVER_URL in SERVER_URLS:
     #Edge Router Links
     lab.create_link("switzerland-edge", "Gi0/1", "india-edge", "Gi0/1")
     lab.create_link("switzerland-edge", "Gi0/2", "japan-edge", "Gi0/2")
-    lab.create_link("switzerland-edge", "Gi0/4", "china-edge", "Gi0/5")
-    lab.create_link("switzerland-edge", "Gi0/6", "germany-edge", "Gi0/6")
     lab.create_link("switzerland-edge", "Gi0/3", "europe-edge", "Gi0/4")
+    lab.create_link("switzerland-edge", "Gi0/4", "china-edge", "Gi0/5")
     lab.create_link("switzerland-edge", "Gi0/5", "america-edge", "Gi0/5")
+    lab.create_link("switzerland-edge", "Gi0/6", "germany-edge", "Gi0/6")
     lab.create_link("india-edge", "Gi0/2", "europe-edge", "Gi0/2")
     lab.create_link("europe-edge", "Gi0/3", "america-edge", "Gi0/3")
     lab.create_link("japan-edge", "Gi0/3", "china-edge", "Gi0/3")
