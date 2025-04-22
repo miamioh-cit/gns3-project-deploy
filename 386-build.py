@@ -292,7 +292,7 @@ for SERVER_URL in SERVER_URLS:
     VPC63 = lab.get_node("germany-web")
     VPC63.start()
 
-    lab.create_node(name='switzerland-int', template='Cisco IOSv 15.5(3)M', x='-108', y='-322').start()
+    lab.create_node(name='switzerland-int', template='Cisco IOSv 15.5(3)M', x='-108', y='-322')
     router0 = lab.get_node("switzerland-int")
     router0.start()
 
