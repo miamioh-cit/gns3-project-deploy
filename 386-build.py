@@ -296,7 +296,7 @@ for SERVER_URL in SERVER_URLS:
     router0 = lab.get_node("switzerland-int")
     router0.start()
 
-    lab.create_node(name='switzerland-edge', template='Cisco IOSv 15.5(3)M', x='-107', y='-100')
+    lab.create_node(name='switzerland-edge', template='Cisco IOSv 15.5(3)M', x='-107', y='-100',  properties={"adapters": 16})
     router1 = lab.get_node("switzerland-edge")
     router1.start()
 
