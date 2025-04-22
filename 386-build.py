@@ -349,7 +349,7 @@ for SERVER_URL in SERVER_URLS:
     router13.start()
 
     
-    lab.create_node(name='switzerland-sw1', template='Cisco IOSvL2 15.2(20170321:233949)', x='-100', y='-473')
+    lab.create_node(name='switzerland-sw1', template='Cisco IOSvL2 15.2.1', x='-100', y='-473')
     sw0 = lab.get_node("switzerland-sw1")
     sw0.start()
 
