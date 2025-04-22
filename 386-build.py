@@ -554,16 +554,7 @@ for SERVER_URL in SERVER_URLS:
 
 
 
-    # Ohio + Kentucky clients
-    for i, name in enumerate([
-        "ohio-01", "ohio-02", "ohio-win10-03", "ohio-win10-04",
-        "ky-win10-01", "ky-win10-02", "ky-win10-03", "ky-win10-04"
-    ]):
-        lab.create_node(name=name, template='Windows 10 w/ Edge', x=300+i, y=200).start()
-
-    # Links
-    lab.create_link("svr16", "NIC1", "switch1", "Gi0/0")
-
+  
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
     print("-----------------------------------------------------------------------")
