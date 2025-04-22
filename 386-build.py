@@ -538,7 +538,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("america-web", "Ethernet0", "america-ASA", "Gi0/2")
     lab.create_link("america-edge", "Gi0/0", "america-ASA", "Gi0/0")
 
-    #Edge Router Connections
+    #Edge Router Links
     lab.create_link("switzerland-edge", "Gi0/1", "india-edge", "Gi0/1")
     lab.create_link("switzerland-edge", "Gi0/2", "japan-edge", "Gi0/2")
     lab.create_link("switzerland-edge", "Gi0/4", "china-edge", "Gi0/5")
