@@ -93,6 +93,18 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("Switch2", "Ethernet1", "Windows10-2", "Ethernet0")
     lab.create_link("Switch2", "Ethernet2", "Windows10w/Edge-2", "NIC1")
 
+    #Create lines and textboxes
+    {
+  "type": "note",
+  "x": 100,
+  "y": 150,
+  "text": "Student A - Configure OSPF here",
+  "font_size": 14,
+  "color": "#000000",
+  "background_color": "#FFFFAA",
+  "locked": false
+}
+
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
     print("-----------------------------------------------------------------------")
