@@ -111,6 +111,10 @@ for SERVER_URL in SERVER_URLS:
     router3 = lab.get_node("ky-int")
     router3.start()
 
+    lab.create_node(name='NetworkAutomation-1', template='Network Automation', x=253, y=14)
+    netAuto0 = lab.get_node("NetworkAutomation-1")
+    netAuto0.start()
+
     lab.create_node(name='oh-edge', template='Cisco IOSv 15.5(3)M', x=-31, y=91)
     router4 = lab.get_node("oh-edge")
     router4.start()
