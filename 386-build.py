@@ -91,7 +91,7 @@ for SERVER_URL in SERVER_URLS:
     VPC13 = lab.get_node("india-pc6")
     VPC13.start()
 
-    lab.create_node(name='india-web', template='VPCS', x='-561', y='-331')
+    lab.create_node(name='india-web', template='VPCS', x='-515', y='-331')
     VPC14 = lab.get_node("india-web")
     VPC14.start()
 
@@ -184,7 +184,7 @@ for SERVER_URL in SERVER_URLS:
     VPC36 = lab.get_node("america-web")
     VPC36.start()
 
-    lab.create_node(name='japan-web', template='VPCS', x='339', y='-328')
+    lab.create_node(name='japan-web', template='VPCS', x='305', y='-328')
     VPC37 = lab.get_node("japan-web")
     VPC37.start()
 
