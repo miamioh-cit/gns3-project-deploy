@@ -44,23 +44,23 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name='internet', template='Cloud', x=-120, y=-292)
 
 
-    lab.create_node(name='router 1', template='Cisco IOSv 15.3(3)M', x=-78, y=-147)
+    lab.create_node(name='router 1', template='Cisco IOSv 15.5(3)M', x=-78, y=-147)
     router1 = lab.get_node("router 1")
     router1.start()
 
-    lab.create_node(name='router 2', template='Cisco IOSv 15.3(3)M', x=-452, y=-9)
+    lab.create_node(name='router 2', template='Cisco IOSv 15.5(3)M', x=-452, y=-9)
     router2 = lab.get_node("router 2")
     router2.start()
 
-    lab.create_node(name='router 3', template='Cisco IOSv 15.3(3)M', x=-218, y=-9)
+    lab.create_node(name='router 3', template='Cisco IOSv 15.5(3)M', x=-218, y=-9)
     router3 = lab.get_node("router 3")
     router3.start()
 
-    lab.create_node(name='router 4', template='Cisco IOSv 15.3(3)M', x=66, y=-9)
+    lab.create_node(name='router 4', template='Cisco IOSv 15.5(3)M', x=66, y=-9)
     router4 = lab.get_node("router 4")
     router4.start()
 
-    lab.create_node(name='router 5', template='Cisco IOSv 15.3(3)M', x=334, y=-9)
+    lab.create_node(name='router 5', template='Cisco IOSv 15.5(3)M', x=334, y=-9)
     router5 = lab.get_node("router 5")
     router5.start()
 
