@@ -44,24 +44,24 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name='internet', template='Cloud', x=-120, y=-292)
 
 
-    lab.create_node(name='router-1', template='Cisco IOSv 15.5(3)M', x=-78, y=-147, properties={"adapters": 16})
-    router1 = lab.get_node("router-1")
+    lab.create_node(name='router-5', template='Cisco IOSv 15.5(3)M', x=-78, y=-147, properties={"adapters": 16})
+    router1 = lab.get_node("router-5")
     router1.start()
 
-    lab.create_node(name='router-2', template='Cisco IOSv 15.5(3)M', x=-452, y=-9)
-    router2 = lab.get_node("router-2")
+    lab.create_node(name='router-1', template='Cisco IOSv 15.5(3)M', x=-452, y=-9)
+    router2 = lab.get_node("router-1")
     router2.start()
 
-    lab.create_node(name='router-3', template='Cisco IOSv 15.5(3)M', x=-218, y=-9)
-    router3 = lab.get_node("router-3")
+    lab.create_node(name='router-2', template='Cisco IOSv 15.5(3)M', x=-218, y=-9)
+    router3 = lab.get_node("router-2")
     router3.start()
 
-    lab.create_node(name='router-4', template='Cisco IOSv 15.5(3)M', x=66, y=-9)
-    router4 = lab.get_node("router-4")
+    lab.create_node(name='router-3', template='Cisco IOSv 15.5(3)M', x=66, y=-9)
+    router4 = lab.get_node("router-3")
     router4.start()
 
-    lab.create_node(name='router-5', template='Cisco IOSv 15.5(3)M', x=334, y=-9)
-    router5 = lab.get_node("router-5")
+    lab.create_node(name='router-4', template='Cisco IOSv 15.5(3)M', x=334, y=-9)
+    router5 = lab.get_node("router-4")
     router5.start()
 
     lab.create_node(name='server-1', template='Windows Server 2022', x=-325, y=76)
@@ -114,21 +114,21 @@ for SERVER_URL in SERVER_URLS:
 
 
 
-    lab.create_link("router-2", "Gi0/2", "router-1", "Gi0/0")
-    lab.create_link("router-3", "Gi0/2", "router-1", "Gi0/1")
-    lab.create_link("router-4", "Gi0/2", "router-1", "Gi0/2")
-    lab.create_link("router-5", "Gi0/2", "router-1", "Gi0/3")
-    lab.create_link("router-1", "Gi0/4", "internet", "eth0")
+    lab.create_link("router-1", "Gi0/2", "router-5", "Gi0/0")
+    lab.create_link("router-2", "Gi0/2", "router-5", "Gi0/1")
+    lab.create_link("router-3", "Gi0/2", "router-5", "Gi0/2")
+    lab.create_link("router-4", "Gi0/2", "router-5", "Gi0/3")
+    lab.create_link("router-5", "Gi0/4", "internet", "eth0")
 
-    lab.create_link("router-2", "Gi0/0", "switch-1", "Gi0/0")
-    lab.create_link("router-3", "Gi0/0", "switch-2", "Gi0/0")
-    lab.create_link("router-4", "Gi0/0", "switch-3", "Gi0/0")
-    lab.create_link("router-5", "Gi0/0", "switch-4", "Gi0/0")
+    lab.create_link("router-1", "Gi0/0", "switch-1", "Gi0/0")
+    lab.create_link("router-2", "Gi0/0", "switch-2", "Gi0/0")
+    lab.create_link("router-3", "Gi0/0", "switch-3", "Gi0/0")
+    lab.create_link("router-4", "Gi0/0", "switch-4", "Gi0/0")
 
-    lab.create_link("router-2", "Gi0/1", "server-1", "Ethernet0")
-    lab.create_link("router-3", "Gi0/1", "server-2", "Ethernet0")
-    lab.create_link("router-4", "Gi0/1", "server-3", "Ethernet0")
-    lab.create_link("router-5", "Gi0/1", "server-4", "Ethernet0")
+    lab.create_link("router-1", "Gi0/1", "server-1", "Ethernet0")
+    lab.create_link("router-2", "Gi0/1", "server-2", "Ethernet0")
+    lab.create_link("router-3", "Gi0/1", "server-3", "Ethernet0")
+    lab.create_link("router-4", "Gi0/1", "server-4", "Ethernet0")
 
     lab.create_link("switch-1", "Gi0/1", "Linux-1", "eth0")
     lab.create_link("switch-2", "Gi0/1", "Linux-2", "eth0")
