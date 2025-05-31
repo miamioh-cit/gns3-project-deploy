@@ -116,8 +116,8 @@ for SERVER_URL in SERVER_URLS:
 
     lab.create_link("router-2", "Gi0/2", "router-1", "Gi0/0")
     lab.create_link("router-3", "Gi0/2", "router-1", "Gi0/1")
-    lab.create_link("router-4", "Gi0/2", "router-1", "Gi0/3")
-    lab.create_link("router-5", "Gi0/2", "router-1", "Gi0/4")
+    lab.create_link("router-4", "Gi0/2", "router-1", "Gi0/2")
+    lab.create_link("router-5", "Gi0/2", "router-1", "Gi0/3")
     lab.create_link("router-1", "Gi0/5", "internet", "eth0")
 
     lab.create_link("router-2", "Gi0/0", "switch-1", "Gi0/0")
