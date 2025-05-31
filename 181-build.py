@@ -64,52 +64,52 @@ for SERVER_URL in SERVER_URLS:
     router5 = lab.get_node("router-5")
     router5.start()
 
-    lab.create_node(name='server 1', template='Windows Server 2022', x=-325, y=76)
-    server1 = lab.get_node("server 1")
+    lab.create_node(name='server-1', template='Windows Server 2022', x=-325, y=76)
+    server1 = lab.get_node("server-1")
     server1.start()
 
-    lab.create_node(name='server 2', template='Windows Server 2022', x=-89, y=76)
-    server2 = lab.get_node("server 2")
+    lab.create_node(name='server-2', template='Windows Server 2022', x=-89, y=76)
+    server2 = lab.get_node("server-2")
     server2.start()
 
-    lab.create_node(name='server 3', template='Windows Server 2022', x=-189, y=76)
-    server3 = lab.get_node("server 3")
+    lab.create_node(name='server-3', template='Windows Server 2022', x=-189, y=76)
+    server3 = lab.get_node("server-3")
     server3.start()
 
-    lab.create_node(name='server 4', template='Windows Server 2022', x=449, y=76)
-    server4 = lab.get_node("server 4")
+    lab.create_node(name='server-4', template='Windows Server 2022', x=449, y=76)
+    server4 = lab.get_node("server-4")
     server4.start()
 
-    lab.create_node(name='switch 1', template='Cisco IOSvL2 15.2.1', x=-459, y=214)
-    sw1 = lab.get_node("switch 1")
+    lab.create_node(name='switch-1', template='Cisco IOSvL2 15.2.1', x=-459, y=214)
+    sw1 = lab.get_node("switch-1")
     sw1.start()
 
-    lab.create_node(name='switch 2', template='Cisco IOSvL2 15.2.1', x=-223, y=214)
-    sw2 = lab.get_node("switch 2")
+    lab.create_node(name='switch-2', template='Cisco IOSvL2 15.2.1', x=-223, y=214)
+    sw2 = lab.get_node("switch-2")
     sw2.start()
 
-    lab.create_node(name='switch 3', template='Cisco IOSvL2 15.2.1', x=61, y=214)
-    sw3 = lab.get_node("switch 3")
+    lab.create_node(name='switch-3', template='Cisco IOSvL2 15.2.1', x=61, y=214)
+    sw3 = lab.get_node("switch-3")
     sw3.start()
 
-    lab.create_node(name='switch 4', template='Cisco IOSvL2 15.2.1', x=327, y=214)
-    sw4 = lab.get_node("switch 4")
+    lab.create_node(name='switch-4', template='Cisco IOSvL2 15.2.1', x=327, y=214)
+    sw4 = lab.get_node("switch-4")
     sw4.start()
 
-    lab.create_node(name='Linux 1', template='Kali Linux 2021.1', x=-468, y=325)
-    linux1 = lab.get_node("Linux 1")
+    lab.create_node(name='Linux-1', template='Kali Linux 2021.1', x=-468, y=325)
+    linux1 = lab.get_node("Linux-1")
     linux1.start()
 
-    lab.create_node(name='Linux 2', template='Kali Linux 2021.1', x=-232, y=325)
-    linux2 = lab.get_node("Linux 2")
+    lab.create_node(name='Linux-2', template='Kali Linux 2021.1', x=-232, y=325)
+    linux2 = lab.get_node("Linux-2")
     linux2.start()
 
-    lab.create_node(name='Linux 3', template='Kali Linux 2021.1', x=56, y=325)
-    linux3 = lab.get_node("Linux 3")
+    lab.create_node(name='Linux-3', template='Kali Linux 2021.1', x=56, y=325)
+    linux3 = lab.get_node("Linux-3")
     linux3.start()
 
-    lab.create_node(name='Linux 4', template='Kali Linux 2021.1', x=322, y=325)
-    linux4 = lab.get_node("Linux 4")
+    lab.create_node(name='Linux-4', template='Kali Linux 2021.1', x=322, y=325)
+    linux4 = lab.get_node("Linux-4")
     linux4.start()
 
 
