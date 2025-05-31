@@ -44,7 +44,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name='internet', template='Cloud', x=-120, y=-292)
 
 
-    lab.create_node(name='router-1', template='Cisco IOSv 15.5(3)M', x=-78, y=-147)
+    lab.create_node(name='router-1', template='Cisco IOSv 15.5(3)M', x=-78, y=-147, properties={"adapters": 16})
     router1 = lab.get_node("router-1")
     router1.start()
 
@@ -118,7 +118,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("router-3", "Gi0/2", "router-1", "Gi0/1")
     lab.create_link("router-4", "Gi0/2", "router-1", "Gi0/2")
     lab.create_link("router-5", "Gi0/2", "router-1", "Gi0/3")
-    lab.create_link("router-1", "Gi0/5", "internet", "eth0")
+    lab.create_link("router-1", "Gi0/4", "internet", "eth0")
 
     lab.create_link("router-2", "Gi0/0", "switch-1", "Gi0/0")
     lab.create_link("router-3", "Gi0/0", "switch-2", "Gi0/0")
