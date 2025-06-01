@@ -59,7 +59,7 @@ for SERVER_URL in SERVER_URLS:
     router4 = lab.get_node("router-4")
     router4.start()
 
-    lab.create_node(name='router-5', template='Cisco IOSv 15.5(3)M', x=334, y=-9)
+    lab.create_node(name='router-5', template='Cisco IOSv 15.5(3)M', x=334, y=-9, properties={"adapters": 16})
     router5 = lab.get_node("router-5")
     router5.start()
 
