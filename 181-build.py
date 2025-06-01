@@ -43,7 +43,7 @@ for SERVER_URL in SERVER_URLS:
 
     lab.create_node(name='internet', template='Cloud', x=-120, y=-292)
 
-    lab.create_node(name='router-1', template='Cisco IOSv 15.5(3)M', x=-78, y=-147, properties={"adapters": 16})
+    lab.create_node(name='router-1', template='Cisco IOSv 15.5(3)M', x=-78, y=-147)
     router1 = lab.get_node("router-1")
     router1.start()
 
