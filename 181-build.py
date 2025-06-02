@@ -64,7 +64,7 @@ for SERVER_URL in SERVER_URLS:
     router5.start()
 
     lab.create_node(name='s1-web', template='Windows Server 2022', x=-325, y=76)
-    server1 = lab.get_node("server-1")
+    server1 = lab.get_node("s1-web")
     server1.start()
 
     lab.create_node(name='s2-web', template='Windows Server 2022', x=-89, y=76)
