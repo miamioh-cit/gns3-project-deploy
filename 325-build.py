@@ -75,11 +75,11 @@ for SERVER_URL in SERVER_URLS:
     oxford = lab.get_node("oxford")
     oxford.start()
    
-    lab.create_node(name='mid-I', template='unbuntu', x=-188, y=0)
+    lab.create_node(name='mid-I', template='ubuntu', x=-188, y=0)
     mid_i = lab.get_node("mid-I")
     mid_i.start()
 
-    lab.create_node(name='ham-1', template='unbuntu', x=188, y=0)
+    lab.create_node(name='ham-1', template='ubuntu', x=188, y=0)
     ham1 = lab.get_node("ham-1")
     ham1.start()
 
