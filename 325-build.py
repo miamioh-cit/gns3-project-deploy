@@ -71,15 +71,15 @@ for SERVER_URL in SERVER_URLS:
     switch2 = lab.get_node("ham-sw")
     switch2.start()
 
-    lab.create_node(name='oxford', template='ubuntu', x=-188, y=-50)
+    lab.create_node(name='oxford', template='ubuntu', x=-225, y=-50)
     oxford = lab.get_node("oxford")
     oxford.start()
    
-    lab.create_node(name='mid-I', template='ubuntu', x=-188, y=0)
+    lab.create_node(name='mid-I', template='ubuntu', x=-225, y=0)
     mid_i = lab.get_node("mid-I")
     mid_i.start()
 
-    lab.create_node(name='ham-1', template='ubuntu', x=188, y=0)
+    lab.create_node(name='ham-1', template='ubuntu', x=225, y=0)
     ham1 = lab.get_node("ham-1")
     ham1.start()
 
