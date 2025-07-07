@@ -1,7 +1,7 @@
 import logging
 from gns3fy import Gns3Connector, Project, Node, Link
 
-LAB_NAME = "325-test1"
+LAB_NAME = "281-test21"
 
 BASE_IP = "http://10.48.229."
 
@@ -41,118 +41,58 @@ for SERVER_URL in SERVER_URLS:
     available_templates = [template["name"] for template in server.get_templates()]
     logging.debug(f"Available Templates: {available_templates}")
 
-    lab.create_node(name='internet', template='Cloud', x=76, y=-76)
+    lab.create_node(name='internet', template='Cloud', x=511, y=91)
 
-    lab.create_node(name='offsite-switch', template='Cisco IOSvL2 15.2.1', x=-33, y=-175)
-    sw1 = lab.get_node("offsite-switch")
-    sw1.start()
-
-    lab.create_node(name='ohio-switch', template='Cisco IOSvL2 15.2.1', x=-19, y=280)
-    sw2 = lab.get_node("ohio-switch")
-    sw2.start()
-
-    lab.create_node(name='ky-switch-1', template='Cisco IOSvL2 15.2.1', x=163, y=275)
-    sw3 = lab.get_node("ky-switch-1")
-    sw3.start()
-
-    lab.create_node(name='ky-switch-2', template='Cisco IOSvL2 15.2.1', x=334, y=275)
-    sw4 = lab.get_node("ky-switch-2")
-    sw4.start()
-
-    lab.create_node(name='offsite-win10', template='Windows 10 w/ Edge', x=50, y=-300)
-    win10_off = lab.get_node("offsite-win10")
-    win10_off.start()
-
-    lab.create_node(name='in-win10-01', template='Windows 10 w/ Edge', x=-188, y=-68)
-    win10_in1 = lab.get_node("in-win10-01")
-    win10_in1.start()
-
-    lab.create_node(name='ohio-win10-01', template='Windows 10 w/ Edge', x=-200, y=400)
-    win10_oh1 = lab.get_node("ohio-win10-01")
-    win10_oh1.start()
-
-    lab.create_node(name='ohio-win10-02', template='Windows 10 w/ Edge', x=-116, y=400)
-    win10_oh2 = lab.get_node("ohio-win10-02")
-    win10_oh2.start()
-
-    lab.create_node(name='ohio-win10-03', template='Windows 10 w/ Edge', x=-28, y=400)
-    win10_oh3 = lab.get_node("ohio-win10-03")
-    win10_oh3.start()
-
-    lab.create_node(name='ky-win10-01', template='Windows 10 w/ Edge', x=129, y=400)
-    win10_ky1 = lab.get_node("ky-win10-01")
-    win10_ky1.start()
-
-    lab.create_node(name='ky-win10-02', template='Windows 10 w/ Edge', x=208, y=400)
-    win10_ky2 = lab.get_node("ky-win10-02")
-    win10_ky2.start()
-
-    lab.create_node(name='ky-win10-03', template='Windows 10 w/ Edge', x=285, y=400)
-    win10_ky3 = lab.get_node("ky-win10-03")
-    win10_ky3.start()
-
-    lab.create_node(name='ky-win10-04', template='Windows 10 w/ Edge', x=367, y=400)
-    win10_ky4 = lab.get_node("ky-win10-04")
-    win10_ky4.start()
-
-    lab.create_node(name='in-edge', template='Cisco IOSv 15.5(3)M', x=-113, y=32)
-    router0 = lab.get_node("in-edge")
-    router0.start()
-
-    lab.create_node(name='offsite-router', template='Cisco IOSv 15.5(3)M', x=-37, y=-72)
-    router1 = lab.get_node("offsite-router")
+    lab.create_node(name='mgmt', template='Cisco IOSv 15.5(3)M', x=-20, y=-337)
+    router1 = lab.get_node("mgmt")
     router1.start()
 
-    lab.create_node(name='ky-edge', template='Cisco IOSv 15.5(3)M', x=46, y=24)
-    router2 = lab.get_node("ky-edge")
+    lab.create_node(name='mid-sw', template='Cisco IOSv 15.5(3)M', x=-102, y=355)
+    router2 = lab.get_node("mid-sw")
     router2.start()
 
-    lab.create_node(name='ky-int', template='Cisco IOSv 15.5(3)M', x=149, y=96)
-    router3 = lab.get_node("ky-int")
+    lab.create_node(name='ham-sw', template='Cisco IOSv 15.5(3)M', x=115, y=355)
+    router3 = lab.get_node("ham-sw")
     router3.start()
 
-    lab.create_node(name='NetworkAutomation-1', template='Network Automation', x=253, y=14)
-    netAuto0 = lab.get_node("NetworkAutomation-1")
-    netAuto0.start()
-
-    lab.create_node(name='oh-edge', template='Cisco IOSv 15.5(3)M', x=-31, y=91)
-    router4 = lab.get_node("oh-edge")
+    lab.create_node(name='reg-traffic', template='Cisco IOSv 15.5(3)M', x=0, y=471)
+    router4 = lab.get_node("reg-traffic")
     router4.start()
 
-    lab.create_node(name='oh-int', template='Cisco IOSv 15.5(3)M', x=-31, y=192)
-    router5 = lab.get_node("oh-int")
-    router5.start()
+    lab.create_node(name='1', template='Ethernet Switch', x=-20, y=-205)
+    switch1 = lab.get_node("1")
+    switch1.start()
 
-    lab.create_node(name='offsite-web', template='Windows Server 2022', x=-75, y=-300)
-    winserver16_1 = lab.get_node("offsite-web")
-    winserver16_1.start()
+    lab.create_node(name='mid-sw', template='Ethernet Switch', x=-259, y=258)
+    switch2 = lab.get_node("mid-sw")
+    switch2.start()
 
-    lab.create_node(name='ohio-web', template='Windows Server 2022', x=-172, y=183)
-    winserver16_3 = lab.get_node("ohio-web")
-    winserver16_3.start()
+
+
+    lab.create_node(name='oxford', template='ubuntu', x=-188, y=-50)
+    oxford = lab.get_node("oxford")
+    oxford.start()
+   
+    lab.create_node(name='mid-I', template='unbuntu', x=-188, y=0)
+    mid_i = lab.get_node("mid-I")
+    mid_i.start()
+
+    lab.create_node(name='ham-1', template='unbuntu', x=188, y=0)
+    ham1 = lab.get_node("ham-1")
+    ham1.start()
+
+    lab.create_node(name='mid-w', template='Windows 10', x=-141, y=63)
+    midw = lab.get_node("mid-w")
+    midw.start()
+
+    lab.create_node(name='ham-w', template='Windows 10', x=136, y=57)
+    hamw = lab.get_node("ham-w")
+    hamw.start()
+
+
 
     lab.create_link("offsite-web", "Ethernet0", "offsite-switch", "Gi0/0")
-    lab.create_link("offsite-win10", "NIC1", "offsite-switch", "Gi0/1")
-    lab.create_link("offsite-switch", "Gi0/2", "offsite-router", "Gi0/0")
-    lab.create_link("in-edge", "Gi0/0", "offsite-router", "Gi0/1")
-    lab.create_link("ky-edge", "Gi0/0", "offsite-router", "Gi0/2")
-    lab.create_link("ky-edge", "Gi0/1", "ky-int", "Gi0/1")
-    lab.create_link("ky-edge", "Gi0/2", "oh-edge", "Gi0/0")
-    lab.create_link("in-edge", "Gi0/1", "oh-edge", "Gi0/1")
-    lab.create_link("oh-edge", "Gi0/2", "oh-int", "Gi0/0")
-    lab.create_link("internet", "eth0", "ky-edge", "Gi0/3")
-    lab.create_link("oh-int", "Gi0/1", "ohio-switch", "Gi0/0")
-    lab.create_link("ohio-win10-01", "NIC1", "ohio-switch", "Gi0/1")
-    lab.create_link("ohio-win10-02", "NIC1", "ohio-switch", "Gi0/2")
-    lab.create_link("ohio-win10-03", "NIC1", "ohio-switch", "Gi0/3")
-    lab.create_link("ohio-web", "Ethernet0", "oh-int", "Gi0/2")
-    lab.create_link("in-win10-01", "NIC1", "in-edge", "Gi0/2")
-    lab.create_link("ky-int", "Gi0/0", "ky-switch-1", "Gi0/0")
-    lab.create_link("ky-switch-1", "Gi0/1", "ky-switch-2", "Gi0/0")
-    lab.create_link("ky-win10-01", "NIC1", "ky-switch-1", "Gi0/2")
-    lab.create_link("ky-win10-02", "NIC1", "ky-switch-1", "Gi0/3")
-    lab.create_link("ky-win10-03", "NIC1", "ky-switch-2", "Gi1/0")
-    lab.create_link("ky-win10-04", "NIC1", "ky-switch-2", "Gi1/1")
+
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
