@@ -48,11 +48,11 @@ for SERVER_URL in SERVER_URLS:
     router1.start()
 
     lab.create_node(name='mid-r', template='Cisco IOSv 15.5(3)M', x=-102, y=355)
-    router2 = lab.get_node("mid-sw")
+    router2 = lab.get_node("mid-r")
     router2.start()
 
     lab.create_node(name='ham-r', template='Cisco IOSv 15.5(3)M', x=115, y=355)
-    router3 = lab.get_node("ham-sw")
+    router3 = lab.get_node("ham-r")
     router3.start()
 
     lab.create_node(name='reg-traffic', template='Cisco IOSv 15.5(3)M', x=0, y=471)
