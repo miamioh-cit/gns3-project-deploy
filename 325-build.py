@@ -41,7 +41,7 @@ for SERVER_URL in SERVER_URLS:
     available_templates = [template["name"] for template in server.get_templates()]
     logging.debug(f"Available Templates: {available_templates}")
 
-    lab.create_node(name='isp', template='Cloud', x=511, y=91, properties={"interfaces": [{"name": "eth0"}, {"name": "eth1"}]})adapters=2)
+    lab.create_node(name='isp', template='Cloud', x=511, y=91, properties={"interfaces": [{"name": "eth0"}, {"name": "eth1"}]})
 
     lab.create_node(name='mgmt', template='Cisco IOSv 15.5(3)M', x=-20, y=-337)
     router1 = lab.get_node("mgmt")
