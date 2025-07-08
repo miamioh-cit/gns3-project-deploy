@@ -93,15 +93,15 @@ for SERVER_URL in SERVER_URLS:
 
 
 
-    lab.create_link("mgmt", "Gi0/0", "1", "Ethernet0")
+    lab.create_link("mgmt", "Gi0/0", "1", "Gi0/0")
     lab.create_link("mgmt", "Gi0/1", "isp", "eth0")
-    lab.create_link("1", "Ethernet1", "oxford", "Ethernet0")
-    lab.create_link("1", "Ethernet2", "mid-I", "Ethernet0")
-    lab.create_link("1", "Ethernet3", "mid-w", "Ethernet0")
-    lab.create_link("1", "Ethernet4", "mid-r", "Ethernet0")
-    lab.create_link("1", "Ethernet5", "ham-r", "Ethernet0")
-    lab.create_link("1", "Ethernet6", "ham-w", "Ethernet0")
-    lab.create_link("1", "Ethernet7", "ham-I", "Ethernet0")
+    lab.create_link("1", "Gi0/1", "oxford", "Ethernet0")
+    lab.create_link("1", "Gi0/2", "mid-I", "Ethernet0")
+    lab.create_link("1", "Gi0/3", "mid-w", "Ethernet0")
+    lab.create_link("1", "Gi1/0", "mid-r", "Ethernet0")
+    lab.create_link("1", "Gi1/1", "ham-r", "Ethernet0")
+    lab.create_link("1", "Gi1/2", "ham-w", "Ethernet0")
+    lab.create_link("1", "Gi1/3", "ham-I", "Ethernet0")
 
 
     print("-----------------------------------------------------------------------")
