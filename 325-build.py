@@ -41,7 +41,7 @@ for SERVER_URL in SERVER_URLS:
     available_templates = [template["name"] for template in server.get_templates()]
     logging.debug(f"Available Templates: {available_templates}")
 
-    lab.create_node(name='isp', template='Cloud', x=511, y=91, properties={adapters=2})
+    lab.create_node(name='isp', template='Cloud', x='511', y='91', properties={"adapters": 2})
 
     lab.create_node(name='mgmt', template='Cisco IOSv 15.5(3)M', x=-20, y=-337)
     router1 = lab.get_node("mgmt")
@@ -71,7 +71,7 @@ for SERVER_URL in SERVER_URLS:
     switch2 = lab.get_node("ham-sw")
     switch2.start()
 
-    lab.create_node(name='oxford', template='ubuntu', x=-250, y=-85, adapters=2)
+    lab.create_node(name='oxford', template='ubuntu', x=-250, y=-85)
     oxford = lab.get_node("oxford")
     oxford.start()
    
