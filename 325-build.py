@@ -79,8 +79,8 @@ for SERVER_URL in SERVER_URLS:
     mid_i = lab.get_node("mid-I")
     mid_i.start()
 
-    lab.create_node(name='ham-1', template='ubuntu', x=250, y=0)
-    ham1 = lab.get_node("ham-1")
+    lab.create_node(name='ham-I', template='ubuntu', x=250, y=0)
+    ham1 = lab.get_node("ham-I")
     ham1.start()
 
     lab.create_node(name='mid-w', template='Windows 10', x=-141, y=63)
