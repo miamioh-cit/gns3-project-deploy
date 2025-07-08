@@ -103,15 +103,16 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("1", "Gi1/2", "ham-w", "Ethernet0")
     lab.create_link("1", "Gi1/3", "ham-I", "Ethernet0")
     
-    lab.create_link("mid-sw", "Gi0/0", "mid-I", "Ethernet0")
-    lab.create_link("mid-sw", "Gi0/1", "mid-w", "Ethernet0")
-    lab.create_link("mid-sw", "Gi0/2", "mid-r", "Ethernet0")
+    lab.create_link("mid-sw", "Gi0/0", "mid-I", "Ethernet1")
+    lab.create_link("mid-sw", "Gi0/1", "mid-w", "Ethernet1")
+    lab.create_link("mid-sw", "Gi0/2", "mid-r", "Gi0/1")
     lab.create_link("reg-traffic", "Gi0/0", "ham-r", "Gi0/1")
-    lab.create_link("reg-traffic", "Gi0/1", "mid-r", "Gi0/1")
-    lab.create_link("reg-traffic", "Gi0/2", "isp", "eth1")
-    lab.create_link("ham-sw", "Gi0/0", "ham-I", "Ethernet0")
-    lab.create_link("ham-sw", "Gi0/1", "ham-w", "Ethernet0")
+    lab.create_link("reg-traffic", "Gi0/1", "mid-r", "Gi0/2")
+    
+    lab.create_link("ham-sw", "Gi0/0", "ham-I", "Ethernet1")
+    lab.create_link("ham-sw", "Gi0/1", "ham-w", "Ethernet1")
     lab.create_link("ham-sw", "Gi0/2", "ham-r", "Gi0/2")
+    lab.create_link("reg-traffic", "Gi0/2", "isp", "eth1")
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
