@@ -47,11 +47,11 @@ for SERVER_URL in SERVER_URLS:
     router1 = lab.get_node("mgmt")
     router1.start()
 
-    lab.create_node(name='mid-sw', template='Cisco IOSv 15.5(3)M', x=-102, y=355)
+    lab.create_node(name='mid-r', template='Cisco IOSv 15.5(3)M', x=-102, y=355)
     router2 = lab.get_node("mid-sw")
     router2.start()
 
-    lab.create_node(name='ham-sw', template='Cisco IOSv 15.5(3)M', x=115, y=355)
+    lab.create_node(name='ham-r', template='Cisco IOSv 15.5(3)M', x=115, y=355)
     router3 = lab.get_node("ham-sw")
     router3.start()
 
@@ -59,15 +59,15 @@ for SERVER_URL in SERVER_URLS:
     router4 = lab.get_node("reg-traffic")
     router4.start()
 
-    lab.create_node(name='1', template='Ethernet switch', x=-20, y=-205)
+    lab.create_node(name='1', template='Cisco IOSvL2 15.2.1', x=-20, y=-205)
     switch1 = lab.get_node("1")
     switch1.start()
 
-    lab.create_node(name='mid-sw', template='Ethernet switch', x=-259, y=258)
+    lab.create_node(name='mid-sw', template='Cisco IOSvL2 15.2.1', x=-259, y=258)
     switch2 = lab.get_node("mid-sw")
     switch2.start()
 
-    lab.create_node(name='ham-sw', template='Ethernet switch', x=273, y=258)
+    lab.create_node(name='ham-sw', template='Cisco IOSvL2 15.2.1', x=273, y=258)
     switch2 = lab.get_node("ham-sw")
     switch2.start()
 
