@@ -71,7 +71,7 @@ for SERVER_URL in SERVER_URLS:
     switch2 = lab.get_node("ham-sw")
     switch2.start()
 
-    lab.create_node(name='oxford', template='ubuntu', x=-250, y=-85)
+    lab.create_node(name='oxford', template='ubuntu', x=-250, y=-85, adapters=2)
     oxford = lab.get_node("oxford")
     oxford.start()
    
