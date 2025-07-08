@@ -41,7 +41,19 @@ for SERVER_URL in SERVER_URLS:
     available_templates = [template["name"] for template in server.get_templates()]
     logging.debug(f"Available Templates: {available_templates}")
 
-    lab.create_node(name='isp', template='Cloud', x='511', y='91')
+    lab.create_node(
+    name='isp',
+    node_type='cloud',
+    compute_id='local',
+    x=511,
+    y=91,
+    properties={
+        "interfaces": [
+            {"name": "eth0"},  # Replace with actual host interface name
+            {"name": "eth1"}      # Or a virtual adapter you created
+        ]
+    }
+)
 
     lab.create_node(name='mgmt', template='Cisco IOSv 15.5(3)M', x=-20, y=-337)
     router1 = lab.get_node("mgmt")
@@ -112,7 +124,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("ham-sw", "Gi0/0", "ham-I", "Ethernet1")
     lab.create_link("ham-sw", "Gi0/1", "ham-w", "Ethernet1")
     lab.create_link("ham-sw", "Gi0/2", "ham-r", "Gi0/2")
-    lab.create_link("reg-traffic", "Gi0/2", "isp", "eth0")
+    lab.create_link("reg-traffic", "Gi0/2", "isp", "eth1")
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
