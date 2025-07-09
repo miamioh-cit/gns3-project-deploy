@@ -1,7 +1,7 @@
 import logging
 from gns3fy import Gns3Connector, Project, Node, Link
 
-LAB_NAME = "325-Rohaeb"
+LAB_NAME = "325-Tony"
 
 BASE_IP = "http://10.48.229."
 
