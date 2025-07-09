@@ -41,7 +41,8 @@ for SERVER_URL in SERVER_URLS:
     available_templates = [template["name"] for template in server.get_templates()]
     logging.debug(f"Available Templates: {available_templates}")
 
-    lab.create_node(name='isp', template='Cloud', x='511', y='91')
+    lab.create_node(name='isp', template='Cloud', x='512', y='169')
+    lab.create_node(name='NAT', template='NAT', x='496', y='-5')
 
     lab.create_node(name='mgmt', template='Cisco IOSv 15.5(3)M', x=-20, y=-337)
     router1 = lab.get_node("mgmt")
@@ -94,7 +95,7 @@ for SERVER_URL in SERVER_URLS:
 
 
     lab.create_link("mgmt", "Gi0/0", "1", "Gi0/0")
-    lab.create_link("mgmt", "Gi0/1", "isp", "eth0")
+    lab.create_link("reg_traffic", "Gi0/2", "isp", "eth0")
     lab.create_link("1", "Gi0/1", "oxford", "Ethernet0")
     lab.create_link("1", "Gi0/2", "mid-I", "Ethernet0")
     lab.create_link("1", "Gi0/3", "mid-w", "Ethernet0")
@@ -112,7 +113,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("ham-sw", "Gi0/0", "ham-I", "Ethernet1")
     lab.create_link("ham-sw", "Gi0/1", "ham-w", "Ethernet1")
     lab.create_link("ham-sw", "Gi0/2", "ham-r", "Gi0/2")
-    lab.create_link("reg-traffic", "Gi0/2", "isp", "eth1")
+    lab.create_link("mgmt", "Gi0/1", "NAT", "eth0")
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
