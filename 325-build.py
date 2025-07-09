@@ -113,7 +113,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("ham-sw", "Gi0/0", "ham-I", "Ethernet1")
     lab.create_link("ham-sw", "Gi0/1", "ham-w", "Ethernet1")
     lab.create_link("ham-sw", "Gi0/2", "ham-r", "Gi0/2")
-    lab.create_link("mgmt", "Gi0/1", "NAT", "eth0")
+    lab.create_link("mgmt", "Gi0/1", "NAT", "nat0")
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
