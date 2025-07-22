@@ -41,8 +41,8 @@ for SERVER_URL in SERVER_URLS:
     available_templates = [template["name"] for template in server.get_templates()]
     logging.debug(f"Available Templates: {available_templates}")
 
-    lab.create_node(name='NAT-1', template='NAT', x='512', y='169')
-    lab.create_node(name='NAT-0', template='NAT', x='496', y='-5')
+    lab.create_node(name='NAT-1', template='NAT', x='200', y='474')
+    lab.create_node(name='NAT-0', template='NAT', x='220', y='-320')
 
     lab.create_node(name='mgmt-rtr', template='Cisco IOSv 15.5(3)M', x=-20, y=-337)
     router1 = lab.get_node("mgmt-rtr")
