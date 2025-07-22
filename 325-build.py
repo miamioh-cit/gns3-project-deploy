@@ -72,6 +72,10 @@ for SERVER_URL in SERVER_URLS:
     switch2 = lab.get_node("ham-sw")
     switch2.start()
 
+    lab.create_node(name='jenkins-server', template='ubuntu', x=-6, y=132)
+    jenkinsServer = lab.get_node("jenkins-server")
+    jenkinsServer.start()
+    
     lab.create_node(name='oxf-l', template='ubuntu', x=-250, y=-85)
     oxford = lab.get_node("oxf-l")
     oxford.start()
@@ -103,12 +107,15 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("mgmt-sw", "Gi1/1", "ham-rtr", "Gi0/0")
     lab.create_link("mgmt-sw", "Gi1/2", "ham-w", "Ethernet0")
     lab.create_link("mgmt-sw", "Gi1/3", "ham-l", "Ethernet0")
+    lab.create_link("mgmt-sw", "Gi2/0", "jenkins-server", "Ethernet0")
     
     lab.create_link("mid-sw", "Gi0/0", "mid-l", "Ethernet1")
     lab.create_link("mid-sw", "Gi0/1", "mid-w", "Ethernet1")
     lab.create_link("mid-sw", "Gi0/2", "mid-rtr", "Gi0/1")
     lab.create_link("reg-rtr", "Gi0/0", "ham-rtr", "Gi0/1")
     lab.create_link("reg-rtr", "Gi0/1", "mid-rtr", "Gi0/2")
+    lab.create_link("reg-rtr", "Gi0/3", "jenkins-server", "Ethernet1")
+    
     
     lab.create_link("ham-sw", "Gi0/0", "ham-l", "Ethernet1")
     lab.create_link("ham-sw", "Gi0/1", "ham-w", "Ethernet1")
