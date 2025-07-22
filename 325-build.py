@@ -95,7 +95,7 @@ for SERVER_URL in SERVER_URLS:
 
 
     lab.create_link("mgmt-rtr", "Gi0/0", "mgmt-sw", "Gi0/0")
-    lab.create_link("reg-rtr", "Gi0/2", "NAT-1", "eth0")
+    lab.create_link("reg-rtr", "Gi0/2", "NAT-1", "nat0")
     lab.create_link("mgmt-sw", "Gi0/1", "oxf-l", "Ethernet0")
     lab.create_link("mgmt-sw", "Gi0/2", "mid-l", "Ethernet0")
     lab.create_link("mgmt-sw", "Gi0/3", "mid-w", "Ethernet0")
