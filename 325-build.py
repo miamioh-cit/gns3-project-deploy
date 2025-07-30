@@ -1,7 +1,7 @@
 import logging
 from gns3fy import Gns3Connector, Project, Node, Link
 
-LAB_NAME = "325-test7-22"
+LAB_NAME = "325-test7-29"
 
 BASE_IP = "http://10.48.229."
 
@@ -41,9 +41,11 @@ for SERVER_URL in SERVER_URLS:
     available_templates = [template["name"] for template in server.get_templates()]
     logging.debug(f"Available Templates: {available_templates}")
 
-    lab.create_node(name='NAT-1', template='NAT', x='200', y='474')
+    lab.create_node(name='Cloud1', template='Cloud', x='200', y='474')
     lab.create_node(name='NAT-0', template='NAT', x='220', y='-320')
-
+    lab.create_node(name='NAT-2', template='NAT', x='-500', y='-233')
+    lab.create_node(name='NAT-3', template='NAT', x='415', y='-200')
+    
     lab.create_node(name='mgmt-rtr', template='Cisco IOSv 15.5(3)M', x=-20, y=-337)
     router1 = lab.get_node("mgmt-rtr")
     router1.start()
@@ -64,15 +66,15 @@ for SERVER_URL in SERVER_URLS:
     switch1 = lab.get_node("mgmt-sw")
     switch1.start()
 
-    lab.create_node(name='mid-sw', template='Cisco IOSvL2 15.2.1', x=-259, y=258)
+    lab.create_node(name='mid-sw', template='Cisco IOSvL2 15.2.1', x=-290, y=99)
     switch2 = lab.get_node("mid-sw")
     switch2.start()
 
-    lab.create_node(name='ham-sw', template='Cisco IOSvL2 15.2.1', x=273, y=258)
+    lab.create_node(name='ham-sw', template='Cisco IOSvL2 15.2.1', x=290, y=99)
     switch2 = lab.get_node("ham-sw")
     switch2.start()
 
-    lab.create_node(name='jenkins-server', template='ubuntu', x=-6, y=132)
+    lab.create_node(name='jenkins-server', template='ubuntu', x=232, y=-238)
     jenkinsServer = lab.get_node("jenkins-server")
     jenkinsServer.start()
     
@@ -88,11 +90,11 @@ for SERVER_URL in SERVER_URLS:
     ham1 = lab.get_node("ham-l")
     ham1.start()
 
-    lab.create_node(name='mid-w', template='Windows 10', x=-141, y=63)
+    lab.create_node(name='mid-w', template='Windows 10', x=-130, y=-18)
     midw = lab.get_node("mid-w")
     midw.start()
 
-    lab.create_node(name='ham-w', template='Windows 10', x=136, y=57)
+    lab.create_node(name='ham-w', template='Windows 10', x=87, y=-18)
     hamw = lab.get_node("ham-w")
     hamw.start()
 
@@ -120,7 +122,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("ham-sw", "Gi0/0", "ham-l", "Ethernet1")
     lab.create_link("ham-sw", "Gi0/1", "ham-w", "Ethernet1")
     lab.create_link("ham-sw", "Gi0/2", "ham-rtr", "Gi0/2")
-    lab.create_link("mgmt-rtr", "Gi0/1", "NAT-0", "nat0")
+    lab.create_link("mgmt-rtr", "Gi0/1", "Cloud1", "eth0")
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
