@@ -44,7 +44,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name='Cloud1', template='Cloud', x='200', y='474')
     lab.create_node(name='NAT-0', template='NAT', x='220', y='-320')
     lab.create_node(name='NAT-2', template='NAT', x='-500', y='-233')
-    lab.create_node(name='NAT-3', template='NAT', x='415', y='-200')
+    lab.create_node(name='NAT-3', template='NAT', x='382', y='-166')
     
     lab.create_node(name='mgmt-rtr', template='Cisco IOSv 15.5(3)M', x=-20, y=-337)
     router1 = lab.get_node("mgmt-rtr")
@@ -74,27 +74,27 @@ for SERVER_URL in SERVER_URLS:
     switch2 = lab.get_node("ham-sw")
     switch2.start()
 
-    lab.create_node(name='jenkins-server', template='ubuntu', x=232, y=-238)
+    lab.create_node(name='jenkins-server', template='ubuntu', x=207, y=-174)
     jenkinsServer = lab.get_node("jenkins-server")
     jenkinsServer.start()
     
-    lab.create_node(name='oxf-l', template='ubuntu', x=-250, y=-85)
+    lab.create_node(name='oxf-l', template='ubuntu', x=-296, y=-189)
     oxford = lab.get_node("oxf-l")
     oxford.start()
    
-    lab.create_node(name='mid-l', template='ubuntu', x=-250, y=0)
+    lab.create_node(name='mid-l', template='ubuntu', x=-322, y=-63)
     mid_i = lab.get_node("mid-l")
     mid_i.start()
 
-    lab.create_node(name='ham-l', template='ubuntu', x=250, y=0)
+    lab.create_node(name='ham-l', template='ubuntu', x=283, y=-59)
     ham1 = lab.get_node("ham-l")
     ham1.start()
 
-    lab.create_node(name='mid-w', template='Windows 10', x=-130, y=-18)
+    lab.create_node(name='mid-w', template='Windows 10', x=-132, y=78)
     midw = lab.get_node("mid-w")
     midw.start()
 
-    lab.create_node(name='ham-w', template='Windows 10', x=87, y=-18)
+    lab.create_node(name='ham-w', template='Windows 10', x=102, y=73)
     hamw = lab.get_node("ham-w")
     hamw.start()
 
@@ -110,13 +110,19 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("mgmt-sw", "Gi1/2", "ham-w", "Ethernet0")
     lab.create_link("mgmt-sw", "Gi1/3", "ham-l", "Ethernet0")
     lab.create_link("mgmt-sw", "Gi2/0", "jenkins-server", "Ethernet0")
+    lab.create_link("mgmt-sw", "Gi2/1", "mid-sw", "Gi0/3")
+    lab.create_link("mgmt-sw", "Gi2/2", "ham-sw", "Gi0/3")
+    
     
     lab.create_link("mid-sw", "Gi0/0", "mid-l", "Ethernet1")
     lab.create_link("mid-sw", "Gi0/1", "mid-w", "Ethernet1")
     lab.create_link("mid-sw", "Gi0/2", "mid-rtr", "Gi0/1")
     lab.create_link("reg-rtr", "Gi0/0", "ham-rtr", "Gi0/1")
     lab.create_link("reg-rtr", "Gi0/1", "mid-rtr", "Gi0/2")
-    lab.create_link("reg-rtr", "Gi0/3", "jenkins-server", "Ethernet1")
+    
+    lab.create_link("oxf-l", "Ethernet1", "NAT-2", "nat0")
+    lab.create_link("mgmt-rtr", "Gi0/1", "NAT-0", "nat0")
+    lab.create_link("jenkins-server", "Ethernet1", "NAT-3", "nat0")
     
     
     lab.create_link("ham-sw", "Gi0/0", "ham-l", "Ethernet1")
