@@ -66,11 +66,11 @@ for SERVER_URL in SERVER_URLS:
     switch1 = lab.get_node("mgmt-sw")
     switch1.start()
 
-    lab.create_node(name='mid-sw', template='Cisco IOSvL2 15.2.1', x=-290, y=99)
+    lab.create_node(name='mid-sw', template='Cisco IOSvL2 15.2.1', x=-297, y=207)
     switch2 = lab.get_node("mid-sw")
     switch2.start()
 
-    lab.create_node(name='ham-sw', template='Cisco IOSvL2 15.2.1', x=290, y=99)
+    lab.create_node(name='ham-sw', template='Cisco IOSvL2 15.2.1', x=330, y=231)
     switch2 = lab.get_node("ham-sw")
     switch2.start()
 
@@ -112,7 +112,8 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("mgmt-sw", "Gi2/0", "jenkins-server", "Ethernet0")
     lab.create_link("mgmt-sw", "Gi2/1", "mid-sw", "Gi0/3")
     lab.create_link("mgmt-sw", "Gi2/2", "ham-sw", "Gi0/3")
-    
+    lab.create_link("mgmt-sw", "Gi2/3", "reg-rtr", "Gi0/3")
+    lab.create_link("mgmt-rtr", "Gi0/1", "NAT-0", "nat0")
     
     lab.create_link("mid-sw", "Gi0/0", "mid-l", "Ethernet1")
     lab.create_link("mid-sw", "Gi0/1", "mid-w", "Ethernet1")
@@ -121,7 +122,6 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("reg-rtr", "Gi0/1", "mid-rtr", "Gi0/2")
     
     lab.create_link("oxf-l", "Ethernet1", "NAT-2", "nat0")
-    lab.create_link("mgmt-rtr", "Gi0/1", "NAT-0", "nat0")
     lab.create_link("jenkins-server", "Ethernet1", "NAT-3", "nat0")
     
     
