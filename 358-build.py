@@ -58,14 +58,37 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name='switch1', template='Cisco IOSvL2 15.2.1', x='200', y='200')
     lab.get_node("switch1").start()
 
-    lab.create_node(name='ohio-01', template='Windows 10 w/ Edge', x='301', y='200').start()
-    lab.create_node(name='ohio-02', template='Windows 10 w/ Edge', x='302', y='200').start()
-    lab.create_node(name='ohio-win10-03', template='Windows 10 w/ Edge', x='303', y='200').start()
-    lab.create_node(name='ohio-win10-04', template='Windows 10 w/ Edge', x='304', y='200').start()
-    lab.create_node(name='ky-win10-01', template='Windows 10 w/ Edge', x='304', y='200').start()
-    lab.create_node(name='ky-win10-02', template='Windows 10 w/ Edge', x='306', y='200').start()
-    lab.create_node(name='ky-win10-03', template='Windows 10 w/ Edge', x='307', y='200').start()
-    lab.create_node(name='ky-win10-04', template='Windows 10 w/ Edge', x='308', y='200').start()
+    lab.create_node(name='ohio-01', template='Windows 10 w/ Edge', x='301', y='200')
+    win1 = lab.get_node("ohio-01")
+    win1.start()
+    
+    lab.create_node(name='ohio-02', template='Windows 10 w/ Edge', x='302', y='200')
+    win2 = lab.get_node("ohio-02")
+    win2.start()
+    
+    lab.create_node(name='ohio-win10-03', template='Windows 10 w/ Edge', x='303', y='200')
+    win3 = lab.get_node("ohio-win10-03")
+    win3.start()
+    
+    lab.create_node(name='ohio-win10-04', template='Windows 10 w/ Edge', x='304', y='200')
+    win4 = lab.get_node("ohio-win10-04")
+    win4.start()
+    
+    lab.create_node(name='ky-win10-01', template='Windows 10 w/ Edge', x='304', y='200')
+    win5 = lab.get_node("ky-win10-01")
+    win5.start()
+    
+    lab.create_node(name='ky-win10-02', template='Windows 10 w/ Edge', x='306', y='200')
+    win6 = lab.get_node("ky-win10-02")
+    win6.start()
+    
+    lab.create_node(name='ky-win10-03', template='Windows 10 w/ Edge', x='307', y='200')
+    win7 = lab.get_node("ky-win10-03")
+    win7.start()
+    
+    lab.create_node(name='ky-win10-04', template='Windows 10 w/ Edge', x='308', y='200')
+    win7 = lab.get_node("ky-win10-04")
+    win7.start()
 
     # Links
     lab.create_link("svr16", "NIC1", "switch1", "Gi0/0")
