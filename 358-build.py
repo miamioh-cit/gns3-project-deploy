@@ -49,7 +49,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name='router1', template='Cisco IOSv 15.5(3)M', x='298', y='300')
     lab.get_node("router1").start()
 
-    lab.create_node(name='svr16', template='Windows Server 2016', x='299', y='300')
+    lab.create_node(name='svr16', template='Windows Server 2022', x='299', y='300')
     lab.get_node("svr16").start()
 
     lab.create_node(name='kali', template='Kali Linux 2021.1', x='250', y='200')
