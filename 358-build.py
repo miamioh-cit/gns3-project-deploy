@@ -55,7 +55,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name='kali', template='Kali Linux 2021.1', x='250', y='200')
     lab.get_node("kali").start()
 
-    lab.create_node(name='switch1', template='Cisco IOSvL2 15.2(20170321:233949)', x='200', y='200')
+    lab.create_node(name='switch1', template='Cisco IOSvL2 15.2.1', x='200', y='200')
     lab.get_node("switch1").start()
 
     lab.create_node(name='ohio-01', template='Windows 10 w/ Edge', x='301', y='200').start()
