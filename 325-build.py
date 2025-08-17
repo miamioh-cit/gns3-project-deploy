@@ -45,6 +45,10 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name='NAT-0', template='NAT', x='220', y='-320')
     lab.create_node(name='NAT-2', template='NAT', x='-500', y='-233')
     lab.create_node(name='NAT-3', template='NAT', x='382', y='-166')
+    lab.create_node(name='NAT-4', template='NAT', x='-585', y='-71')
+    lab.create_node(name='NAT-5', template='NAT', x='430', y='-51')
+    lab.create_node(name='NAT-6', template='NAT', x='-548', y='86')
+    lab.create_node(name='NAT-7', template='NAT', x='437', y='88')
     
     lab.create_node(name='mgmt-rtr', template='Cisco IOSv 15.5(3)M', x=-20, y=-337)
     router1 = lab.get_node("mgmt-rtr")
@@ -124,6 +128,10 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("oxf-l", "Ethernet1", "NAT-2", "nat0")
     lab.create_link("jenkins-server", "Ethernet1", "NAT-3", "nat0")
     
+    lab.create_link("mid-l", "Ethernet2", "NAT-4", "nat0")
+    lab.create_link("ham-l", "Ethernet2", "NAT-5", "nat0")
+    lab.create_link("mid-w", "Ethernet2", "NAT-6", "nat0")
+    lab.create_link("ham-w", "Ethernet2", "NAT-7", "nat0")
     
     lab.create_link("ham-sw", "Gi0/0", "ham-l", "Ethernet1")
     lab.create_link("ham-sw", "Gi0/1", "ham-w", "Ethernet1")
