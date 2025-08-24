@@ -46,7 +46,7 @@ for SERVER_URL in SERVER_URLS:
 
     # ---- Everything below here stays as-is from your original 358 build logic ---- #
 
-    lab.create_node(name='Client-06', template='Cloud', x=84, y=-242)
+    lab.create_node(name='Client-07', template='Cloud', x=84, y=-242)
 
     lab.create_node(name='KaliLinux1', template='Kali Linux 2021.1', x='-351', y='-346')
     kali1 = lab.get_node("KaliLinux1")
@@ -72,7 +72,7 @@ for SERVER_URL in SERVER_URLS:
     win10_2 = lab.get_node("Client-01")
     win10_2.start()
 
-    lab.create_node(name='Client-02', template='ubuntu', x='-288', y='-25')
+    lab.create_node(name='Client-02', template='Windows 10', x='-288', y='-25')
     win10_3 = lab.get_node("Client-02")
     win10_3.start()
 
@@ -80,16 +80,16 @@ for SERVER_URL in SERVER_URLS:
     win10_4 = lab.get_node("Client-03")
     win10_4.start()
 
-    lab.create_node(name='Client-04', template='Windows Server 2022', x='-58', y='-6')
+    lab.create_node(name='Client-04', template='ubuntu', x='-58', y='-6')
     win10_5 = lab.get_node("Client-04")
     win10_5.start()
 
-    lab.create_node(name='Client-05', template='Windows 10', x='45', y='-53')
+    lab.create_node(name='Client-05', template='Windows Server 2022', x='45', y='-53')
     win10_6 = lab.get_node("Client-05")
     win10_6.start()
 
-    lab.create_node(name='Client-07', template='Windows 10', x='131', y='-140')
-    win10_7 = lab.get_node("Client-07")
+    lab.create_node(name='Client-06', template='Windows 10', x='131', y='-140')
+    win10_7 = lab.get_node("Client-06")
     win10_7.start()
 
 
@@ -107,7 +107,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("Hub1", "Ethernet7", "Client-04", "Ethernet0")
     lab.create_link("Hub1", "Ethernet8", "Client-05", "Ethernet0")
     lab.create_link("Hub1", "Ethernet9", "Client-06", "Ethernet0")
-    lab.create_link("Hub1", "Ethernet10", "Client-07", "Ethernet0")
+    lab.create_link("Hub1", "Ethernet10", "Client-07", "eth0")
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
