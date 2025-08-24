@@ -64,7 +64,7 @@ for SERVER_URL in SERVER_URLS:
     hub1 = lab.get_node("Hub1")
     hub1.start()
 
-    lab.create_node(name='Client-00', template='Windows 10', x='-417', y='-211')
+    lab.create_node(name='Client-00', template='Cisco IOSv 15.5(3)M', x='-417', y='-211')
     win10_1 = lab.get_node("Client-00")
     win10_1.start()
 
@@ -100,7 +100,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("Hub1", "Ethernet0", "KaliLinux1", "eth0")
     lab.create_link("Hub1", "Ethernet1", "KaliLinux2", "eth0")
     lab.create_link("Hub1", "Ethernet2", "KaliLinux3", "eth0")
-    lab.create_link("Hub1", "Ethernet3", "Client-00", "Ethernet0")
+    lab.create_link("Hub1", "Ethernet3", "Client-00", "Gi0/0")
     lab.create_link("Hub1", "Ethernet4", "Client-01", "Ethernet0")
     lab.create_link("Hub1", "Ethernet5", "Client-02", "Ethernet0")
     lab.create_link("Hub1", "Ethernet6", "Client-03", "Ethernet0")
