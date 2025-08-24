@@ -46,52 +46,68 @@ for SERVER_URL in SERVER_URLS:
 
     # ---- Everything below here stays as-is from your original 358 build logic ---- #
 
-    lab.create_node(name='router1', template='Cisco IOSv 15.5(3)M', x='298', y='300')
-    lab.get_node("router1").start()
+    lab.create_node(name='Client-06', template='Cloud', x=84, y=-242)
 
-    lab.create_node(name='svr16', template='Windows Server 2022', x='299', y='300')
-    lab.get_node("svr16").start()
+    lab.create_node(name='KaliLinux1', template='Kali Linux 2021.1', x='-351', y='-346')
+    kali1 = lab.get_node("KaliLinux1")
+    kali1.start()
 
-    lab.create_node(name='kali', template='Kali Linux 2021.1', x='250', y='200')
-    lab.get_node("kali").start()
+    lab.create_node(name='KaliLinux2', template='Kali Linux 2021.1', x='-139', y='-346')
+    kali2 = lab.get_node("KaliLinux2")
+    kali2.start()
 
-    lab.create_node(name='switch1', template='Cisco IOSvL2 15.2.1', x='200', y='200')
-    lab.get_node("switch1").start()
+    lab.create_node(name='KaliLinux3', template='Kali Linux 2021.1', x='73', y='-346')
+    kali3 = lab.get_node("KaliLinux3")
+    kali3.start()
 
-    lab.create_node(name='ohio-01', template='Windows 10 w/ Edge', x='301', y='200')
-    win1 = lab.get_node("ohio-01")
-    win1.start()
+    lab.create_node(name='Hub1', template='Ethernet hub', x='-143', y='-174')
+    hub1 = lab.get_node("Hub1")
+    hub1.start()
+
+    lab.create_node(name='Client-00', template='Windows 10', x='-417', y='-211')
+    win10_1 = lab.get_node("Client-00")
+    win10_1.start()
+
+    lab.create_node(name='Client-01', template='Windows 10', x='-384', y='-103')
+    win10_2 = lab.get_node("Client-01")
+    win10_2.start()
+
+    lab.create_node(name='Client-02', template='ubuntu', x='-288', y='-25')
+    win10_3 = lab.get_node("Client-02")
+    win10_3.start()
+
+    lab.create_node(name='Client-03', template='ubuntu', x='-175', y='-8')
+    win10_4 = lab.get_node("Client-03")
+    win10_4.start()
+
+    lab.create_node(name='Client-04', template='Windows Server 2022', x='-58', y='-6')
+    win10_5 = lab.get_node("Client-04")
+    win10_5.start()
+
+    lab.create_node(name='Client-05', template='Windows 10', x='45', y='-53')
+    win10_6 = lab.get_node("Client-05")
+    win10_6.start()
+
+    lab.create_node(name='Client-07', template='Windows 10', x='131', y='-140')
+    win10_7 = lab.get_node("Client-07")
+    win10_7.start()
+
+
     
-    lab.create_node(name='ohio-02', template='Windows 10 w/ Edge', x='302', y='200')
-    win2 = lab.get_node("ohio-02")
-    win2.start()
-    
-    lab.create_node(name='ohio-win10-03', template='Windows 10 w/ Edge', x='303', y='200')
-    win3 = lab.get_node("ohio-win10-03")
-    win3.start()
-    
-    lab.create_node(name='ohio-win10-04', template='Windows 10 w/ Edge', x='304', y='200')
-    win4 = lab.get_node("ohio-win10-04")
-    win4.start()
-    
-    lab.create_node(name='ky-win10-01', template='Windows 10 w/ Edge', x='304', y='200')
-    win5 = lab.get_node("ky-win10-01")
-    win5.start()
-    
-    lab.create_node(name='ky-win10-02', template='Windows 10 w/ Edge', x='306', y='200')
-    win6 = lab.get_node("ky-win10-02")
-    win6.start()
-    
-    lab.create_node(name='ky-win10-03', template='Windows 10 w/ Edge', x='307', y='200')
-    win7 = lab.get_node("ky-win10-03")
-    win7.start()
-    
-    lab.create_node(name='ky-win10-04', template='Windows 10 w/ Edge', x='308', y='200')
-    win7 = lab.get_node("ky-win10-04")
-    win7.start()
+   
 
     # Links
-    lab.create_link("svr16", "NIC1", "switch1", "Gi0/0")
+    lab.create_link("Hub1", "Ethernet0", "KaliLinux1", "eth0")
+    lab.create_link("Hub1", "Ethernet1", "KaliLinux2", "eth0")
+    lab.create_link("Hub1", "Ethernet2", "KaliLinux3", "eth0")
+    lab.create_link("Hub1", "Ethernet3", "Client-00", "Ethernet0")
+    lab.create_link("Hub1", "Ethernet4", "Client-01", "Ethernet0")
+    lab.create_link("Hub1", "Ethernet5", "Client-02", "Ethernet0")
+    lab.create_link("Hub1", "Ethernet6", "Client-03", "Ethernet0")
+    lab.create_link("Hub1", "Ethernet7", "Client-04", "Ethernet0")
+    lab.create_link("Hub1", "Ethernet8", "Client-05", "Ethernet0")
+    lab.create_link("Hub1", "Ethernet9", "Client-06", "Ethernet0")
+    lab.create_link("Hub1", "Ethernet10", "Client-07", "Ethernet0")
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
