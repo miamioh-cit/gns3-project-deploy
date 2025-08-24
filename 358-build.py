@@ -1,7 +1,7 @@
 import logging
 from gns3fy import Gns3Connector, Project, Node, Link
 
-LAB_NAME = "358-lab"  # Or dynamically set if you want
+LAB_NAME = "358-labTESTaaron"  # Or dynamically set if you want
 BASE_IP = "http://10.48.229."
 
 # Read last octets from datastore file
