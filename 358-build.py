@@ -60,7 +60,7 @@ for SERVER_URL in SERVER_URLS:
     kali3 = lab.get_node("KaliLinux3")
     kali3.start()
 
-    lab.create_node(name='Hub1', template='Ethernet hub', x='-143', y='-174', properties={"nb_ports": 12})
+    lab.create_node(name='Hub1', template='Ethernet hub', x='-143', y='-174')
     hub1 = lab.get_node("Hub1")
     hub1.start()
 
