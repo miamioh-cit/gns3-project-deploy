@@ -70,7 +70,7 @@ for SERVER_URL in SERVER_URLS:
     hub1 = lab.get_node("Hub1") 
     hub1.start()
     
-    lab.create_node(name='Client-00', template='Cisco IOSv 15.5(3)M', x='-417', y='-211')
+    lab.create_node(name='Client-00', template='Cisco IOSv 15.5(3)M', x='-417', y='-211', symbol=":/symbols/classic/computer.svg")
     win10_1 = lab.get_node("Client-00")
     win10_1.start()
 
@@ -82,7 +82,7 @@ for SERVER_URL in SERVER_URLS:
     win10_3 = lab.get_node("Client-02")
     win10_3.start()
 
-    lab.create_node(name='Client-03', template='ubuntu', x='-175', y='-8')
+    lab.create_node(name='Client-03', template='ubuntu', x='-175', y='-8', symbol=":/symbols/classic/computer.svg")
     win10_4 = lab.get_node("Client-03")
     win10_4.start()
 
