@@ -52,7 +52,7 @@ for SERVER_URL in SERVER_URLS:
 
     # ---- Everything below here stays as-is from your original 358 build logic ---- #
 
-    lab.create_node(name='Client-07', template='Cloud', x=84, y=-242)
+    lab.create_node(name='Client-07', template='Cloud', x=84, y=-242, symbol=":/symbols/classic/computer.svg")
 
     lab.create_node(name='KaliLinux1', template='Kali Linux 2021.1', x='-351', y='-346')
     kali1 = lab.get_node("KaliLinux1")
@@ -74,11 +74,11 @@ for SERVER_URL in SERVER_URLS:
     win10_1 = lab.get_node("Client-00")
     win10_1.start()
 
-    lab.create_node(name='Client-01', template='Windows 10', x='-384', y='-103')
+    lab.create_node(name='Client-01', template='Windows 10', x='-384', y='-103', symbol=":/symbols/classic/computer.svg")
     win10_2 = lab.get_node("Client-01")
     win10_2.start()
 
-    lab.create_node(name='Client-02', template='Windows 10', x='-288', y='-25')
+    lab.create_node(name='Client-02', template='Windows 10', x='-288', y='-25', symbol=":/symbols/classic/computer.svg")
     win10_3 = lab.get_node("Client-02")
     win10_3.start()
 
@@ -86,15 +86,15 @@ for SERVER_URL in SERVER_URLS:
     win10_4 = lab.get_node("Client-03")
     win10_4.start()
 
-    lab.create_node(name='Client-04', template='ubuntu', x='-58', y='-6')
+    lab.create_node(name='Client-04', template='ubuntu', x='-58', y='-6', symbol=":/symbols/classic/computer.svg")
     win10_5 = lab.get_node("Client-04")
     win10_5.start()
 
-    lab.create_node(name='Client-05', template='Windows Server 2022', x='45', y='-53')
+    lab.create_node(name='Client-05', template='Windows Server 2022', x='45', y='-53', symbol=":/symbols/classic/computer.svg")
     win10_6 = lab.get_node("Client-05")
     win10_6.start()
 
-    lab.create_node(name='Client-06', template='Windows 10', x='131', y='-140')
+    lab.create_node(name='Client-06', template='Windows 10', x='131', y='-140', symbol=":/symbols/classic/computer.svg")
     win10_7 = lab.get_node("Client-06")
     win10_7.start()
 
