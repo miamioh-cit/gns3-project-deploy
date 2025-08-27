@@ -78,6 +78,7 @@ for SERVER_URL in SERVER_URLS:
 
     hub1 = create_hub(lab, "Hub1", -143, -174, num_ports=12)
     hub1.start()
+    print("Hub1 ports:", [p["name"] for p in hub1.properties.get("ports_mapping", [])])
     
     lab.create_node(name='Client-00', template='Cisco IOSv 15.5(3)M', x='-417', y='-211')
     win10_1 = lab.get_node("Client-00")
