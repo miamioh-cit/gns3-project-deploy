@@ -94,9 +94,9 @@ for SERVER_URL in SERVER_URLS:
     win10_6 = lab.get_node("Client-05")
     win10_6.start()
 
-    lab.create_node(name='Client-06', template='Windows 10', x='131', y='-140', symbol=":/symbols/classic/computer.svg")
-    win10_7 = lab.get_node("Client-06")
-    win10_7.start()
+    lab.create_node(name="Client-06", node_type="docker", template="webgoat/webgoat-8.2", x=150, y=-140)
+    client06 = lab.get_node("Client-06")
+    client06.start()
 
 
     
