@@ -44,21 +44,9 @@ for SERVER_URL in SERVER_URLS:
     lab.get()
     lab.open()
    
-# Helper to build a hub with N ports
-def create_hub(LAB_NAME, name, x, y, num_ports=12):
-    ports = [{"name": f"Ethernet{i}", "port_number": i} for i in range(num_ports)]
-    return lab.create_node(
-        name=name,
-        template="Ethernet hub",
-        x=x,
-        y=y,
-        properties={
-            "ports_mapping": ports
-        }
-    )
+
     
-    hub1 = create_hub(lab, "Hub1", -143, -174, num_ports=12)
-    hub1.start()
+ 
 
     # ---- Everything below here stays as-is from your original 358 build logic ---- #
 
@@ -76,6 +64,9 @@ def create_hub(LAB_NAME, name, x, y, num_ports=12):
     kali3 = lab.get_node("KaliLinux3")
     kali3.start()
 
+    lab.create_node(name='Hub1', template='Ethernet hub', x='-143', y='-174') 
+    hub1 = lab.get_node("Hub1") 
+    hub1.start()    
     
     lab.create_node(name='Client-00', template='Cisco IOSv 15.5(3)M', x='-417', y='-211')
     win10_1 = lab.get_node("Client-00")
