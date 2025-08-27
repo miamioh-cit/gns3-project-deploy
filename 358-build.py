@@ -66,7 +66,8 @@ for SERVER_URL in SERVER_URLS:
     kali3 = lab.get_node("KaliLinux3")
     kali3.start()
 
-    hub1 = lab.create_node(name="Hub1", template='Ethernet hub', x=-143, y=-174, properties={"ports": 12})
+    lab.create_node(name="Hub1", template='Ethernet hub', x=-143, y=-174, properties={"ports": 12})
+    hub1 = lab.get_node("Hub1")
     hub1.start()
     
     lab.create_node(name='Client-00', template='Cisco IOSv 15.5(3)M', x='-417', y='-211', symbol=":/symbols/classic/computer.svg")
