@@ -115,7 +115,10 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("Switch3", "Ethernet0", "ADDC-3", "Ethernet0")
     lab.create_link("Switch3", "Ethernet1", "Windows10-3", "Ethernet0")
     lab.create_link("Switch3", "Ethernet2", "Windows10w/Edge-3", "NIC1")
-
+    lab.create_link("ADDC-1", "Ethernet1", "NAT1", "nat0")
+    lab.create_link("ADDC-2", "Ethernet1", "NAT2", "nat0")
+    lab.create_link("ADDC-3", "Ethernet1", "NAT3", "nat0")
+    
     note_payload = {
         "type": "note",
         "x": 200,
