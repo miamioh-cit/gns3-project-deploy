@@ -54,7 +54,7 @@ for SERVER_URL in SERVER_URLS:
     win10Edge1 = lab.get_node("Windows10w/Edge-1")
     win10Edge1.start()
 
-    lab.create_node(name='Windows10w/Edge-2', template='Windows 10 w/ Edge', x=-73, y=66)
+    lab.create_node(name='Windows10w/Edge-2', template='Windows 10 w/ Edge', x=-73, y=58)
     win10Edge2 = lab.get_node("Windows10w/Edge-2")
     win10Edge2.start()
 
