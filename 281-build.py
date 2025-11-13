@@ -3,7 +3,7 @@ from gns3fy import Gns3Connector, Project, Node, Link
 
 LAB_NAME = "cit281-final-miamilD1"
 
-BASE_IP = "http://10.48.229.237"
+BASE_IP = "http://10.48.229."
 
 # Read last octets from datastore file
 try:
