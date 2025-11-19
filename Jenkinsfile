@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git url: "${GITHUB_URL}", branch: 'main', credentialsId: 'taylorw8-github'
+                git url: "${GITHUB_URL}", branch: 'main', credentialsId: 'Backstage-GNS3-Project-Deploy'
             }
         }
         stage('Update Deployment Files') {
@@ -25,7 +25,7 @@ pipeline {
                     echo "   - Target IP: ${params.IP_ADDRESS}"
                     
                     // Commit and push changes using Jenkins credentials
-                    withCredentials([usernamePassword(credentialsId: 'taylorw8-github', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'Backstage-GNS3-Project-Deploy', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                         sh """
                             git config user.email "jenkins@miamioh.edu"
                             git config user.name "Jenkins CI"
