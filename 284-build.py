@@ -72,14 +72,19 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("Switch1", "Ethernet3", "NAT1", "nat0")
 
     note_payload = {
-        "type": "note",
+        "drawing_type": "text",
         "x": 200,
         "y": 250,
         "text": "Configure default gateway here",
         "font_size": 12,
         "color": "#000000",
         "background_color": "#E0E0E0",
-        "locked": False}
+        "locked": False,
+        "z": 0
+    }
+
+# send it to GNS3
+server.post(f"/v2/projects/{lab.project_id}/drawings", note_payload)
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
