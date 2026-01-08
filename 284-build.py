@@ -69,20 +69,6 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("Switch1", "Ethernet2", "Windows10w/Edge-1", "NIC1")
     lab.create_link("Switch1", "Ethernet3", "NAT1", "nat0")
 
-    server.post(
-        f"/v2/projects/{lab.project_id}/drawings",
-        {
-            "drawing_type": "text",
-            "x": 0,
-            "y": 0,
-            "text": "HELLO"
-        }
-    )
-    
-    print("Drawings now:",
-          server.get(f"/v2/projects/{lab.project_id}/drawings"))
-
-
     
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
