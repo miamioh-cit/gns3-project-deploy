@@ -62,24 +62,12 @@ for SERVER_URL in SERVER_URLS:
     nat1 = lab.get_node("NAT1")
     nat1.start()
 
-    #Create links
-    
-    
+    #Create links  
     
     lab.create_link("Switch1", "Ethernet0", "ADDC-1", "Ethernet0")
     lab.create_link("Switch1", "Ethernet1", "Windows10w/Edge-0", "NIC1")
     lab.create_link("Switch1", "Ethernet2", "Windows10w/Edge-1", "NIC1")
     lab.create_link("Switch1", "Ethernet3", "NAT1", "nat0")
-
-    note_payload = {
-        "type": "note",
-        "x": 200,
-        "y": 250,
-        "text": "Configure default gateway here",
-        "font_size": 12,
-        "color": "#000000",
-        "background_color": "#E0E0E0",
-        "locked": False}
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
