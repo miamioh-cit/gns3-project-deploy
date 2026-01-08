@@ -71,7 +71,7 @@ for SERVER_URL in SERVER_URLS:
     add_text_note(
         connector=server,
         project_id=lab.project_id,
-        text="CIT 284 – Spring 2026\nBase Topology",
+        text="These Windows 10 machines are time limited.  If they start shutting down automatically, remove them and drag over a new one from the left pane.",
         x=-620,
         y=-430,
         font_size=28,
@@ -79,20 +79,6 @@ for SERVER_URL in SERVER_URLS:
         locked=True,
         z=0
     )
-
-    # Optional: a “configure here” note near where you want students to focus
-    add_text_note(
-        connector=server,
-        project_id=lab.project_id,
-        text="Configure default gateway here",
-        x=200,
-        y=250,
-        font_size=14,
-        background_color="#E0E0E0",
-        locked=False,   # set True if you want students NOT to move it
-        z=0
-    )
-    # -------------------------------------------------------
 
     available_templates = [template["name"] for template in server.get_templates()]
     logging.debug(f"Available Templates: {available_templates}")
