@@ -1,7 +1,7 @@
 import logging
 from gns3fy import Gns3Connector, Project, Node, Link
 
-LAB_NAME = "cit284-sp26"
+LAB_NAME = "cit284-final-sp26"
 
 BASE_IP = "http://10.48.229."
 
@@ -46,79 +46,31 @@ for SERVER_URL in SERVER_URLS:
     ADDC1 = lab.get_node("ADDC-1")
     ADDC1.start()
 
-    lab.create_node(name='ADDC-2', template='Windows Server 2022', x=-142, y=-158)
-    ADDC2 = lab.get_node("ADDC-2")
-    ADDC2.start()
-
     lab.create_node(name='Windows10w/Edge-1', template='Windows 10 w/ Edge', x=-401, y=58)
     win10Edge1 = lab.get_node("Windows10w/Edge-1")
     win10Edge1.start()
 
-    lab.create_node(name='Windows10w/Edge-2', template='Windows 10 w/ Edge', x=-73, y=58)
+    lab.create_node(name='Windows10w/Edge-2', template='Windows 10 w/ Edge', x=-559, y=58)
     win10Edge2 = lab.get_node("Windows10w/Edge-2")
     win10Edge2.start()
-
-    lab.create_node(name='Windows10-1', template='Windows 10', x=-559, y=58)
-    win10_0 = lab.get_node("Windows10-1")
-    win10_0.start()
-
-    lab.create_node(name='Windows10-2', template='Windows 10', x=-227, y=58)
-    win10_1 = lab.get_node("Windows10-2")
-    win10_1.start()
 
     lab.create_node(name='Switch1', template='Ethernet switch', x=-472, y=-30)
     switch1 = lab.get_node("Switch1")
     switch1.start()
 
-    lab.create_node(name='Switch2', template='Ethernet switch', x=-150, y=-30)
-    switch2 = lab.get_node("Switch2")
-    switch2.start()
-
     lab.create_node(name='NAT1', template='NAT', x=-512, y=-310)
     nat1 = lab.get_node("NAT1")
     nat1.start()
-
-    lab.create_node(name='NAT2', template='NAT', x=-200, y=-310)
-    nat1 = lab.get_node("NAT2")
-    nat1.start()
-
-    lab.create_node(name='NAT3', template='NAT', x=138, y=-310)
-    nat1 = lab.get_node("NAT3")
-    nat1.start()
-
-    lab.create_node(name='Windows10-3', template='Windows 10', x=110, y=58)
-    win10_1 = lab.get_node("Windows10-3")
-    win10_1.start()
-    
-    lab.create_node(name='ADDC-3', template='Windows Server 2022', x=198, y=-158)
-    ADDC2 = lab.get_node("ADDC-3")
-    ADDC2.start()
-
-    lab.create_node(name='Windows10w/Edge-3', template='Windows 10 w/ Edge', x=265, y=58)
-    win10Edge2 = lab.get_node("Windows10w/Edge-3")
-    win10Edge2.start()
-
-    lab.create_node(name='Switch3', template='Ethernet switch', x=182, y=-30)
-    switch0 = lab.get_node("Switch3")
-    switch0.start()
 
     #Create links
     
     
     
     lab.create_link("Switch1", "Ethernet0", "ADDC-1", "Ethernet0")
-    lab.create_link("Switch1", "Ethernet1", "Windows10-1", "Ethernet0")
+    lab.create_link("Switch1", "Ethernet1", "Windows10w/Edge-1", "NIC1")
     lab.create_link("Switch1", "Ethernet2", "Windows10w/Edge-1", "NIC1")
-    lab.create_link("Switch2", "Ethernet0", "ADDC-2", "Ethernet0")
-    lab.create_link("Switch2", "Ethernet1", "Windows10-2", "Ethernet0")
-    lab.create_link("Switch2", "Ethernet2", "Windows10w/Edge-2", "NIC1")
-    lab.create_link("Switch3", "Ethernet0", "ADDC-3", "Ethernet0")
-    lab.create_link("Switch3", "Ethernet1", "Windows10-3", "Ethernet0")
-    lab.create_link("Switch3", "Ethernet2", "Windows10w/Edge-3", "NIC1")
     lab.create_link("ADDC-1", "Ethernet1", "NAT1", "nat0")
-    lab.create_link("ADDC-2", "Ethernet1", "NAT2", "nat0")
-    lab.create_link("ADDC-3", "Ethernet1", "NAT3", "nat0")
-    
+
     note_payload = {
         "type": "note",
         "x": 200,
