@@ -42,16 +42,16 @@ for SERVER_URL in SERVER_URLS:
     logging.debug(f"Available Templates: {available_templates}")
 
     #create and start all nodes
-    lab.create_node(name='ADDC-1', template='Windows Server 2022', x=-315, y=-48)
-    ADDC1 = lab.get_node("ADDC-1")
+    lab.create_node(name='ADDC', template='Windows Server 2022', x=-315, y=-48)
+    ADDC1 = lab.get_node("ADDC")
     ADDC1.start()
 
     lab.create_node(name='Windows10w/Edge-0', template='Windows 10 w/ Edge', x=-401, y=58)
-    win10Edge1 = lab.get_node("Windows10w/Edge-1")
+    win10Edge1 = lab.get_node("Windows10w/Edge-0")
     win10Edge1.start()
 
     lab.create_node(name='Windows10w/Edge-1', template='Windows 10 w/ Edge', x=-559, y=58)
-    win10Edge2 = lab.get_node("Windows10w/Edge-2")
+    win10Edge2 = lab.get_node("Windows10w/Edge-1")
     win10Edge2.start()
 
     lab.create_node(name='Switch1', template='Ethernet switch', x=-472, y=-30)
