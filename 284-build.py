@@ -75,9 +75,13 @@ for SERVER_URL in SERVER_URLS:
             "drawing_type": "text",
             "x": 0,
             "y": 0,
-            "text": "CIT 284"
+            "text": "HELLO"
         }
     )
+    
+    print("Drawings now:",
+          server.get(f"/v2/projects/{lab.project_id}/drawings"))
+
 
     
     print("-----------------------------------------------------------------------")
