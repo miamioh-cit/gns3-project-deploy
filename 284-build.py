@@ -46,12 +46,12 @@ for SERVER_URL in SERVER_URLS:
     ADDC1 = lab.get_node("ADDC-1")
     ADDC1.start()
 
-    lab.create_node(name='Windows10w/Edge-1', template='Windows 10 w/ Edge', x=-401, y=58)
+    lab.create_node(name='Windows10w/Edge-0', template='Windows 10 w/ Edge', x=-401, y=58)
     win10Edge1 = lab.get_node("Windows10w/Edge-1")
     win10Edge1.start()
 
-    lab.create_node(name='Windows10w/Edge-0', template='Windows 10 w/ Edge', x=-559, y=58)
-    win10Edge2 = lab.get_node("Windows10w/Edge-0")
+    lab.create_node(name='Windows10w/Edge-1', template='Windows 10 w/ Edge', x=-559, y=58)
+    win10Edge2 = lab.get_node("Windows10w/Edge-2")
     win10Edge2.start()
 
     lab.create_node(name='Switch1', template='Ethernet switch', x=-472, y=-30)
@@ -62,29 +62,12 @@ for SERVER_URL in SERVER_URLS:
     nat1 = lab.get_node("NAT1")
     nat1.start()
 
-    #Create links
-    
-    
+    #Create links  
     
     lab.create_link("Switch1", "Ethernet0", "ADDC-1", "Ethernet0")
     lab.create_link("Switch1", "Ethernet1", "Windows10w/Edge-0", "NIC1")
     lab.create_link("Switch1", "Ethernet2", "Windows10w/Edge-1", "NIC1")
     lab.create_link("Switch1", "Ethernet3", "NAT1", "nat0")
-
-    note_payload = {
-        "drawing_type": "text",
-        "x": 200,
-        "y": 250,
-        "text": "Configure default gateway here",
-        "font_size": 12,
-        "color": "#000000",
-        "background_color": "#E0E0E0",
-        "locked": False,
-        "z": 0
-    }
-
-# send it to GNS3
-server.post(f"/v2/projects/{lab.project_id}/drawings", note_payload)
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
