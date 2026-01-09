@@ -1,7 +1,7 @@
 import logging
 from gns3fy import Gns3Connector, Project, Node, Link
 
-LAB_NAME = "cit281-Sp26"
+LAB_NAME = "cit386-Sp26"
 
 BASE_IP = "http://10.48.229."
 
@@ -111,8 +111,8 @@ for SERVER_URL in SERVER_URLS:
     router3 = lab.get_node("ky-int")
     router3.start()
 
-    lab.create_node(name='oh-edge', template='Cisco IOSv 15.7(3)M3', x=-31, y=91)
-    router4 = lab.get_node("oh-edge")
+    lab.create_node(name='oh-edge-fw', template='Cisco ASAv 9.9.2', x=-31, y=91)
+    router4 = lab.get_node("oh-edge-fw")
     router4.start()
 
     lab.create_node(name='oh-int', template='Cisco IOSv 15.7(3)M3', x=-31, y=192)
@@ -133,8 +133,8 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("in-edge", "Gi0/0", "offsite-router", "Gi0/1")
     lab.create_link("ky-edge", "Gi0/0", "offsite-router", "Gi0/2")
     lab.create_link("ky-edge", "Gi0/1", "ky-int", "Gi0/1")
-    lab.create_link("ky-edge", "Gi0/2", "oh-edge", "Gi0/0")
-    lab.create_link("in-edge", "Gi0/1", "oh-edge", "Gi0/1")
+    lab.create_link("ky-edge", "Gi0/2", "oh-edge-fw", "Gi0/0")
+    lab.create_link("in-edge", "Gi0/1", "oh-edge-fw", "Gi0/1")
     lab.create_link("oh-edge", "Gi0/2", "oh-int", "Gi0/0")
     lab.create_link("internet", "eth0", "ky-edge", "Gi0/3")
     lab.create_link("oh-int", "Gi0/1", "ohio-switch", "Gi0/0")
