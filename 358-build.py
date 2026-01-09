@@ -53,21 +53,13 @@ for SERVER_URL in SERVER_URLS:
     kali1 = lab.get_node("KaliLinux1")
     kali1.start()
 
-    #lab.create_node(name='KaliLinux2', template='Kali Linux', x='-139', y='-346')
-    #kali2 = lab.get_node("KaliLinux2")
-    #kali2.start()
-
-    #lab.create_node(name='KaliLinux3', template='Kali Linux', x='73', y='-346')
-    #kali3 = lab.get_node("KaliLinux3")
-    #kali3.start()
-
     lab.create_node(name="Hub1", template='Ethernet hub', x=-143, y=-174, properties={"ports": 12})
     hub1 = lab.get_node("Hub1")
     hub1.start()
     
     lab.create_node(name='Client-00', template='Cisco IOSv 15.7(3)M3', x='-417', y='-211', symbol=":/symbols/classic/computer.svg")
-    cisco_1 = lab.get_node("Client-00")
-    cisco_1.start()
+    client_0 = lab.get_node("Client-00")
+    client_0.start()
 
     lab.create_node(name='Client-01', template='Windows 10 w/ Edge', x='-384', y='-103', symbol=":/symbols/classic/computer.svg")
     client_1 = lab.get_node("Client-01")
@@ -90,7 +82,7 @@ for SERVER_URL in SERVER_URLS:
     client_5 = lab.get_node("Client-05")
     client_5.start()
 
-    lab.create_node(name='Client-06', template='ubuntu', x='-175', y='-8', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-06', template='ubuntu', x='84', y='-242', symbol=":/symbols/classic/computer.svg")
     client_6 = lab.get_node("Client-06")
     client_6.start()
 
