@@ -144,10 +144,10 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("s3-router", "Gi0/1", "s3-web", "NIC1")
     lab.create_link("s4-router", "Gi0/1", "s4-web", "NIC1")
 
-    lab.create_link("s1-switch", "Gi0/1", "s1-ubuntu", "NIC1")
-    lab.create_link("s2-switch", "Gi0/1", "s2-ubuntu", "NIC1")
-    lab.create_link("s3-switch", "Gi0/1", "s3-ubuntu", "NIC1")
-    lab.create_link("s4-switch", "Gi0/1", "s4-ubuntu", "NIC1")
+    lab.create_link("s1-switch", "Gi0/1", "s1-ubuntu", "eth0")
+    lab.create_link("s2-switch", "Gi0/1", "s2-ubuntu", "eth0")
+    lab.create_link("s3-switch", "Gi0/1", "s3-ubuntu", "eth0")
+    lab.create_link("s4-switch", "Gi0/1", "s4-ubuntu", "eth0")
 
     lab.create_link("s1-switch", "Gi0/2", "s1-dhcp", "NIC1")
     lab.create_link("s2-switch", "Gi0/2", "s2-dhcp", "NIC1")
