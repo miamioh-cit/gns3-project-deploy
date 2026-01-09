@@ -1,4 +1,4 @@
-himport logging
+import logging
 from gns3fy import Gns3Connector, Project, Node, Link
 
 LAB_NAME = "cit358-sp26"  # Or dynamically set if you want
