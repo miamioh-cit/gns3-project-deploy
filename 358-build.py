@@ -47,22 +47,17 @@ for SERVER_URL in SERVER_URLS:
     lab.open()
    
 
-    
- 
-
-    # ---- Everything below here stays as-is from your original 358 build logic ---- #
-
     lab.create_node(name='Client-07', template='Cloud', x=84, y=-242, symbol=":/symbols/classic/computer.svg")
 
-    lab.create_node(name='KaliLinux1', template='Kali Linux 2021.1', x='-351', y='-346')
+    lab.create_node(name='KaliLinux1', template='Kali Linux', x='-351', y='-346')
     kali1 = lab.get_node("KaliLinux1")
     kali1.start()
 
-    lab.create_node(name='KaliLinux2', template='Kali Linux 2021.1', x='-139', y='-346')
+    lab.create_node(name='KaliLinux2', template='Kali Linux', x='-139', y='-346')
     kali2 = lab.get_node("KaliLinux2")
     kali2.start()
 
-    lab.create_node(name='KaliLinux3', template='Kali Linux 2021.1', x='73', y='-346')
+    lab.create_node(name='KaliLinux3', template='Kali Linux', x='73', y='-346')
     kali3 = lab.get_node("KaliLinux3")
     kali3.start()
 
@@ -70,15 +65,15 @@ for SERVER_URL in SERVER_URLS:
     hub1 = lab.get_node("Hub1")
     hub1.start()
     
-    lab.create_node(name='Client-00', template='Cisco IOSv 15.5(3)M', x='-417', y='-211', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-00', template='Cisco IOSv 15.7(3)M', x='-417', y='-211', symbol=":/symbols/classic/computer.svg")
     win10_1 = lab.get_node("Client-00")
     win10_1.start()
 
-    lab.create_node(name='Client-01', template='Windows 10', x='-384', y='-103', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-01', template='Windows 10 w/ Edge', x='-384', y='-103', symbol=":/symbols/classic/computer.svg")
     win10_2 = lab.get_node("Client-01")
     win10_2.start()
 
-    lab.create_node(name='Client-02', template='Windows 10', x='-288', y='-25', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-02', template='Windows 10 w/ Edge', x='-288', y='-25', symbol=":/symbols/classic/computer.svg")
     win10_3 = lab.get_node("Client-02")
     win10_3.start()
 
@@ -90,7 +85,7 @@ for SERVER_URL in SERVER_URLS:
     win10_5 = lab.get_node("Client-04")
     win10_5.start()
 
-    lab.create_node(name='Client-05', template='Windows Server 2022', x='45', y='-53', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-05', template='Windows Server 2025', x='45', y='-53', symbol=":/symbols/classic/computer.svg")
     win10_6 = lab.get_node("Client-05")
     win10_6.start()
 
