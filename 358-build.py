@@ -1,9 +1,37 @@
 import logging
+import requests
 from gns3fy import Gns3Connector, Project, Node, Link
 
 
 LAB_NAME = "cit358-sp26"  # Or dynamically set if you want
 BASE_IP = "http://10.48.229."
+
+# --- Client-00 startup config (what you asked for) ---
+CLIENT_00_STARTUP_CFG = """!
+hostname Client-00
+no ip domain-lookup
+!
+interface GigabitEthernet0/0
+ ip address 192.168.1.1 255.255.255.0
+ no shutdown
+!
+ip dhcp excluded-address 192.168.1.1 192.168.1.10
+!
+ip dhcp pool MY_LAN_POOL
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+!
+end
+"""
+
+def write_node_file(server_url: str, user: str, pw: str, project_id: str, node_id: str, filepath: str, content: str):
+    """
+    Write a file into a node's working directory using the GNS3 controller API.
+    """
+    url = f"{server_url}/v2/projects/{project_id}/nodes/{node_id}/files/{filepath}"
+    r = requests.post(url, data=content.encode("utf-8"), auth=(user, pw), timeout=30)
+    r.raise_for_status()
+
 
 # Read last octets from datastore file
 try:
@@ -21,7 +49,6 @@ SERVER_URLS = [f"{BASE_IP}{octet}:80" for octet in SERVER_LAST_OCTETS]
 
 GNS3_USER = "gns3"
 GNS3_PW = "gns3"
-
 
 
 for SERVER_URL in SERVER_URLS:
@@ -42,7 +69,7 @@ for SERVER_URL in SERVER_URLS:
     print("-----------------------------------------------------------------------")
     print("Please wait until script runs before entering the project in GNS3!")
     print("-----------------------------------------------------------------------")
-    
+
     lab = Project(name=LAB_NAME, connector=server)
     lab.get()
     lab.open()
@@ -54,7 +81,11 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name="Hub1", template='Ethernet hub', x=-143, y=-174, properties={"ports": 12})
     hub1 = lab.get_node("Hub1")
     hub1.start()
-    
+
+    # -------------------------
+    # Client-00 (Cisco IOSv)
+    # Create node -> write startup-config file -> THEN start node
+    # -------------------------
     lab.create_node(
         name='Client-00',
         template='Cisco IOSv 15.7(3)M3',
@@ -63,9 +94,43 @@ for SERVER_URL in SERVER_URLS:
         symbol=":/symbols/classic/computer.svg"
     )
     client_0 = lab.get_node("Client-00")
+    client_0.get()  # ensure node_id is populated
+
+    # Try the most common filenames used by IOSv in GNS3.
+    # If the first one doesn't load, swap to one of the others below.
+    startup_candidates = [
+        "startup-config.cfg",
+        "startup-config",
+        "configs/startup-config.cfg",
+    ]
+
+    wrote = False
+    last_err = None
+    for candidate in startup_candidates:
+        try:
+            write_node_file(
+                server_url=SERVER_URL,
+                user=GNS3_USER,
+                pw=GNS3_PW,
+                project_id=lab.project_id,
+                node_id=client_0.node_id,
+                filepath=candidate,
+                content=CLIENT_00_STARTUP_CFG
+            )
+            print(f"[Client-00] Wrote startup config to: {candidate}")
+            wrote = True
+            break
+        except Exception as e:
+            last_err = e
+
+    if not wrote:
+        print("WARNING: Could not write startup-config to Client-00 via API.")
+        print("Last error:", last_err)
+
+    # Start AFTER writing the startup-config file
     client_0.start()
 
-
+    # Other clients
     lab.create_node(name='Client-01', template='Windows 10 w/ Edge', x='-384', y='-103', symbol=":/symbols/classic/computer.svg")
     client_1 = lab.get_node("Client-01")
     client_1.start()
@@ -80,8 +145,8 @@ for SERVER_URL in SERVER_URLS:
 
     lab.create_node(name='Client-04', template='ubuntu', x='-141', y='101', symbol=":/symbols/classic/computer.svg")
     client_4 = lab.get_node("Client-04")
-    client_4.start()    
-    
+    client_4.start()
+
     lab.create_node(name="Client-05", node_type="docker", template="webgoat", x=-66, y=165, symbol=":/symbols/classic/computer.svg")
     client_5 = lab.get_node("Client-05")
     client_5.start()
@@ -91,7 +156,6 @@ for SERVER_URL in SERVER_URLS:
     client_6.start()
 
     # Links
-    
     lab.create_link("Hub1", "Ethernet0", "KaliLinux1", "Ethernet0")
     lab.create_link("Hub1", "Ethernet1", "Client-00", "Gi0/0")
     lab.create_link("Hub1", "Ethernet2", "Client-01", "NIC1")
@@ -100,7 +164,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("Hub1", "Ethernet5", "Client-04", "eth0")
     lab.create_link("Hub1", "Ethernet6", "Client-05", "eth0")
     lab.create_link("Hub1", "Ethernet7", "Client-06", "NIC1")
-    
+
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
     print("-----------------------------------------------------------------------")
