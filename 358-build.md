@@ -40,4 +40,4 @@
 	
 		up echo nameserver 192.168.1.1 > /etc/resolv.conf
 
-Then, determine the port associated with Kali Linux and give the student the IP and port number, and have them connect via VNC.
+Then, determine the port associated with Kali Linux and give the student the IP and port number, and have them connect via VNC.  The username and password are 'kali' and 'kali'.
