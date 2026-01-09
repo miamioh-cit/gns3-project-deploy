@@ -53,63 +53,58 @@ for SERVER_URL in SERVER_URLS:
     kali1 = lab.get_node("KaliLinux1")
     kali1.start()
 
-    lab.create_node(name='KaliLinux2', template='Kali Linux', x='-139', y='-346')
-    kali2 = lab.get_node("KaliLinux2")
-    kali2.start()
+    #lab.create_node(name='KaliLinux2', template='Kali Linux', x='-139', y='-346')
+    #kali2 = lab.get_node("KaliLinux2")
+    #kali2.start()
 
-    lab.create_node(name='KaliLinux3', template='Kali Linux', x='73', y='-346')
-    kali3 = lab.get_node("KaliLinux3")
-    kali3.start()
+    #lab.create_node(name='KaliLinux3', template='Kali Linux', x='73', y='-346')
+    #kali3 = lab.get_node("KaliLinux3")
+    #kali3.start()
 
     lab.create_node(name="Hub1", template='Ethernet hub', x=-143, y=-174, properties={"ports": 12})
     hub1 = lab.get_node("Hub1")
     hub1.start()
     
     lab.create_node(name='Client-00', template='Cisco IOSv 15.7(3)M3', x='-417', y='-211', symbol=":/symbols/classic/computer.svg")
-    win10_1 = lab.get_node("Client-00")
-    win10_1.start()
+    cisco_1 = lab.get_node("Client-00")
+    cisco_1.start()
 
     lab.create_node(name='Client-01', template='Windows 10 w/ Edge', x='-384', y='-103', symbol=":/symbols/classic/computer.svg")
-    win10_2 = lab.get_node("Client-01")
-    win10_2.start()
+    client_1 = lab.get_node("Client-01")
+    client_1.start()
 
     lab.create_node(name='Client-02', template='Windows 10 w/ Edge', x='-288', y='-25', symbol=":/symbols/classic/computer.svg")
-    win10_3 = lab.get_node("Client-02")
-    win10_3.start()
+    client_2 = lab.get_node("Client-02")
+    client_2.start()
 
     lab.create_node(name='Client-03', template='ubuntu', x='-175', y='-8', symbol=":/symbols/classic/computer.svg")
-    win10_4 = lab.get_node("Client-03")
-    win10_4.start()
-
-    lab.create_node(name='Client-04', template='ubuntu', x='-58', y='-6', symbol=":/symbols/classic/computer.svg")
-    win10_5 = lab.get_node("Client-04")
-    win10_5.start()
-
-    lab.create_node(name='Client-05', template='Windows Server 2016', x='45', y='-53', symbol=":/symbols/classic/computer.svg")
-    win10_6 = lab.get_node("Client-05")
-    win10_6.start()
-
-    lab.create_node(name="Client-06", node_type="docker", template="webgoat", x=150, y=-140, symbol=":/symbols/classic/computer.svg")
-    client06 = lab.get_node("Client-06")
-    client06.start()
+    client_3 = lab.get_node("Client-03")
+    client_3.start()
 
 
-    
-   
+    lab.create_node(name='Client-04', template='Windows Server 2016', x='45', y='-53', symbol=":/symbols/classic/computer.svg")
+    client_4 = lab.get_node("Client-04")
+    clent_4.start()
+
+    lab.create_node(name="Client-05", node_type="docker", template="webgoat", x=150, y=-140, symbol=":/symbols/classic/computer.svg")
+    client_5 = lab.get_node("Client-05")
+    client_5.start()
+
+    lab.create_node(name='Client-06', template='ubuntu', x='-175', y='-8', symbol=":/symbols/classic/computer.svg")
+    client_6 = lab.get_node("Client-06")
+    client_6.start()
 
     # Links
+    
     lab.create_link("Hub1", "Ethernet0", "KaliLinux1", "Ethernet0")
-    lab.create_link("Hub1", "Ethernet1", "KaliLinux2", "Ethernet0")
-    lab.create_link("Hub1", "Ethernet2", "KaliLinux3", "Ethernet0")
-    lab.create_link("Hub1", "Ethernet3", "Client-00", "Gi0/0")
-    lab.create_link("Hub1", "Ethernet4", "Client-01", "NIC1")
-    lab.create_link("Hub1", "Ethernet5", "Client-02", "NIC1")
-    lab.create_link("Hub1", "Ethernet6", "Client-03", "eth0")
-    lab.create_link("Hub1", "Ethernet7", "Client-04", "eth0")
-    lab.create_link("Hub1", "Ethernet8", "Client-05", "NIC1")
-    lab.create_link("Hub1", "Ethernet9", "Client-06", "eth0")
-    lab.create_link("Hub1", "Ethernet10", "Client-07", "eth0")
-
+    lab.create_link("Hub1", "Ethernet1", "Client-00", "Gi0/0")
+    lab.create_link("Hub1", "Ethernet2", "Client-01", "NIC1")
+    lab.create_link("Hub1", "Ethernet3", "Client-02", "NIC1")
+    lab.create_link("Hub1", "Ethernet4", "Client-03", "eth0")
+    lab.create_link("Hub1", "Ethernet5", "Client-04", "eth0")
+    lab.create_link("Hub1", "Ethernet6", "Client-05", "NIC1")
+    lab.create_link("Hub1", "Ethernet6", "Client-06", "NIC1")
+    
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
     print("-----------------------------------------------------------------------")
