@@ -1,5 +1,7 @@
  --- Client-00 startup config ---
  
+	conf t
+	
 	hostname Client-00
 	
 	no ip domain-lookup
@@ -37,3 +39,5 @@
 		gateway 192.168.1.1
 	
 		up echo nameserver 192.168.1.1 > /etc/resolv.conf
+
+Then, determine the port associated with Kali Linux and give the student the IP and port number, and have them connect via VNC.
