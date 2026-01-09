@@ -42,7 +42,7 @@ for SERVER_URL in SERVER_URLS:
     logging.debug(f"Available Templates: {available_templates}")
 
     #create and start all nodes
-    lab.create_node(name='ADDC', template='Windows Server 2025', x=-315, y=-48)
+    lab.create_node(name='ADDC', template='Windows Server 2016', x=-315, y=-48)
     ADDC1 = lab.get_node("ADDC")
     ADDC1.start()
 
