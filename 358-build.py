@@ -71,15 +71,15 @@ for SERVER_URL in SERVER_URLS:
     client_3.start()
 
 
-    lab.create_node(name='Client-04', template='Windows Server 2016', x='45', y='-53', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-04', template='Windows Server 2016', x='-41', y='-38', symbol=":/symbols/classic/computer.svg")
     client_4 = lab.get_node("Client-04")
     clent_4.start()
 
-    lab.create_node(name='Client-06', template='ubuntu', x='84', y='-242', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-06', template='ubuntu', x='196', y='-25', symbol=":/symbols/classic/computer.svg")
     client_6 = lab.get_node("Client-06")
     client_6.start()    
     
-#    lab.create_node(name="Client-05", node_type="docker", template="webgoat", x=150, y=-140, symbol=":/symbols/classic/computer.svg")
+#    lab.create_node(name="Client-05", node_type="docker", template="webgoat", x=85, y=-93, symbol=":/symbols/classic/computer.svg")
 #    client_5 = lab.get_node("Client-05")
 #    client_5.start()
 
