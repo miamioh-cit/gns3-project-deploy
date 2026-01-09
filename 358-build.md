@@ -15,14 +15,14 @@ copy run start
 
 ##################################
 
-auto eth0
+	auto eth0
 
-iface eth0 inet static
+	iface eth0 inet static
 
-	address 192.168.1.200
+		address 192.168.1.200
 	
-	netmask 255.255.255.0
+		netmask 255.255.255.0
 	
-	gateway 192.168.1.1
+		gateway 192.168.1.1
 	
-	up echo nameserver 192.168.1.1 > /etc/resolv.conf
+		up echo nameserver 192.168.1.1 > /etc/resolv.conf
