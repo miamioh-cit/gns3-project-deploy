@@ -1,4 +1,4 @@
-import logging
+himport logging
 from gns3fy import Gns3Connector, Project, Node, Link
 
 LAB_NAME = "cit358-sp26"  # Or dynamically set if you want
@@ -98,16 +98,16 @@ for SERVER_URL in SERVER_URLS:
    
 
     # Links
-    lab.create_link("Hub1", "Ethernet0", "KaliLinux1", "eth0")
-    lab.create_link("Hub1", "Ethernet1", "KaliLinux2", "eth0")
-    lab.create_link("Hub1", "Ethernet2", "KaliLinux3", "eth0")
+    lab.create_link("Hub1", "Ethernet0", "KaliLinux1", "Ethernet0")
+    lab.create_link("Hub1", "Ethernet1", "KaliLinux2", "Ethernet0")
+    lab.create_link("Hub1", "Ethernet2", "KaliLinux3", "Ethernet0")
     lab.create_link("Hub1", "Ethernet3", "Client-00", "Gi0/0")
-    lab.create_link("Hub1", "Ethernet4", "Client-01", "Ethernet0")
-    lab.create_link("Hub1", "Ethernet5", "Client-02", "Ethernet0")
-    lab.create_link("Hub1", "Ethernet6", "Client-03", "Ethernet0")
-    lab.create_link("Hub1", "Ethernet7", "Client-04", "Ethernet0")
-    lab.create_link("Hub1", "Ethernet8", "Client-05", "Ethernet0")
-    lab.create_link("Hub1", "Ethernet9", "Client-06", "Ethernet0")
+    lab.create_link("Hub1", "Ethernet4", "Client-01", "NIC1")
+    lab.create_link("Hub1", "Ethernet5", "Client-02", "NIC1")
+    lab.create_link("Hub1", "Ethernet6", "Client-03", "eth0")
+    lab.create_link("Hub1", "Ethernet7", "Client-04", "eth0")
+    lab.create_link("Hub1", "Ethernet8", "Client-05", "NIC1")
+    lab.create_link("Hub1", "Ethernet9", "Client-06", "eth0")
     lab.create_link("Hub1", "Ethernet10", "Client-07", "eth0")
 
     print("-----------------------------------------------------------------------")
