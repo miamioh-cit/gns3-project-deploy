@@ -119,11 +119,11 @@ for SERVER_URL in SERVER_URLS:
     router5 = lab.get_node("oh-int")
     router5.start()
 
-    lab.create_node(name='offsite-web', template='Windows Server 2025', x=-75, y=-300)
+    lab.create_node(name='offsite-web', template='Windows Server 2016', x=-75, y=-300)
     winserver16_1 = lab.get_node("offsite-web")
     winserver16_1.start()
 
-    lab.create_node(name='ohio-web', template='Windows Server 2025', x=-172, y=183)
+    lab.create_node(name='ohio-web', template='Windows Server 2016', x=-172, y=183)
     winserver16_3 = lab.get_node("ohio-web")
     winserver16_3.start()
 
