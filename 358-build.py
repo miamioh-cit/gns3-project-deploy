@@ -54,7 +54,7 @@ for SERVER_URL in SERVER_URLS:
     hub1 = lab.get_node("Hub1")
     hub1.start()
     
-    lab.create_node(name='Client-00', template='Cisco IOSv 15.7(3)M3', x='-417', y='-211', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-00', template='Cisco IOSv 15.7(3)M3', x='-457', y='-181', symbol=":/symbols/classic/computer.svg")
     client_0 = lab.get_node("Client-00")
     client_0.start()
 
@@ -62,26 +62,25 @@ for SERVER_URL in SERVER_URLS:
     client_1 = lab.get_node("Client-01")
     client_1.start()
 
-    lab.create_node(name='Client-02', template='Windows 10 w/ Edge', x='-288', y='-25', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-02', template='Windows 10 w/ Edge', x='-310', y='-25', symbol=":/symbols/classic/computer.svg")
     client_2 = lab.get_node("Client-02")
     client_2.start()
 
-    lab.create_node(name='Client-03', template='ubuntu', x='-175', y='-8', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-03', template='ubuntu', x='-225', y='34', symbol=":/symbols/classic/computer.svg")
     client_3 = lab.get_node("Client-03")
     client_3.start()
 
-
-    lab.create_node(name='Client-06', template='Windows Server 2016', x='-41', y='-38', symbol=":/symbols/classic/computer.svg")
-    client_6 = lab.get_node("Client-06")
-    client_6.start()
-
-    lab.create_node(name='Client-04', template='ubuntu', x='196', y='-25', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-04', template='ubuntu', x='-141', y='101', symbol=":/symbols/classic/computer.svg")
     client_4 = lab.get_node("Client-04")
     client_4.start()    
     
-    lab.create_node(name="Client-05", node_type="docker", template="webgoat", x=85, y=-93, symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name="Client-05", node_type="docker", template="webgoat", x=-66, y=165, symbol=":/symbols/classic/computer.svg")
     client_5 = lab.get_node("Client-05")
     client_5.start()
+
+    lab.create_node(name='Client-06', template='Windows Server 2016', x='22', y='215', symbol=":/symbols/classic/computer.svg")
+    client_6 = lab.get_node("Client-06")
+    client_6.start()
 
     # Links
     
