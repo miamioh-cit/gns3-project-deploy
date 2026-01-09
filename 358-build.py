@@ -65,7 +65,7 @@ for SERVER_URL in SERVER_URLS:
     hub1 = lab.get_node("Hub1")
     hub1.start()
     
-    lab.create_node(name='Client-00', template='Cisco IOSv 15.7(3)M', x='-417', y='-211', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-00', template='Cisco IOSv 15.7(3)M3', x='-417', y='-211', symbol=":/symbols/classic/computer.svg")
     win10_1 = lab.get_node("Client-00")
     win10_1.start()
 
@@ -85,11 +85,11 @@ for SERVER_URL in SERVER_URLS:
     win10_5 = lab.get_node("Client-04")
     win10_5.start()
 
-    lab.create_node(name='Client-05', template='Windows Server 2025', x='45', y='-53', symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name='Client-05', template='Windows Server 2016', x='45', y='-53', symbol=":/symbols/classic/computer.svg")
     win10_6 = lab.get_node("Client-05")
     win10_6.start()
 
-    lab.create_node(name="Client-06", node_type="docker", template="WebGoat", x=150, y=-140, symbol=":/symbols/classic/computer.svg")
+    lab.create_node(name="Client-06", node_type="docker", template="webgoat", x=150, y=-140, symbol=":/symbols/classic/computer.svg")
     client06 = lab.get_node("Client-06")
     client06.start()
 
