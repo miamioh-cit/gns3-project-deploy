@@ -6,24 +6,6 @@ from gns3fy import Gns3Connector, Project, Node, Link
 LAB_NAME = "cit358-sp26"  # Or dynamically set if you want
 BASE_IP = "http://10.48.229."
 
-# --- Client-00 startup config ---
-CLIENT_00_STARTUP_CFG = """!
-hostname Client-00
-no ip domain-lookup
-!
-interface GigabitEthernet0/0
- ip address 192.168.1.1 255.255.255.0
- no shutdown
-!
-ip dhcp excluded-address 192.168.1.1 192.168.1.10
-!
-ip dhcp pool MY_LAN_POOL
- network 192.168.1.0 255.255.255.0
- default-router 192.168.1.1
-!
-end
-"""
-
 # Read last octets from datastore file
 try:
     with open("datastore", "r") as f:
