@@ -90,7 +90,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("Hub1", "Ethernet3", "Client-02", "NIC1")
     lab.create_link("Hub1", "Ethernet4", "Client-03", "eth0")
     lab.create_link("Hub1", "Ethernet5", "Client-04", "eth0")
-    lab.create_link("Hub1", "Ethernet6", "Client-05", "NIC1")
+    lab.create_link("Hub1", "Ethernet6", "Client-05", "eth0")
     lab.create_link("Hub1", "Ethernet6", "Client-06", "NIC1")
     
     print("-----------------------------------------------------------------------")
