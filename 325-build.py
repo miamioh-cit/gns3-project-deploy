@@ -50,19 +50,19 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name='NAT-6', template='NAT', x='-548', y='86')
     lab.create_node(name='NAT-7', template='NAT', x='437', y='88')
     
-    lab.create_node(name='mgmt-rtr', template='Cisco IOSv 15.5(3)M', x=-20, y=-337)
+    lab.create_node(name='mgmt-rtr', template='Cisco IOSv 15.7(3)M3', x=-20, y=-337)
     router1 = lab.get_node("mgmt-rtr")
     router1.start()
 
-    lab.create_node(name='mid-rtr', template='Cisco IOSv 15.5(3)M', x=-102, y=355)
+    lab.create_node(name='mid-rtr', template='Cisco IOSv 15.7(3)M3', x=-102, y=355)
     router2 = lab.get_node("mid-rtr")
     router2.start()
 
-    lab.create_node(name='ham-rtr', template='Cisco IOSv 15.5(3)M', x=115, y=355)
+    lab.create_node(name='ham-rtr', template='Cisco IOSv 15.7(3)M3, x=115, y=355)
     router3 = lab.get_node("ham-rtr")
     router3.start()
 
-    lab.create_node(name='reg-rtr', template='Cisco IOSv 15.5(3)M', x=0, y=471)
+    lab.create_node(name='reg-rtr', template='Cisco IOSv 15.7(3)M3', x=0, y=471)
     router4 = lab.get_node("reg-rtr")
     router4.start()
 
@@ -94,11 +94,11 @@ for SERVER_URL in SERVER_URLS:
     ham1 = lab.get_node("ham-l")
     ham1.start()
 
-    lab.create_node(name='mid-w', template='Windows 10', x=-132, y=78)
+    lab.create_node(name='mid-w', template='Windows 10 w/ Edge', x=-132, y=78)
     midw = lab.get_node("mid-w")
     midw.start()
 
-    lab.create_node(name='ham-w', template='Windows 10', x=102, y=73)
+    lab.create_node(name='ham-w', template='Windows 10 w/ Edge', x=102, y=73)
     hamw = lab.get_node("ham-w")
     hamw.start()
 
