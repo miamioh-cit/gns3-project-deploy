@@ -45,9 +45,6 @@ for SERVER_URL in SERVER_URLS:
     lab = Project(name=LAB_NAME, connector=server)
     lab.get()
     lab.open()
-   
-
-    lab.create_node(name='Client-07', template='Cloud', x=84, y=-242, symbol=":/symbols/classic/computer.svg")
 
     lab.create_node(name='KaliLinux1', template='Kali Linux', x='-351', y='-346')
     kali1 = lab.get_node("KaliLinux1")
@@ -78,13 +75,13 @@ for SERVER_URL in SERVER_URLS:
     client_4 = lab.get_node("Client-04")
     clent_4.start()
 
-    lab.create_node(name="Client-05", node_type="docker", template="webgoat", x=150, y=-140, symbol=":/symbols/classic/computer.svg")
-    client_5 = lab.get_node("Client-05")
-    client_5.start()
-
     lab.create_node(name='Client-06', template='ubuntu', x='84', y='-242', symbol=":/symbols/classic/computer.svg")
     client_6 = lab.get_node("Client-06")
-    client_6.start()
+    client_6.start()    
+    
+#    lab.create_node(name="Client-05", node_type="docker", template="webgoat", x=150, y=-140, symbol=":/symbols/classic/computer.svg")
+#    client_5 = lab.get_node("Client-05")
+#    client_5.start()
 
     # Links
     
