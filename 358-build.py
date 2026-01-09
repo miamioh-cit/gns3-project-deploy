@@ -55,28 +55,12 @@ for SERVER_URL in SERVER_URLS:
     hub1 = lab.get_node("Hub1")
     hub1.start()
     
-    CLIENT_00_STARTUP_CFG = """!
-    hostname Client-00
-    no ip domain-lookup
-    interface GigabitEthernet0/0
-     ip address 192.168.1.1 255.255.255.0
-     no shutdown
-    ip dhcp excluded-address 192.168.1.1 192.168.1.10
-    ip dhcp pool MY_LAN_POOL
-     network 192.168.1.0 255.255.255.0
-     default-router 192.168.1.1
-    end
-    """
-    
-    # ...
-    
     lab.create_node(
         name='Client-00',
         template='Cisco IOSv 15.7(3)M3',
         x='-457',
         y='-181',
-        symbol=":/symbols/classic/computer.svg",
-        properties={"startup_config": CLIENT_00_STARTUP_CFG}
+        symbol=":/symbols/classic/computer.svg"
     )
     client_0 = lab.get_node("Client-00")
     client_0.start()
