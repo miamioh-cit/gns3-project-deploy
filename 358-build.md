@@ -12,7 +12,9 @@ end
 copy run start
 
 #You will also need to give students the URL of 192.168.1.200:8080/WebGoat to use in Kali AFTER you have pasted in this Interface Configuration on Client-05...
+
 ##################################
+
 auto eth0
 
 iface eth0 inet static
