@@ -95,27 +95,27 @@ for SERVER_URL in SERVER_URLS:
     win10_ky4 = lab.get_node("ky-win10-04")
     win10_ky4.start()
 
-    lab.create_node(name='in-edge', template='Cisco IOSv 15.5(3)M', x=-113, y=32)
+    lab.create_node(name='in-edge', template='Cisco IOSv 15.7(3)M3', x=-113, y=32)
     router0 = lab.get_node("in-edge")
     router0.start()
 
-    lab.create_node(name='offsite-router', template='Cisco IOSv 15.5(3)M', x=-37, y=-72)
+    lab.create_node(name='offsite-router', template='Cisco IOSv 15.7(3)M3', x=-37, y=-72)
     router1 = lab.get_node("offsite-router")
     router1.start()
 
-    lab.create_node(name='ky-edge', template='Cisco IOSv 15.5(3)M', x=46, y=24)
+    lab.create_node(name='ky-edge', template='Cisco IOSv 15.7(3)M3', x=46, y=24)
     router2 = lab.get_node("ky-edge")
     router2.start()
 
-    lab.create_node(name='ky-int', template='Cisco IOSv 15.5(3)M', x=149, y=96)
+    lab.create_node(name='ky-int', template='Cisco IOSv 15.7(3)M3', x=149, y=96)
     router3 = lab.get_node("ky-int")
     router3.start()
 
-    lab.create_node(name='oh-edge', template='Cisco IOSv 15.5(3)M', x=-31, y=91)
+    lab.create_node(name='oh-edge', template='Cisco IOSv 15.7(3)M3', x=-31, y=91)
     router4 = lab.get_node("oh-edge")
     router4.start()
 
-    lab.create_node(name='oh-int', template='Cisco IOSv 15.5(3)M', x=-31, y=192)
+    lab.create_node(name='oh-int', template='Cisco IOSv 15.7(3)M3', x=-31, y=192)
     router5 = lab.get_node("oh-int")
     router5.start()
 
