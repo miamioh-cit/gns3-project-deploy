@@ -71,18 +71,15 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name="Hub1", template='Ethernet hub', x=-143, y=-174, properties={"ports": 12})
     hub1 = lab.get_node("Hub1")
     hub1.start()
-    
-    client_0 = lab.get_node("Client-00")
 
-    # Refresh node details (helps ensure properties are present)
+    lab.create_node(name='Client-00', template='Cisco IOSv 15.7(3)M3', x='-457', y='-181', symbol=":/symbols/classic/computer.svg")
+    client_0 = lab.get_node("Client-00")
+    client_0.start()
     client_0.get()
     
     # Try setting startup-config
     client_0.properties["startup_config"] = CLIENT_00_STARTUP_CFG
     client_0.update()
-    
-    client_0.start()
-
 
     lab.create_node(name='Client-01', template='Windows 10 w/ Edge', x='-384', y='-103', symbol=":/symbols/classic/computer.svg")
     client_1 = lab.get_node("Client-01")
