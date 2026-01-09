@@ -1,23 +1,6 @@
 import logging
 from gns3fy import Gns3Connector, Project, Node, Link
 
-CLIENT_00_STARTUP_CFG = """!
-hostname Client-00
-no ip domain-lookup
-!
-interface GigabitEthernet0/0
- ip address 192.168.1.1 255.255.255.0
- no shutdown
-!
-ip dhcp excluded-address 192.168.1.1 192.168.1.10
-!
-ip dhcp pool MY_LAN_POOL
- network 192.168.1.0 255.255.255.0
- default-router 192.168.1.1
-!
-end
-"""
-
 
 LAB_NAME = "cit358-sp26"  # Or dynamically set if you want
 BASE_IP = "http://10.48.229."
@@ -71,15 +54,33 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name="Hub1", template='Ethernet hub', x=-143, y=-174, properties={"ports": 12})
     hub1 = lab.get_node("Hub1")
     hub1.start()
-
-    lab.create_node(name='Client-00', template='Cisco IOSv 15.7(3)M3', x='-457', y='-181', symbol=":/symbols/classic/computer.svg")
+    
+    CLIENT_00_STARTUP_CFG = """!
+    hostname Client-00
+    no ip domain-lookup
+    interface GigabitEthernet0/0
+     ip address 192.168.1.1 255.255.255.0
+     no shutdown
+    ip dhcp excluded-address 192.168.1.1 192.168.1.10
+    ip dhcp pool MY_LAN_POOL
+     network 192.168.1.0 255.255.255.0
+     default-router 192.168.1.1
+    end
+    """
+    
+    # ...
+    
+    lab.create_node(
+        name='Client-00',
+        template='Cisco IOSv 15.7(3)M3',
+        x='-457',
+        y='-181',
+        symbol=":/symbols/classic/computer.svg",
+        properties={"startup_config": CLIENT_00_STARTUP_CFG}
+    )
     client_0 = lab.get_node("Client-00")
     client_0.start()
-    client_0.get()
-    
-    # Try setting startup-config
-    client_0.properties["startup_config"] = CLIENT_00_STARTUP_CFG
-    client_0.update()
+
 
     lab.create_node(name='Client-01', template='Windows 10 w/ Edge', x='-384', y='-103', symbol=":/symbols/classic/computer.svg")
     client_1 = lab.get_node("Client-01")
