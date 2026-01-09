@@ -72,7 +72,7 @@ for SERVER_URL in SERVER_URLS:
 
 
     lab.create_node(name='Client-06', template='Windows Server 2016', x='-41', y='-38', symbol=":/symbols/classic/computer.svg")
-    client_6 = lab.get_node("Client-64")
+    client_6 = lab.get_node("Client-06")
     client_6.start()
 
     lab.create_node(name='Client-04', template='ubuntu', x='196', y='-25', symbol=":/symbols/classic/computer.svg")
