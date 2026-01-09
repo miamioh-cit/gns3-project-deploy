@@ -11,4 +11,11 @@ ip dhcp pool MY_LAN_POOL
 end
 copy run start
 
-#You will also need to set the webgoat IP address to 192.168.1.100, and give students the URL of 192.168.1.100:8080/WebGoat to use in Kali.
+#You will also need to give students the URL of 192.168.1.200:8080/WebGoat to use in Kali AFTER you have pasted in this Interface Configuration on Client-05...
+##################################
+auto eth0
+iface eth0 inet static
+	address 192.168.1.200
+	netmask 255.255.255.0
+	gateway 192.168.1.1
+	up echo nameserver 192.168.1.1 > /etc/resolv.conf
