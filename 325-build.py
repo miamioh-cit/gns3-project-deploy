@@ -58,7 +58,7 @@ for SERVER_URL in SERVER_URLS:
     router2 = lab.get_node("mid-rtr")
     router2.start()
 
-    lab.create_node(name='ham-rtr', template='Cisco IOSv 15.7(3)M3, x=115, y=355)
+    lab.create_node(name='ham-rtr', template='Cisco IOSv 15.7(3)M3', x=115, y=355)
     router3 = lab.get_node("ham-rtr")
     router3.start()
 
