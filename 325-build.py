@@ -127,7 +127,8 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("jenkins-server", "eth1", "NAT-3", "nat0")
     lab.create_link("mid-l", "eth2", "NAT-4", "nat0")
     lab.create_link("ham-l", "eth1", "NAT-5", "nat0")
-    lab.create_link("mid-w", "NIC2", "NAT-6", "nat0")
+    
+    lab.create_link("mid-w", "NIC3", "NAT-6", "nat0")
     lab.create_link("ham-w", "NIC2", "NAT-7", "nat0")
     lab.create_link("ham-sw", "Gi0/0", "ham-l", "eth2")
     lab.create_link("ham-sw", "Gi0/1", "ham-w", "NIC3")
