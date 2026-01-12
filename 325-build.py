@@ -113,7 +113,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("mgmt-sw", "Gi1/1", "ham-rtr", "Gi0/0")
     lab.create_link("mgmt-sw", "Gi1/2", "ham-w", "Ethernet0")
     lab.create_link("mgmt-sw", "Gi1/3", "ham-l", "Ethernet0")
-    lab.create_link("mgmt-sw", "Gi2/0", "jenkins-server", "Ethernet0")
+    lab.create_link("mgmt-sw", "Gi2/0", "jenkins-server", "eth0")
     lab.create_link("mgmt-sw", "Gi2/1", "mid-sw", "Gi0/3")
     lab.create_link("mgmt-sw", "Gi2/2", "ham-sw", "Gi0/3")
     lab.create_link("mgmt-sw", "Gi2/3", "reg-rtr", "Gi0/3")
