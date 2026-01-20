@@ -42,7 +42,7 @@ for SERVER_URL in SERVER_URLS:
     logging.debug(f"Available Templates: {available_templates}")
 
     #create and start all nodes
-    lab.create_node(name='ADDC', template='Windows Server 2025', x=-315, y=-48)
+    lab.create_node(name='ADDC', template='Windows Server 2016', x=-315, y=-48)
     ADDC = lab.get_node("ADDC")
     ADDC.start()
 
@@ -64,10 +64,10 @@ for SERVER_URL in SERVER_URLS:
 
     #Create links  
     
-    lab.create_link("Switch1", "Ethernet0", "ADDC", "Ethernet0")
+    lab.create_link("Switch1", "Ethernet0", "ADDC", "NIC0")
     lab.create_link("Switch1", "Ethernet1", "Windows_Client-1", "Ethernet0")
     lab.create_link("Switch1", "Ethernet2", "Windows_Client-2", "Ethernet0")
-    lab.create_link("ADDC", "Ethernet1", "NAT1", "nat0")
+    lab.create_link("ADDC", "NIC1", "NAT1", "nat0")
 
     
     print("-----------------------------------------------------------------------")
