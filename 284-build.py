@@ -64,10 +64,10 @@ for SERVER_URL in SERVER_URLS:
 
     #Create links  
     
-    lab.create_link("Switch1", "Ethernet0", "ADDC", "NIC0")
+    lab.create_link("Switch1", "Ethernet0", "ADDC", "NIC1")
     lab.create_link("Switch1", "Ethernet1", "Windows_Client-1", "Ethernet0")
     lab.create_link("Switch1", "Ethernet2", "Windows_Client-2", "Ethernet0")
-    lab.create_link("ADDC", "NIC1", "NAT1", "nat0")
+    lab.create_link("ADDC", "NIC1", "NAT2", "nat0")
 
     
     print("-----------------------------------------------------------------------")
