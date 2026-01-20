@@ -47,12 +47,12 @@ for SERVER_URL in SERVER_URLS:
     ADDC1.start()
 
     lab.create_node(name='Windows_Client-1', template='Windows 11', x=-401, y=58)
-    win10Edge1 = lab.get_node("Windows_Client-1")
-    win10Edge1.start()
+    win_1 = lab.get_node("Windows_Client-1")
+    win_1.start()
 
     lab.create_node(name='Windows_Client-2', template='Windows 11', x=-559, y=58)
-    win10Edge2 = lab.get_node("Windows_Client-2")
-    win10Edge2.start()
+    win_2 = lab.get_node("Windows_Client-2")
+    win_2.start()
 
     lab.create_node(name='Switch1', template='Ethernet switch', x=-472, y=-30)
     switch1 = lab.get_node("Switch1")
