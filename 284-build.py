@@ -46,12 +46,12 @@ for SERVER_URL in SERVER_URLS:
     ADDC1 = lab.get_node("ADDC")
     ADDC1.start()
 
-    lab.create_node(name='Windows10w/Edge-1', template='Windows 11', x=-401, y=58)
-    win10Edge1 = lab.get_node("Windows10w/Edge-1")
+    lab.create_node(name='Windows_Client-1', template='Windows 11', x=-401, y=58)
+    win10Edge1 = lab.get_node("Windows_Client-1")
     win10Edge1.start()
 
-    lab.create_node(name='Windows10w/Edge-0', template='Windows 11', x=-559, y=58)
-    win10Edge2 = lab.get_node("Windows10w/Edge-0")
+    lab.create_node(name='Windows_Client-2', template='Windows 11', x=-559, y=58)
+    win10Edge2 = lab.get_node("Windows_Client-2")
     win10Edge2.start()
 
     lab.create_node(name='Switch1', template='Ethernet switch', x=-472, y=-30)
@@ -65,8 +65,8 @@ for SERVER_URL in SERVER_URLS:
     #Create links  
     
     lab.create_link("Switch1", "Ethernet0", "ADDC", "Ethernet0")
-    lab.create_link("Switch1", "Ethernet1", "Windows11", "Ethernet0")
-    lab.create_link("Switch1", "Ethernet2", "Windows11", "Ethernet0")
+    lab.create_link("Switch1", "Ethernet1", "Windows_Client-1", "Ethernet0")
+    lab.create_link("Switch1", "Ethernet2", "Windows_Client-2", "Ethernet0")
     lab.create_link("ADDC", "Ethernet1", "NAT1", "nat0")
 
     
