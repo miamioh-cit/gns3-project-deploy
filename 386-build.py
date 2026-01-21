@@ -316,21 +316,13 @@ for SERVER_URL in SERVER_URLS:
     router7 = lab.get_node("charlie-edge")
     router7.start()
 
-    lab.create_node(name='germany-int', template='Cisco IOSv 15.7(3)M3', x='343', y='540')
-    router8 = lab.get_node("germany-int")
+    lab.create_node(name='delta-int', template='Cisco IOSv 15.7(3)M3', x='343', y='540')
+    router8 = lab.get_node("delta-int")
     router8.start()
 
-    lab.create_node(name='germany-edge', template='Cisco IOSv 15.7(3)M3', x='42', y='428', properties={"adapters": 16})
-    router9 = lab.get_node("germany-edge")
+    lab.create_node(name='delta-edge', template='Cisco IOSv 15.7(3)M3', x='42', y='428', properties={"adapters": 16})
+    router9 = lab.get_node("delta-edge")
     router9.start()
-
-    lab.create_node(name='europe-int', template='Cisco IOSv 15.7(3)M3', x='-558', y='203')
-    router10 = lab.get_node("europe-int")
-    router10.start()
-
-    lab.create_node(name='europe-edge', template='Cisco IOSv 15.7(3)M3', x='-258', y='201', properties={"adapters": 16})
-    router11 = lab.get_node("europe-edge")
-    router11.start()
 
     lab.create_node(name='echo-int', template='Cisco IOSv 15.7(3)M3', x='-558', y='540')
     router12 = lab.get_node("echo-int")
@@ -340,6 +332,14 @@ for SERVER_URL in SERVER_URLS:
     router13 = lab.get_node("echo-edge")
     router13.start()
     
+    lab.create_node(name='foxtrot-int', template='Cisco IOSv 15.7(3)M3', x='-558', y='203')
+    router10 = lab.get_node("foxtrot-int")
+    router10.start()
+
+    lab.create_node(name='foxtrot-edge', template='Cisco IOSv 15.7(3)M3', x='-258', y='201', properties={"adapters": 16})
+    router11 = lab.get_node("foxtrot-edge")
+    router11.start()
+    
     lab.create_node(name='golf-int', template='Cisco IOSv 15.7(3)M3', x='-555', y='-203')
     router2 = lab.get_node("golf-int")
     router2.start()
@@ -347,7 +347,9 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name='golf-edge', template='Cisco IOSv 15.7(3)M3', x='-255', y='-20', properties={"adapters": 16})
     router3 = lab.get_node("golf-edge")
     router3.start()
-    
+
+
+    #Add Switches
     lab.create_node(name='alpha-sw1', template='Cisco IOSvL2 15.2.1', x='-100', y='-473')
     sw0 = lab.get_node("alpha-sw1")
     sw0.start()
@@ -356,12 +358,12 @@ for SERVER_URL in SERVER_URLS:
     sw1 = lab.get_node("alpha-sw2")
     sw1.start()
 
-    lab.create_node(name='india-sw1', template='Cisco IOSvL2 15.2.1', x='-701', y='-203')
-    sw2 = lab.get_node("india-sw1")
+    lab.create_node(name='golf-sw1', template='Cisco IOSvL2 15.2.1', x='-701', y='-203')
+    sw2 = lab.get_node("golf-sw1")
     sw2.start()
 
-    lab.create_node(name='india-sw2', template='Cisco IOSvL2 15.2.1', x='-850', y='-203')
-    sw3 = lab.get_node("india-sw2")
+    lab.create_node(name='golf-sw2', template='Cisco IOSvL2 15.2.1', x='-850', y='-203')
+    sw3 = lab.get_node("golf-sw2")
     sw3.start()
 
     lab.create_node(name='bravo-sw1', template='Cisco IOSvL2 15.2.1', x='502', y='-203')
@@ -372,44 +374,44 @@ for SERVER_URL in SERVER_URLS:
     sw5 = lab.get_node("bravo-sw2")
     sw5.start()
 
-    lab.create_node(name='china-sw1', template='Cisco IOSvL2 15.2.1', x='500', y='164')
-    sw6 = lab.get_node("china-sw1")
+    lab.create_node(name='charlie-sw1', template='Cisco IOSvL2 15.2.1', x='500', y='164')
+    sw6 = lab.get_node("charlie-sw1")
     sw6.start()
 
-    lab.create_node(name='china-sw2', template='Cisco IOSvL2 15.2.1', x='653', y='164')
-    sw7 = lab.get_node("china-sw2")
+    lab.create_node(name='charlie-sw2', template='Cisco IOSvL2 15.2.1', x='653', y='164')
+    sw7 = lab.get_node("charlie-sw2")
     sw7.start()
 
-    lab.create_node(name='germany-sw1', template='Cisco IOSvL2 15.2.1', x='498', y='536')
-    sw8 = lab.get_node("germany-sw1")
+    lab.create_node(name='delta-sw1', template='Cisco IOSvL2 15.2.1', x='498', y='536')
+    sw8 = lab.get_node("delta-sw1")
     sw8.start()
 
-    lab.create_node(name='germany-sw2', template='Cisco IOSvL2 15.2.1', x='651', y='536')
-    sw9 = lab.get_node("germany-sw2")
+    lab.create_node(name='delta-sw2', template='Cisco IOSvL2 15.2.1', x='651', y='536')
+    sw9 = lab.get_node("delta-sw2")
     sw9.start()
 
-    lab.create_node(name='europe-sw1', template='Cisco IOSvL2 15.2.1', x='-700', y='167')
-    sw10 = lab.get_node("europe-sw1")
+    lab.create_node(name='foxtrot-sw1', template='Cisco IOSvL2 15.2.1', x='-700', y='167')
+    sw10 = lab.get_node("foxtrot-sw1")
     sw10.start()
 
-    lab.create_node(name='europe-sw2', template='Cisco IOSvL2 15.2.1', x='-853', y='167')
-    sw11 = lab.get_node("europe-sw2")
+    lab.create_node(name='foxtrot-sw2', template='Cisco IOSvL2 15.2.1', x='-853', y='167')
+    sw11 = lab.get_node("foxtrot-sw2")
     sw11.start()
 
-    lab.create_node(name='us-sw1', template='Cisco IOSvL2 15.2.1', x='-700', y='534')
-    sw12 = lab.get_node("us-sw1")
+    lab.create_node(name='echo-sw1', template='Cisco IOSvL2 15.2.1', x='-700', y='534')
+    sw12 = lab.get_node("echo-sw1")
     sw12.start()
 
-    lab.create_node(name='us-sw2', template='Cisco IOSvL2 15.2.1', x='-850', y='534')
-    sw13 = lab.get_node("us-sw2")
+    lab.create_node(name='echo-sw2', template='Cisco IOSvL2 15.2.1', x='-850', y='534')
+    sw13 = lab.get_node("echo-sw2")
     sw13.start()
 
-    lab.create_node(name='CiscoASAv9.16.2-3', template='Cisco ASAv 9.9.2', x='-101', y='-225')
-    ASA0 = lab.get_node("CiscoASAv9.16.2-3")
+    lab.create_node(name='alpha-ASA.16.2-3', template='Cisco ASAv 9.9.2', x='-101', y='-225')
+    ASA0 = lab.get_node("alpha-ASA.16.2-3")
     ASA0.start()
 
-    lab.create_node(name='india-ASA', template='Cisco ASAv 9.9.2', x='-403', y='-112')
-    ASA1 = lab.get_node("india-ASA")
+    lab.create_node(name='golf-ASA', template='Cisco ASAv 9.9.2', x='-403', y='-112')
+    ASA1 = lab.get_node("golf-ASA")
     ASA1.start()
 
     lab.create_node(name='bravo-ASA', template='Cisco ASAv 9.9.2', x='193', y='-118')
