@@ -292,59 +292,59 @@ for SERVER_URL in SERVER_URLS:
     VPC63 = lab.get_node("germany-web")
     VPC63.start()
 
-    lab.create_node(name='switzerland-int', template='Cisco IOSv 15.5(3)M3', x='-108', y='-322')
+    lab.create_node(name='switzerland-int', template='Cisco IOSv 15.7(3)M3', x='-108', y='-322')
     router0 = lab.get_node("switzerland-int")
     router0.start()
 
-    lab.create_node(name='switzerland-edge', template='Cisco IOSv 15.5(3)M3', x='-107', y='-100', properties={"adapters": 16})
+    lab.create_node(name='switzerland-edge', template='Cisco IOSv 15.7(3)M3', x='-107', y='-100', properties={"adapters": 16})
     router1 = lab.get_node("switzerland-edge")
     router1.start()
 
-    lab.create_node(name='india-int', template='Cisco IOSv 15.5(3)M3', x='-555', y='-203')
+    lab.create_node(name='india-int', template='Cisco IOSv 15.7(3)M3', x='-555', y='-203')
     router2 = lab.get_node("india-int")
     router2.start()
 
-    lab.create_node(name='india-edge', template='Cisco IOSv 15.5(3)M3', x='-255', y='-20', properties={"adapters": 16})
+    lab.create_node(name='india-edge', template='Cisco IOSv 15.7(3)M3', x='-255', y='-20', properties={"adapters": 16})
     router3 = lab.get_node("india-edge")
     router3.start()
 
-    lab.create_node(name='japan-int', template='Cisco IOSv 15.5(3)M3', x='340', y='-203')
+    lab.create_node(name='japan-int', template='Cisco IOSv 15.7(3)M3', x='340', y='-203')
     router4 = lab.get_node("japan-int")
     router4.start()
 
-    lab.create_node(name='japan-edge', template='Cisco IOSv 15.5(3)M3', x='39', y='-21', properties={"adapters": 16})
+    lab.create_node(name='japan-edge', template='Cisco IOSv 15.7(3)M3', x='39', y='-21', properties={"adapters": 16})
     router5 = lab.get_node("japan-edge")
     router5.start()
 
-    lab.create_node(name='china-int', template='Cisco IOSv 15.5(3)M3', x='342', y='203')
+    lab.create_node(name='china-int', template='Cisco IOSv 15.7(3)M3', x='342', y='203')
     router6 = lab.get_node("china-int")
     router6.start() 
 
-    lab.create_node(name='china-edge', template='Cisco IOSv 15.5(3)M3', x='42', y='203', properties={"adapters": 16})
+    lab.create_node(name='china-edge', template='Cisco IOSv 15.7(3)M3', x='42', y='203', properties={"adapters": 16})
     router7 = lab.get_node("china-edge")
     router7.start()
 
-    lab.create_node(name='germany-int', template='Cisco IOSv 15.5(3)M3', x='343', y='540')
+    lab.create_node(name='germany-int', template='Cisco IOSv 15.7(3)M3', x='343', y='540')
     router8 = lab.get_node("germany-int")
     router8.start()
 
-    lab.create_node(name='germany-edge', template='Cisco IOSv 15.5(3)M3', x='42', y='428', properties={"adapters": 16})
+    lab.create_node(name='germany-edge', template='Cisco IOSv 15.7(3)M3', x='42', y='428', properties={"adapters": 16})
     router9 = lab.get_node("germany-edge")
     router9.start()
 
-    lab.create_node(name='europe-int', template='Cisco IOSv 15.5(3)M3', x='-558', y='203')
+    lab.create_node(name='europe-int', template='Cisco IOSv 15.7(3)M3', x='-558', y='203')
     router10 = lab.get_node("europe-int")
     router10.start()
 
-    lab.create_node(name='europe-edge', template='Cisco IOSv 15.5(3)M3', x='-258', y='201', properties={"adapters": 16})
+    lab.create_node(name='europe-edge', template='Cisco IOSv 15.7(3)M3', x='-258', y='201', properties={"adapters": 16})
     router11 = lab.get_node("europe-edge")
     router11.start()
 
-    lab.create_node(name='america-int', template='Cisco IOSv 15.5(3)M3', x='-558', y='540')
+    lab.create_node(name='america-int', template='Cisco IOSv 15.7(3)M3', x='-558', y='540')
     router12 = lab.get_node("america-int")
     router12.start()
 
-    lab.create_node(name='america-edge', template='Cisco IOSv 15.5(3)M3', x='-258', y='428', properties={"adapters": 16})
+    lab.create_node(name='america-edge', template='Cisco IOSv 15.7(3)M3', x='-258', y='428', properties={"adapters": 16})
     router13 = lab.get_node("america-edge")
     router13.start()
 
