@@ -397,7 +397,7 @@ for SERVER_URL in SERVER_URLS:
     sw11 = lab.get_node("europe-sw2")
     sw11.start()
 
-    lab.create_node(name='america-sw1', template='Cisco IOSvL2 15.2.1', x='-700', y='534')
+    lab.create_node(name='us-sw1', template='Cisco IOSvL2 15.2.1', x='-700', y='534')
     sw12 = lab.get_node("us-sw1")
     sw12.start()
 
