@@ -380,7 +380,7 @@ for SERVER_URL in SERVER_URLS:
 
 
 #Add ASAs
-    lab.create_node(name='alpha-ASA', template='Cisco ASAv 9.9.2', x='-101', y='-225')
+    lab.create_node(name='alpha-asa', template='Cisco ASAv 9.9.2', x='-101', y='-225')
     ASA0 = lab.get_node("alpha-asa")
     ASA0.start()
 
