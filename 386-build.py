@@ -75,40 +75,40 @@ for SERVER_URL in SERVER_URLS:
     VPC9 = lab.get_node("alpha-web")
     VPC9.start()
 
-    lab.create_node(name='india-pc1', template='VPCS', x='-932', y='-329')
-    VPC10 = lab.get_node("india-pc1")
+    lab.create_node(name='golf-pc1', template='VPCS', x='-932', y='-329')
+    VPC10 = lab.get_node("golf-pc1")
     VPC10.start()
 
-    lab.create_node(name='india-pc2', template='VPCS', x='-857', y='-329')
-    VPC11 = lab.get_node("india-pc2")
+    lab.create_node(name='golf-pc2', template='VPCS', x='-857', y='-329')
+    VPC11 = lab.get_node("golf-pc2")
     VPC11.start()
 
-    lab.create_node(name='india-pc5', template='VPCS', x='-707', y='-329')
-    VPC12 = lab.get_node("india-pc5")
+    lab.create_node(name='golf-pc5', template='VPCS', x='-707', y='-329')
+    VPC12 = lab.get_node("golf-pc5")
     VPC12.start()
 
-    lab.create_node(name='india-pc6', template='VPCS', x='-632', y='-331')
-    VPC13 = lab.get_node("india-pc6")
+    lab.create_node(name='golf-pc6', template='VPCS', x='-632', y='-331')
+    VPC13 = lab.get_node("golf-pc6")
     VPC13.start()
 
-    lab.create_node(name='india-web', template='VPCS', x='-515', y='-331')
-    VPC14 = lab.get_node("india-web")
+    lab.create_node(name='golf-web', template='VPCS', x='-515', y='-331')
+    VPC14 = lab.get_node("golf-web")
     VPC14.start()
 
-    lab.create_node(name='india-pc3', template='VPCS', x='-932', y='-104')
-    VPC15 = lab.get_node("india-pc3")
+    lab.create_node(name='golf-pc3', template='VPCS', x='-932', y='-104')
+    VPC15 = lab.get_node("golf-pc3")
     VPC15.start()
 
-    lab.create_node(name='india-pc4', template='VPCS', x='-857', y='-104')
-    VPC16 = lab.get_node("india-pc4")
+    lab.create_node(name='golf-pc4', template='VPCS', x='-857', y='-104')
+    VPC16 = lab.get_node("golf-pc4")
     VPC16.start()
 
-    lab.create_node(name='india-pc7', template='VPCS', x='-707', y='-104')
-    VPC17 = lab.get_node("india-pc7")
+    lab.create_node(name='golf-pc7', template='VPCS', x='-707', y='-104')
+    VPC17 = lab.get_node("golf-pc7")
     VPC17.start()
 
-    lab.create_node(name='india-pc8', template='VPCS', x='-632', y='-104')
-    VPC18 = lab.get_node("india-pc8")
+    lab.create_node(name='golf-pc8', template='VPCS', x='-632', y='-104')
+    VPC18 = lab.get_node("golf-pc8")
     VPC18.start()
  
 
