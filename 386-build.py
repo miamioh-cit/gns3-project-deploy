@@ -37,7 +37,7 @@ for SERVER_URL in SERVER_URLS:
     lab = Project(name=LAB_NAME, connector=server)
     lab.get()
     lab.open()
-
+    
     # Create and start all nodes
     lab.create_node(name='alpha-pc1', template='VPCS', x='-257', y='-704')
     VPC1 = lab.get_node("alpha-pc1")
@@ -112,76 +112,76 @@ for SERVER_URL in SERVER_URLS:
     VPC18.start()
  
 
-    lab.create_node(name='europe-web', template='VPCS', x='-407', y='45')
-    VPC19 = lab.get_node("europe-web")
+    lab.create_node(name='foxtrot-web', template='VPCS', x='-407', y='45')
+    VPC19 = lab.get_node("foxtrot-web")
     VPC19.start()
 
-    lab.create_node(name='europe-pc1', template='VPCS', x='-932', y='45')
-    VPC20 = lab.get_node("europe-pc1")
+    lab.create_node(name='foxtrot-pc1', template='VPCS', x='-932', y='45')
+    VPC20 = lab.get_node("foxtrot-pc1")
     VPC20.start()
 
-    lab.create_node(name='europe-pc2', template='VPCS', x='-857', y='45')
-    VPC21 = lab.get_node("europe-pc2")
+    lab.create_node(name='foxtrot-pc2', template='VPCS', x='-857', y='45')
+    VPC21 = lab.get_node("foxtrot-pc2")
     VPC21.start()
    
-    lab.create_node(name='europe-pc5', template='VPCS', x='-707', y='45')
-    VPC22 = lab.get_node("europe-pc5")
+    lab.create_node(name='foxtrot-pc5', template='VPCS', x='-707', y='45')
+    VPC22 = lab.get_node("foxtrot-pc5")
     VPC22.start()
 
-    lab.create_node(name='europe-pc6', template='VPCS', x='-632', y='45')
-    VPC23 = lab.get_node("europe-pc6")
+    lab.create_node(name='foxtrot-pc6', template='VPCS', x='-632', y='45')
+    VPC23 = lab.get_node("foxtrot-pc6")
     VPC23.start()
 
-    lab.create_node(name='europe-pc3', template='VPCS', x='-932', y='270')
-    VPC24 = lab.get_node("europe-pc3")
+    lab.create_node(name='foxtrot-pc3', template='VPCS', x='-932', y='270')
+    VPC24 = lab.get_node("foxtrot-pc3")
     VPC24.start()
 
-    lab.create_node(name='europe-pc4', template='VPCS', x='-857', y='270')
-    VPC25 = lab.get_node("europe-pc4")
+    lab.create_node(name='foxtrot-pc4', template='VPCS', x='-857', y='270')
+    VPC25 = lab.get_node("foxtrot-pc4")
     VPC25.start()
 
-    lab.create_node(name='europe-pc7', template='VPCS', x='-707', y='270')
-    VPC26 = lab.get_node("europe-pc7")
+    lab.create_node(name='foxtrot-pc7', template='VPCS', x='-707', y='270')
+    VPC26 = lab.get_node("foxtrot-pc7")
     VPC26.start()
 
-    lab.create_node(name='europe-pc8', template='VPCS', x='-632', y='270')
-    VPC27 = lab.get_node("europe-pc8")
+    lab.create_node(name='foxtrot-pc8', template='VPCS', x='-632', y='270')
+    VPC27 = lab.get_node("foxtrot-pc8")
     VPC27.start()
 
-    lab.create_node(name='us-pc1', template='VPCS', x='-932', y='420')
-    VPC28 = lab.get_node("us-pc1")
+    lab.create_node(name='echo-pc1', template='VPCS', x='-932', y='420')
+    VPC28 = lab.get_node("echo-pc1")
     VPC28.start()
 
-    lab.create_node(name='us-pc2', template='VPCS', x='-857', y='420')
-    VPC29 = lab.get_node("us-pc2")
+    lab.create_node(name='echo-pc2', template='VPCS', x='-857', y='420')
+    VPC29 = lab.get_node("echo-pc2")
     VPC29.start()
 
-    lab.create_node(name='us-pc5', template='VPCS', x='-707', y='420')
-    VPC30 = lab.get_node("us-pc5")
+    lab.create_node(name='echo-pc5', template='VPCS', x='-707', y='420')
+    VPC30 = lab.get_node("echo-pc5")
     VPC30.start()
 
-    lab.create_node(name='us-pc6', template='VPCS', x='-632', y='420')
-    VPC31 = lab.get_node("us-pc6")
+    lab.create_node(name='echo-pc6', template='VPCS', x='-632', y='420')
+    VPC31 = lab.get_node("echo-pc6")
     VPC31.start()
 
-    lab.create_node(name='us-pc3', template='VPCS', x='-932', y='645')
-    VPC32 = lab.get_node("us-pc3")
+    lab.create_node(name='echo-pc3', template='VPCS', x='-932', y='645')
+    VPC32 = lab.get_node("echo-pc3")
     VPC32.start()
 
-    lab.create_node(name='us-pc4', template='VPCS', x='-857', y='645')
-    VPC33 = lab.get_node("us-pc4")
+    lab.create_node(name='echo-pc4', template='VPCS', x='-857', y='645')
+    VPC33 = lab.get_node("echo-pc4")
     VPC33.start()
 
-    lab.create_node(name='us-pc7', template='VPCS', x='-707', y='645')
-    VPC34 = lab.get_node("us-pc7")
+    lab.create_node(name='echo-pc7', template='VPCS', x='-707', y='645')
+    VPC34 = lab.get_node("echo-pc7")
     VPC34.start()
 
-    lab.create_node(name='us-pc8', template='VPCS', x='-632', y='645')
-    VPC35 = lab.get_node("us-pc8")
+    lab.create_node(name='echo-pc8', template='VPCS', x='-632', y='645')
+    VPC35 = lab.get_node("echo-pc8")
     VPC35.start()
 
-    lab.create_node(name='us-web', template='VPCS', x='-407', y='645')
-    VPC36 = lab.get_node("us-web")
+    lab.create_node(name='echo-web', template='VPCS', x='-407', y='645')
+    VPC36 = lab.get_node("echo-web")
     VPC36.start()
 
     lab.create_node(name='beta-web', template='VPCS', x='305', y='-328')
@@ -220,76 +220,76 @@ for SERVER_URL in SERVER_URLS:
     VPC45 = lab.get_node("beta-pc8")
     VPC45.start()
     
-    lab.create_node(name='china-pc1', template='VPCS', x='417', y='45')
-    VPC46 = lab.get_node("china-pc1")
+    lab.create_node(name='charlie-pc1', template='VPCS', x='417', y='45')
+    VPC46 = lab.get_node("charlie-pc1")
     VPC46.start()
 
-    lab.create_node(name='china-pc2', template='VPCS', x='492', y='45')
-    VPC47 = lab.get_node("china-pc2")
+    lab.create_node(name='charlie-pc2', template='VPCS', x='492', y='45')
+    VPC47 = lab.get_node("charlie-pc2")
     VPC47.start()
 
-    lab.create_node(name='china-pc5', template='VPCS', x='642', y='45')
-    VPC48 = lab.get_node("china-pc5")
+    lab.create_node(name='charlie-pc5', template='VPCS', x='642', y='45')
+    VPC48 = lab.get_node("charlie-pc5")
     VPC48.start()
 
-    lab.create_node(name='china-pc6', template='VPCS', x='717', y='45')
-    VPC49 = lab.get_node("china-pc6")
+    lab.create_node(name='charlie-pc6', template='VPCS', x='717', y='45')
+    VPC49 = lab.get_node("charlie-pc6")
     VPC49.start()
 
-    lab.create_node(name='china-pc3', template='VPCS', x='417', y='270')
-    VPC50 = lab.get_node("china-pc3")
+    lab.create_node(name='charlie-pc3', template='VPCS', x='417', y='270')
+    VPC50 = lab.get_node("charlie-pc3")
     VPC50.start()
 
-    lab.create_node(name='china-pc4', template='VPCS', x='492', y='270')
-    VPC51 = lab.get_node("china-pc4")
+    lab.create_node(name='charlie-pc4', template='VPCS', x='492', y='270')
+    VPC51 = lab.get_node("charlie-pc4")
     VPC51.start()
 
-    lab.create_node(name='china-pc7', template='VPCS', x='642', y='270')
-    VPC52 = lab.get_node("china-pc7")
+    lab.create_node(name='charlie-pc7', template='VPCS', x='642', y='270')
+    VPC52 = lab.get_node("charlie-pc7")
     VPC52.start()
 
-    lab.create_node(name='china-pc8', template='VPCS', x='717', y='270')
-    VPC53 = lab.get_node("china-pc8")
+    lab.create_node(name='charlie-pc8', template='VPCS', x='717', y='270')
+    VPC53 = lab.get_node("charlie-pc8")
     VPC53.start()
 
-    lab.create_node(name='china-web', template='VPCS', x='192', y='45')
-    VPC54 = lab.get_node("china-web")
+    lab.create_node(name='charlie-web', template='VPCS', x='192', y='45')
+    VPC54 = lab.get_node("charlie-web")
     VPC54.start()
 
-    lab.create_node(name='germany-pc1', template='VPCS', x='422', y='420')
-    VPC55 = lab.get_node("germany-pc1")
+    lab.create_node(name='delta-pc1', template='VPCS', x='422', y='420')
+    VPC55 = lab.get_node("delta-pc1")
     VPC55.start()
 
-    lab.create_node(name='germany-pc2', template='VPCS', x='492', y='420')
-    VPC56 = lab.get_node("germany-pc2")
+    lab.create_node(name='delta-pc2', template='VPCS', x='492', y='420')
+    VPC56 = lab.get_node("delta-pc2")
     VPC56.start()
 
-    lab.create_node(name='germany-pc5', template='VPCS', x='642', y='420')
-    VPC57 = lab.get_node("germany-pc5")
+    lab.create_node(name='delta-pc5', template='VPCS', x='642', y='420')
+    VPC57 = lab.get_node("delta-pc5")
     VPC57.start()
 
-    lab.create_node(name='germany-pc6', template='VPCS', x='717', y='420')
-    VPC58 = lab.get_node("germany-pc6")
+    lab.create_node(name='delta-pc6', template='VPCS', x='717', y='420')
+    VPC58 = lab.get_node("delta-pc6")
     VPC58.start()
 
-    lab.create_node(name='germany-pc3', template='VPCS', x='417', y='645')
-    VPC59 = lab.get_node("germany-pc3")
+    lab.create_node(name='delta-pc3', template='VPCS', x='417', y='645')
+    VPC59 = lab.get_node("delta-pc3")
     VPC59.start()
 
-    lab.create_node(name='germany-pc4', template='VPCS', x='492', y='645')
-    VPC60 = lab.get_node("germany-pc4")
+    lab.create_node(name='delta-pc4', template='VPCS', x='492', y='645')
+    VPC60 = lab.get_node("delta-pc4")
     VPC60.start()
      
-    lab.create_node(name='germany-pc7', template='VPCS', x='639', y='645')
-    VPC61 = lab.get_node("germany-pc7")
+    lab.create_node(name='delta-pc7', template='VPCS', x='639', y='645')
+    VPC61 = lab.get_node("delta-pc7")
     VPC61.start()
 
-    lab.create_node(name='germany-pc8', template='VPCS', x='716', y='645')
-    VPC62 = lab.get_node("germany-pc8")
+    lab.create_node(name='delta-pc8', template='VPCS', x='716', y='645')
+    VPC62 = lab.get_node("delta-pc8")
     VPC62.start()
 
-    lab.create_node(name='germany-web', template='VPCS', x='192', y='645')
-    VPC63 = lab.get_node("germany-web")
+    lab.create_node(name='delta-web', template='VPCS', x='192', y='645')
+    VPC63 = lab.get_node("delta-web")
     VPC63.start()
 
     lab.create_node(name='alpha-int', template='Cisco IOSv 15.7(3)M3', x='-108', y='-322')
@@ -300,12 +300,12 @@ for SERVER_URL in SERVER_URLS:
     router1 = lab.get_node("alpha-edge")
     router1.start()
 
-    lab.create_node(name='india-int', template='Cisco IOSv 15.7(3)M3', x='-555', y='-203')
-    router2 = lab.get_node("india-int")
+    lab.create_node(name='golf-int', template='Cisco IOSv 15.7(3)M3', x='-555', y='-203')
+    router2 = lab.get_node("golf-int")
     router2.start()
 
-    lab.create_node(name='india-edge', template='Cisco IOSv 15.7(3)M3', x='-255', y='-20', properties={"adapters": 16})
-    router3 = lab.get_node("india-edge")
+    lab.create_node(name='golf-edge', template='Cisco IOSv 15.7(3)M3', x='-255', y='-20', properties={"adapters": 16})
+    router3 = lab.get_node("golf-edge")
     router3.start()
 
     lab.create_node(name='beta-int', template='Cisco IOSv 15.7(3)M3', x='340', y='-203')
@@ -316,12 +316,12 @@ for SERVER_URL in SERVER_URLS:
     router5 = lab.get_node("beta-edge")
     router5.start()
 
-    lab.create_node(name='china-int', template='Cisco IOSv 15.7(3)M3', x='342', y='203')
-    router6 = lab.get_node("china-int")
+    lab.create_node(name='charlie-int', template='Cisco IOSv 15.7(3)M3', x='342', y='203')
+    router6 = lab.get_node("charlie-int")
     router6.start() 
 
-    lab.create_node(name='china-edge', template='Cisco IOSv 15.7(3)M3', x='42', y='203', properties={"adapters": 16})
-    router7 = lab.get_node("china-edge")
+    lab.create_node(name='charlie-edge', template='Cisco IOSv 15.7(3)M3', x='42', y='203', properties={"adapters": 16})
+    router7 = lab.get_node("charlie-edge")
     router7.start()
 
     lab.create_node(name='germany-int', template='Cisco IOSv 15.7(3)M3', x='343', y='540')
@@ -340,12 +340,12 @@ for SERVER_URL in SERVER_URLS:
     router11 = lab.get_node("europe-edge")
     router11.start()
 
-    lab.create_node(name='us-int', template='Cisco IOSv 15.7(3)M3', x='-558', y='540')
-    router12 = lab.get_node("us-int")
+    lab.create_node(name='echo-int', template='Cisco IOSv 15.7(3)M3', x='-558', y='540')
+    router12 = lab.get_node("echo-int")
     router12.start()
 
-    lab.create_node(name='us-edge', template='Cisco IOSv 15.7(3)M3', x='-258', y='428', properties={"adapters": 16})
-    router13 = lab.get_node("us-edge")
+    lab.create_node(name='echo-edge', template='Cisco IOSv 15.7(3)M3', x='-258', y='428', properties={"adapters": 16})
+    router13 = lab.get_node("echo-edge")
     router13.start()
 
     
