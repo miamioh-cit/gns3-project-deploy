@@ -39,40 +39,40 @@ for SERVER_URL in SERVER_URLS:
     lab.open()
 
     # Create and start all nodes
-    lab.create_node(name='switzerland-pc1', template='VPCS', x='-257', y='-704')
-    VPC1 = lab.get_node("switzerland-pc1")
+    lab.create_node(name='alpha-pc1', template='VPCS', x='-257', y='-704')
+    VPC1 = lab.get_node("alpha-pc1")
     VPC1.start()
    
-    lab.create_node(name='switzerland-pc2', template='VPCS', x='-257', y='-629')
-    VPC2 = lab.get_node("switzerland-pc2")
+    lab.create_node(name='alpha-pc2', template='VPCS', x='-257', y='-629')
+    VPC2 = lab.get_node("alpha-pc2")
     VPC2.start()
    
-    lab.create_node(name='switzerland-pc5', template='VPCS', x='-257', y='-554')
-    VPC3 = lab.get_node("switzerland-pc5")
+    lab.create_node(name='alpha-pc5', template='VPCS', x='-257', y='-554')
+    VPC3 = lab.get_node("alpha-pc5")
     VPC3.start()
    
-    lab.create_node(name='switzerland-pc6', template='VPCS', x='-257', y='-479')
-    VPC4 = lab.get_node("switzerland-pc6")
+    lab.create_node(name='alpha-pc6', template='VPCS', x='-257', y='-479')
+    VPC4 = lab.get_node("alpha-pc6")
     VPC4.start()
 
-    lab.create_node(name='switzerland-pc3', template='VPCS', x='42', y='-704')
-    VPC5 = lab.get_node("switzerland-pc3")
+    lab.create_node(name='alpha-pc3', template='VPCS', x='42', y='-704')
+    VPC5 = lab.get_node("alpha-pc3")
     VPC5.start()
 
-    lab.create_node(name='switzerland-pc4', template='VPCS', x='42', y='-629')
-    VPC6 = lab.get_node("switzerland-pc4")
+    lab.create_node(name='alpha-pc4', template='VPCS', x='42', y='-629')
+    VPC6 = lab.get_node("alpha-pc4")
     VPC6.start()
 
-    lab.create_node(name='switzerland-pc7', template='VPCS', x='42', y='-554')
-    VPC7 = lab.get_node("switzerland-pc7")
+    lab.create_node(name='alpha-pc7', template='VPCS', x='42', y='-554')
+    VPC7 = lab.get_node("alpha-pc7")
     VPC7.start()
 
-    lab.create_node(name='switzerland-pc8', template='VPCS', x='42', y='-479')
-    VPC8 = lab.get_node("switzerland-pc8")
+    lab.create_node(name='alpha-pc8', template='VPCS', x='42', y='-479')
+    VPC8 = lab.get_node("alpha-pc8")
     VPC8.start()
 
-    lab.create_node(name='switzerland-web', template='VPCS', x='35', y='-225')
-    VPC9 = lab.get_node("switzerland-web")
+    lab.create_node(name='alpha-web', template='VPCS', x='35', y='-225')
+    VPC9 = lab.get_node("alpha-web")
     VPC9.start()
 
     lab.create_node(name='india-pc1', template='VPCS', x='-932', y='-329')
@@ -292,12 +292,12 @@ for SERVER_URL in SERVER_URLS:
     VPC63 = lab.get_node("germany-web")
     VPC63.start()
 
-    lab.create_node(name='switzerland-int', template='Cisco IOSv 15.7(3)M3', x='-108', y='-322')
-    router0 = lab.get_node("switzerland-int")
+    lab.create_node(name='alpha-int', template='Cisco IOSv 15.7(3)M3', x='-108', y='-322')
+    router0 = lab.get_node("alpha-int")
     router0.start()
 
-    lab.create_node(name='switzerland-edge', template='Cisco IOSv 15.7(3)M3', x='-107', y='-100', properties={"adapters": 16})
-    router1 = lab.get_node("switzerland-edge")
+    lab.create_node(name='alpha-edge', template='Cisco IOSv 15.7(3)M3', x='-107', y='-100', properties={"adapters": 16})
+    router1 = lab.get_node("alpha-edge")
     router1.start()
 
     lab.create_node(name='india-int', template='Cisco IOSv 15.7(3)M3', x='-555', y='-203')
@@ -349,12 +349,12 @@ for SERVER_URL in SERVER_URLS:
     router13.start()
 
     
-    lab.create_node(name='switzerland-sw1', template='Cisco IOSvL2 15.2.1', x='-100', y='-473')
-    sw0 = lab.get_node("switzerland-sw1")
+    lab.create_node(name='alpha-sw1', template='Cisco IOSvL2 15.2.1', x='-100', y='-473')
+    sw0 = lab.get_node("alpha-sw1")
     sw0.start()
 
-    lab.create_node(name='switzerland-sw2', template='Cisco IOSvL2 15.2.1', x='-100', y='-623')
-    sw1 = lab.get_node("switzerland-sw2")
+    lab.create_node(name='alpha-sw2', template='Cisco IOSvL2 15.2.1', x='-100', y='-623')
+    sw1 = lab.get_node("alpha-sw2")
     sw1.start()
 
     lab.create_node(name='india-sw1', template='Cisco IOSvL2 15.2.1', x='-701', y='-203')
@@ -434,19 +434,19 @@ for SERVER_URL in SERVER_URLS:
     ASA6.start()
 
     #Swiss links 
-    lab.create_link("switzerland-sw2", "Gi0/1", "switzerland-pc1", "Ethernet0")
-    lab.create_link("switzerland-sw2", "Gi1/2", "switzerland-pc2", "Ethernet0")
-    lab.create_link("switzerland-sw2", "Gi1/0", "switzerland-pc3", "Ethernet0")
-    lab.create_link("switzerland-sw2", "Gi1/1", "switzerland-pc4", "Ethernet0")
-    lab.create_link("switzerland-sw1", "Gi0/3", "switzerland-sw2", "Gi0/3")
-    lab.create_link("switzerland-sw1", "Gi1/2", "switzerland-pc5", "Ethernet0")
-    lab.create_link("switzerland-sw1", "Gi0/0", "switzerland-pc6", "Ethernet0")
-    lab.create_link("switzerland-sw1", "Gi1/1", "switzerland-pc7", "Ethernet0")
-    lab.create_link("switzerland-sw1", "Gi1/0", "switzerland-pc8", "Ethernet0")
-    lab.create_link("switzerland-sw1", "Gi0/2", "switzerland-int", "Gi0/2")
-    lab.create_link("switzerland-int", "Gi0/1", "CiscoASAv9.16.2-3", "Gi0/1")
-    lab.create_link("switzerland-web", "Ethernet0", "CiscoASAv9.16.2-3", "Gi0/2")
-    lab.create_link("switzerland-edge", "Gi0/0", "CiscoASAv9.16.2-3", "Gi0/0")
+    lab.create_link("alpha-sw2", "Gi0/1", "alpha-pc1", "Ethernet0")
+    lab.create_link("alpha-sw2", "Gi1/2", "alpha-pc2", "Ethernet0")
+    lab.create_link("alpha-sw2", "Gi1/0", "alpha-pc3", "Ethernet0")
+    lab.create_link("alpha-sw2", "Gi1/1", "alpha-pc4", "Ethernet0")
+    lab.create_link("alpha-sw1", "Gi0/3", "alpha-sw2", "Gi0/3")
+    lab.create_link("alpha-sw1", "Gi1/2", "alpha-pc5", "Ethernet0")
+    lab.create_link("alpha-sw1", "Gi0/0", "alpha-pc6", "Ethernet0")
+    lab.create_link("alpha-sw1", "Gi1/1", "alpha-pc7", "Ethernet0")
+    lab.create_link("alpha-sw1", "Gi1/0", "alpha-pc8", "Ethernet0")
+    lab.create_link("alpha-sw1", "Gi0/2", "alpha-int", "Gi0/2")
+    lab.create_link("alpha-int", "Gi0/1", "CiscoASAv9.16.2-3", "Gi0/1")
+    lab.create_link("alpha-web", "Ethernet0", "alpha-asa", "Gi0/2")
+    lab.create_link("alpha-edge", "Gi0/0", "alpha-asa", "Gi0/0")
     
     #India Links
     lab.create_link("india-sw2", "Gi0/3", "india-pc1", "Ethernet0")
@@ -539,12 +539,12 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("us-edge", "Gi0/0", "us-ASA", "Gi0/0")
 
     #Edge Router Links
-    lab.create_link("switzerland-edge", "Gi0/1", "india-edge", "Gi0/1")
-    lab.create_link("switzerland-edge", "Gi0/2", "japan-edge", "Gi0/2")
-    lab.create_link("switzerland-edge", "Gi0/3", "europe-edge", "Gi0/4")
-    lab.create_link("switzerland-edge", "Gi0/4", "china-edge", "Gi0/5")
-    lab.create_link("switzerland-edge", "Gi0/5", "us-edge", "Gi0/5")
-    lab.create_link("switzerland-edge", "Gi0/6", "germany-edge", "Gi0/6")
+    lab.create_link("alpha-edge", "Gi0/1", "india-edge", "Gi0/1")
+    lab.create_link("alpha-edge", "Gi0/2", "japan-edge", "Gi0/2")
+    lab.create_link("alpha-edge", "Gi0/3", "europe-edge", "Gi0/4")
+    lab.create_link("alpha-edge", "Gi0/4", "china-edge", "Gi0/5")
+    lab.create_link("alpha-edge", "Gi0/5", "us-edge", "Gi0/5")
+    lab.create_link("alpha-edge", "Gi0/6", "germany-edge", "Gi0/6")
     lab.create_link("india-edge", "Gi0/2", "europe-edge", "Gi0/2")
     lab.create_link("europe-edge", "Gi0/3", "us-edge", "Gi0/3")
     lab.create_link("japan-edge", "Gi0/3", "china-edge", "Gi0/3")
