@@ -417,22 +417,30 @@ for SERVER_URL in SERVER_URLS:
     ASA2 = lab.get_node("beta-ASA")
     ASA2.start()
 
-    lab.create_node(name='china-ASA', template='Cisco ASAv 9.9.2', x='199', y='194')
-    ASA3 = lab.get_node("china-ASA")
+    lab.create_node(name='charlie-ASA', template='Cisco ASAv 9.9.2', x='199', y='194')
+    ASA3 = lab.get_node("charlie-ASA")
     ASA3.start()
 
-    lab.create_node(name='germany-ASA', template='Cisco ASAv 9.9.2', x='198', y='463')
-    ASA4 = lab.get_node("germany-ASA")
+    lab.create_node(name='delta-ASA', template='Cisco ASAv 9.9.2', x='198', y='463')
+    ASA4 = lab.get_node("delta-ASA")
     ASA4.start()
 
-    lab.create_node(name='europe-ASA', template='Cisco ASAv 9.9.2', x='-398', y='198')
-    ASA5 = lab.get_node("europe-ASA")
+    lab.create_node(name='foxtrot-ASA', template='Cisco ASAv 9.9.2', x='-398', y='198')
+    ASA5 = lab.get_node("foxtrot-ASA")
     ASA5.start()
 
-    lab.create_node(name='us-ASA', template='Cisco ASAv 9.9.2', x='-400', y='493')
-    ASA6 = lab.get_node("us-ASA")
+    lab.create_node(name='echo-ASA', template='Cisco ASAv 9.9.2', x='-400', y='493')
+    ASA6 = lab.get_node("echo-ASA")
     ASA6.start()
 
+    #alpha-switzerland
+    #bravo-japan
+    #charlie-china
+    #delta-germany
+    #echo-america/us
+    #foxtrot-europe
+    #golf-india
+    
     #Swiss links 
     lab.create_link("alpha-sw2", "Gi0/1", "alpha-pc1", "Ethernet0")
     lab.create_link("alpha-sw2", "Gi1/2", "alpha-pc2", "Ethernet0")
@@ -444,7 +452,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("alpha-sw1", "Gi1/1", "alpha-pc7", "Ethernet0")
     lab.create_link("alpha-sw1", "Gi1/0", "alpha-pc8", "Ethernet0")
     lab.create_link("alpha-sw1", "Gi0/2", "alpha-int", "Gi0/2")
-    lab.create_link("alpha-int", "Gi0/1", "CiscoASAv9.16.2-3", "Gi0/1")
+    lab.create_link("alpha-int", "Gi0/1", "alpha-asa", "Gi0/1")
     lab.create_link("alpha-web", "Ethernet0", "alpha-asa", "Gi0/2")
     lab.create_link("alpha-edge", "Gi0/0", "alpha-asa", "Gi0/0")
     
