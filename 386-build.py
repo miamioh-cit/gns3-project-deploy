@@ -33,16 +33,18 @@ for SERVER_URL in SERVER_URLS:
     print("-----------------------------------------------------------------------")
     print("Please wait until script runs before entering the project in GNS3!")
     print("-----------------------------------------------------------------------")
-
-    lab = Project(name=LAB_NAME, connector=server)
-    lab.get()
-    lab.open()
     
     project.update({
     "scene_width": 4000,
     "scene_height": 2000,
     "grid_size": 25
-    })
+    })    
+    
+    lab = Project(name=LAB_NAME, connector=server)
+    lab.get()
+    lab.open()
+    
+
     
     # Create and start all nodes
     lab.create_node(name='alpha-pc1', template='VPCS', x='-257', y='-704')
