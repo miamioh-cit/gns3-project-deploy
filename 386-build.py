@@ -38,6 +38,12 @@ for SERVER_URL in SERVER_URLS:
     lab.get()
     lab.open()
     
+    project.update({
+    "scene_width": 4000,
+    "scene_height": 2000,
+    "grid_size": 25
+    })
+    
     # Create and start all nodes
     lab.create_node(name='alpha-pc1', template='VPCS', x='-257', y='-704')
     VPC1 = lab.get_node("alpha-pc1")
