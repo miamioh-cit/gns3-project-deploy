@@ -540,16 +540,16 @@ for SERVER_URL in SERVER_URLS:
 
     #Edge Router Links
     lab.create_link("alpha-edge", "Gi0/1", "golf-edge", "Gi0/1")
-    lab.create_link("alpha-edge", "Gi0/2", "beta-edge", "Gi0/2")
-    lab.create_link("alpha-edge", "Gi0/3", "europe-edge", "Gi0/4")
-    lab.create_link("alpha-edge", "Gi0/4", "china-edge", "Gi0/5")
-    lab.create_link("alpha-edge", "Gi0/5", "us-edge", "Gi0/5")
-    lab.create_link("alpha-edge", "Gi0/6", "germany-edge", "Gi0/6")
-    lab.create_link("golf-edge", "Gi0/2", "europe-edge", "Gi0/2")
-    lab.create_link("europe-edge", "Gi0/3", "us-edge", "Gi0/3")
+    lab.create_link("alpha-edge", "Gi0/2", "bravo-edge", "Gi0/2")
+    lab.create_link("alpha-edge", "Gi0/3", "foxtrot-edge", "Gi0/4")
+    lab.create_link("alpha-edge", "Gi0/4", "charlie-edge", "Gi0/5")
+    lab.create_link("alpha-edge", "Gi0/5", "echo-edge", "Gi0/5")
+    lab.create_link("alpha-edge", "Gi0/6", "delta-edge", "Gi0/6")
+    lab.create_link("golf-edge", "Gi0/2", "foxtrot-edge", "Gi0/2")
+    lab.create_link("foxtrot-edge", "Gi0/3", "echo-edge", "Gi0/3")
     lab.create_link("bravo-edge", "Gi0/3", "charlie-edge", "Gi0/3")
-    lab.create_link("charlie-edge", "Gi0/4", "germany-edge", "Gi0/4")
-    lab.create_link("germany-edge", "Gi0/5", "us-edge", "Gi0/4")
+    lab.create_link("charlie-edge", "Gi0/4", "delta-edge", "Gi0/4")
+    lab.create_link("delto-edge", "Gi0/5", "echo-edge", "Gi0/4")
 
     #alpha-switzerland
     #bravo-japan
