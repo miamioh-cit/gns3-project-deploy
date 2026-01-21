@@ -184,40 +184,40 @@ for SERVER_URL in SERVER_URLS:
     VPC36 = lab.get_node("echo-web")
     VPC36.start()
 
-    lab.create_node(name='beta-web', template='VPCS', x='305', y='-328')
-    VPC37 = lab.get_node("beta-web")
+    lab.create_node(name='bravo-web', template='VPCS', x='305', y='-328')
+    VPC37 = lab.get_node("bravo-web")
     VPC37.start()
 
-    lab.create_node(name='beta-pc1', template='VPCS', x='417', y='-329')
-    VPC38 = lab.get_node("beta-pc1")
+    lab.create_node(name='bravo-pc1', template='VPCS', x='417', y='-329')
+    VPC38 = lab.get_node("bravo-pc1")
     VPC38.start()
 
-    lab.create_node(name='beta-pc2', template='VPCS', x='492', y='-329')
-    VPC39 = lab.get_node("beta-pc2")
+    lab.create_node(name='bravo-pc2', template='VPCS', x='492', y='-329')
+    VPC39 = lab.get_node("bravo-pc2")
     VPC39.start()
 
-    lab.create_node(name='beta-pc5', template='VPCS', x='642', y='-329')
-    VPC40 = lab.get_node("beta-pc5")
+    lab.create_node(name='bravo-pc5', template='VPCS', x='642', y='-329')
+    VPC40 = lab.get_node("bravo-pc5")
     VPC40.start()
 
-    lab.create_node(name='beta-pc6', template='VPCS', x='717', y='-329')
-    VPC41 = lab.get_node("beta-pc6")
+    lab.create_node(name='bravo-pc6', template='VPCS', x='717', y='-329')
+    VPC41 = lab.get_node("bravo-pc6")
     VPC41.start()
 
-    lab.create_node(name='beta-pc3', template='VPCS', x='417', y='-104')
-    VPC42 = lab.get_node("beta-pc3")
+    lab.create_node(name='bravo-pc3', template='VPCS', x='417', y='-104')
+    VPC42 = lab.get_node("bravo-pc3")
     VPC42.start()
 
-    lab.create_node(name='beta-pc4', template='VPCS', x='492', y='-104')
-    VPC43 = lab.get_node("beta-pc4")
+    lab.create_node(name='bravo-pc4', template='VPCS', x='492', y='-104')
+    VPC43 = lab.get_node("bravo-pc4")
     VPC43.start()
 
-    lab.create_node(name='beta-pc7', template='VPCS', x='642', y='-104')
-    VPC44 = lab.get_node("beta-pc7")
+    lab.create_node(name='bravo-pc7', template='VPCS', x='642', y='-104')
+    VPC44 = lab.get_node("bravo-pc7")
     VPC44.start()
 
-    lab.create_node(name='beta-pc8', template='VPCS', x='717', y='-104')
-    VPC45 = lab.get_node("beta-pc8")
+    lab.create_node(name='bravo-pc8', template='VPCS', x='717', y='-104')
+    VPC45 = lab.get_node("bravo-pc8")
     VPC45.start()
     
     lab.create_node(name='charlie-pc1', template='VPCS', x='417', y='45')
