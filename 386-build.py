@@ -300,20 +300,12 @@ for SERVER_URL in SERVER_URLS:
     router1 = lab.get_node("alpha-edge")
     router1.start()
 
-    lab.create_node(name='golf-int', template='Cisco IOSv 15.7(3)M3', x='-555', y='-203')
-    router2 = lab.get_node("golf-int")
-    router2.start()
-
-    lab.create_node(name='golf-edge', template='Cisco IOSv 15.7(3)M3', x='-255', y='-20', properties={"adapters": 16})
-    router3 = lab.get_node("golf-edge")
-    router3.start()
-
-    lab.create_node(name='beta-int', template='Cisco IOSv 15.7(3)M3', x='340', y='-203')
-    router4 = lab.get_node("beta-int")
+    lab.create_node(name='bravo-int', template='Cisco IOSv 15.7(3)M3', x='340', y='-203')
+    router4 = lab.get_node("bravo-int")
     router4.start()
 
-    lab.create_node(name='beta-edge', template='Cisco IOSv 15.7(3)M3', x='39', y='-21', properties={"adapters": 16})
-    router5 = lab.get_node("beta-edge")
+    lab.create_node(name='bravo-edge', template='Cisco IOSv 15.7(3)M3', x='39', y='-21', properties={"adapters": 16})
+    router5 = lab.get_node("bravo-edge")
     router5.start()
 
     lab.create_node(name='charlie-int', template='Cisco IOSv 15.7(3)M3', x='342', y='203')
@@ -347,7 +339,14 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name='echo-edge', template='Cisco IOSv 15.7(3)M3', x='-258', y='428', properties={"adapters": 16})
     router13 = lab.get_node("echo-edge")
     router13.start()
+    
+    lab.create_node(name='golf-int', template='Cisco IOSv 15.7(3)M3', x='-555', y='-203')
+    router2 = lab.get_node("golf-int")
+    router2.start()
 
+    lab.create_node(name='golf-edge', template='Cisco IOSv 15.7(3)M3', x='-255', y='-20', properties={"adapters": 16})
+    router3 = lab.get_node("golf-edge")
+    router3.start()
     
     lab.create_node(name='alpha-sw1', template='Cisco IOSvL2 15.2.1', x='-100', y='-473')
     sw0 = lab.get_node("alpha-sw1")
@@ -365,12 +364,12 @@ for SERVER_URL in SERVER_URLS:
     sw3 = lab.get_node("india-sw2")
     sw3.start()
 
-    lab.create_node(name='beta-sw1', template='Cisco IOSvL2 15.2.1', x='502', y='-203')
-    sw4 = lab.get_node("beta-sw1")
+    lab.create_node(name='bravo-sw1', template='Cisco IOSvL2 15.2.1', x='502', y='-203')
+    sw4 = lab.get_node("bravo-sw1")
     sw4.start()
 
-    lab.create_node(name='beta-sw2', template='Cisco IOSvL2 15.2.1', x='656', y='-203')
-    sw5 = lab.get_node("beta-sw2")
+    lab.create_node(name='bravo-sw2', template='Cisco IOSvL2 15.2.1', x='656', y='-203')
+    sw5 = lab.get_node("bravo-sw2")
     sw5.start()
 
     lab.create_node(name='china-sw1', template='Cisco IOSvL2 15.2.1', x='500', y='164')
@@ -413,8 +412,8 @@ for SERVER_URL in SERVER_URLS:
     ASA1 = lab.get_node("india-ASA")
     ASA1.start()
 
-    lab.create_node(name='beta-ASA', template='Cisco ASAv 9.9.2', x='193', y='-118')
-    ASA2 = lab.get_node("beta-ASA")
+    lab.create_node(name='bravo-ASA', template='Cisco ASAv 9.9.2', x='193', y='-118')
+    ASA2 = lab.get_node("bravo-ASA")
     ASA2.start()
 
     lab.create_node(name='charlie-ASA', template='Cisco ASAv 9.9.2', x='199', y='194')
@@ -425,23 +424,15 @@ for SERVER_URL in SERVER_URLS:
     ASA4 = lab.get_node("delta-ASA")
     ASA4.start()
 
-    lab.create_node(name='foxtrot-ASA', template='Cisco ASAv 9.9.2', x='-398', y='198')
-    ASA5 = lab.get_node("foxtrot-ASA")
-    ASA5.start()
-
     lab.create_node(name='echo-ASA', template='Cisco ASAv 9.9.2', x='-400', y='493')
     ASA6 = lab.get_node("echo-ASA")
     ASA6.start()
-
-    #alpha-switzerland
-    #bravo-japan
-    #charlie-china
-    #delta-germany
-    #echo-america/us
-    #foxtrot-europe
-    #golf-india
     
-    #Swiss links 
+    lab.create_node(name='foxtrot-ASA', template='Cisco ASAv 9.9.2', x='-398', y='198')
+    ASA5 = lab.get_node("foxtrot-ASA")
+    ASA5.start()
+    
+    #Team Alpha links 
     lab.create_link("alpha-sw2", "Gi0/1", "alpha-pc1", "Ethernet0")
     lab.create_link("alpha-sw2", "Gi1/2", "alpha-pc2", "Ethernet0")
     lab.create_link("alpha-sw2", "Gi1/0", "alpha-pc3", "Ethernet0")
@@ -456,109 +447,117 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("alpha-web", "Ethernet0", "alpha-asa", "Gi0/2")
     lab.create_link("alpha-edge", "Gi0/0", "alpha-asa", "Gi0/0")
     
-    #India Links
-    lab.create_link("india-sw2", "Gi0/3", "india-pc1", "Ethernet0")
-    lab.create_link("india-sw2", "Gi0/1", "india-pc2", "Ethernet0")
-    lab.create_link("india-sw2", "Gi1/0", "india-pc3", "Ethernet0")
-    lab.create_link("india-sw2", "Gi0/0", "india-pc4", "Ethernet0")
-    lab.create_link("india-sw1", "Gi0/2", "india-sw2", "Gi0/2")
-    lab.create_link("india-sw1", "Gi0/0", "india-pc5", "Ethernet0")
-    lab.create_link("india-sw1", "Gi1/0", "india-pc6", "Ethernet0")
-    lab.create_link("india-sw1", "Gi1/1", "india-pc7", "Ethernet0")
-    lab.create_link("india-sw1", "Gi0/3", "india-pc8", "Ethernet0")
-    lab.create_link("india-sw1", "Gi0/1", "india-int", "Gi0/2")
-    lab.create_link("india-int", "Gi0/1", "india-ASA", "Gi0/1")
-    lab.create_link("india-web", "Ethernet0", "india-ASA", "Gi0/2")
-    lab.create_link("india-edge", "Gi0/0", "india-ASA", "Gi0/0")
+    #Team Bravo Links
+    lab.create_link("bravo-sw2", "Gi1/0", "bravo-pc8", "Ethernet0")
+    lab.create_link("bravo-sw2", "Gi0/0", "bravo-pc7", "Ethernet0")
+    lab.create_link("bravo-sw2", "Gi1/1", "bravo-pc6", "Ethernet0")
+    lab.create_link("bravo-sw2", "Gi1/2", "bravo-pc5", "Ethernet0")
+    lab.create_link("bravo-sw2", "Gi0/3", "bravo-sw1", "Gi0/3")
+    lab.create_link("bravo-sw1", "Gi0/1", "bravo-pc4", "Ethernet0")
+    lab.create_link("bravo-sw1", "Gi0/0", "bravo-pc3", "Ethernet0")
+    lab.create_link("bravo-sw1", "Gi1/0", "bravo-pc2", "Ethernet0")
+    lab.create_link("bravo-sw1", "Gi1/1", "bravo-pc1", "Ethernet0")
+    lab.create_link("bravo-sw1", "Gi0/2", "bravo-int", "Gi0/2")
+    lab.create_link("bravo-int", "Gi0/1", "bravo-ASA", "Gi0/1")
+    lab.create_link("bravo-web", "Ethernet0", "bravo-ASA", "Gi0/2")
+    lab.create_link("bravo-edge", "Gi0/0", "bravo-ASA", "Gi0/0")
 
-    #Japan Links
-    lab.create_link("beta-sw2", "Gi1/0", "beta-pc8", "Ethernet0")
-    lab.create_link("beta-sw2", "Gi0/0", "beta-pc7", "Ethernet0")
-    lab.create_link("beta-sw2", "Gi1/1", "beta-pc6", "Ethernet0")
-    lab.create_link("beta-sw2", "Gi1/2", "beta-pc5", "Ethernet0")
-    lab.create_link("beta-sw2", "Gi0/3", "beta-sw1", "Gi0/3")
-    lab.create_link("beta-sw1", "Gi0/1", "beta-pc4", "Ethernet0")
-    lab.create_link("beta-sw1", "Gi0/0", "beta-pc3", "Ethernet0")
-    lab.create_link("beta-sw1", "Gi1/0", "beta-pc2", "Ethernet0")
-    lab.create_link("beta-sw1", "Gi1/1", "beta-pc1", "Ethernet0")
-    lab.create_link("beta-sw1", "Gi0/2", "beta-int", "Gi0/2")
-    lab.create_link("beta-int", "Gi0/1", "beta-ASA", "Gi0/1")
-    lab.create_link("beta-web", "Ethernet0", "beta-ASA", "Gi0/2")
-    lab.create_link("beta-edge", "Gi0/0", "beta-ASA", "Gi0/0")
-
-    #China Links 
-    lab.create_link("china-sw2", "Gi1/1", "china-pc8", "Ethernet0")
-    lab.create_link("china-sw2", "Gi1/0", "china-pc7", "Ethernet0")
-    lab.create_link("china-sw2", "Gi1/2", "china-pc6", "Ethernet0")
-    lab.create_link("china-sw2", "Gi0/1", "china-pc5", "Ethernet0")
-    lab.create_link("china-sw2", "Gi0/3", "china-sw1", "Gi0/3")
-    lab.create_link("china-sw1", "Gi1/1", "china-pc4", "Ethernet0")
-    lab.create_link("china-sw1", "Gi1/0", "china-pc3", "Ethernet0")
-    lab.create_link("china-sw1", "Gi1/2", "china-pc2", "Ethernet0")
-    lab.create_link("china-sw1", "Gi0/1", "china-pc1", "Ethernet0")
-    lab.create_link("china-sw1", "Gi0/2", "china-int", "Gi0/2")
-    lab.create_link("china-int", "Gi0/1", "china-ASA", "Gi0/1")
-    lab.create_link("china-web", "Ethernet0", "china-ASA", "Gi0/2")
+    #Charlie Team Links 
+    lab.create_link("charlie-sw2", "Gi1/1", "charlie-pc8", "Ethernet0")
+    lab.create_link("charlie-sw2", "Gi1/0", "charlie-pc7", "Ethernet0")
+    lab.create_link("charlie-sw2", "Gi1/2", "charlie-pc6", "Ethernet0")
+    lab.create_link("charlie-sw2", "Gi0/1", "charlie-pc5", "Ethernet0")
+    lab.create_link("charlie-sw2", "Gi0/3", "charlie-sw1", "Gi0/3")
+    lab.create_link("charlie-sw1", "Gi1/1", "charlie-pc4", "Ethernet0")
+    lab.create_link("charlie-sw1", "Gi1/0", "charlie-pc3", "Ethernet0")
+    lab.create_link("charlie-sw1", "Gi1/2", "charlie-pc2", "Ethernet0")
+    lab.create_link("charlie-sw1", "Gi0/1", "charlie-pc1", "Ethernet0")
+    lab.create_link("charlie-sw1", "Gi0/2", "charlie-int", "Gi0/2")
+    lab.create_link("charlie-int", "Gi0/1", "charlie-ASA", "Gi0/1")
+    lab.create_link("charlie-web", "Ethernet0", "charlie-ASA", "Gi0/2")
     lab.create_link("china-edge", "Gi0/0", "china-ASA", "Gi0/0")
 
-    #Germany Links 
-    lab.create_link("germany-sw2", "Gi1/1", "germany-pc8", "Ethernet0")
-    lab.create_link("germany-sw2", "Gi1/0", "germany-pc7", "Ethernet0")
-    lab.create_link("germany-sw2", "Gi1/2", "germany-pc6", "Ethernet0")
-    lab.create_link("germany-sw2", "Gi0/1", "germany-pc5", "Ethernet0")
-    lab.create_link("germany-sw2", "Gi0/3", "germany-sw1", "Gi0/3")
-    lab.create_link("germany-sw1", "Gi1/2", "germany-pc4", "Ethernet0")
-    lab.create_link("germany-sw1", "Gi1/0", "germany-pc3", "Ethernet0")
-    lab.create_link("germany-sw1", "Gi0/1", "germany-pc2", "Ethernet0")
-    lab.create_link("germany-sw1", "Gi0/0", "germany-pc1", "Ethernet0")
-    lab.create_link("germany-sw1", "Gi0/2", "germany-int", "Gi0/2")
-    lab.create_link("germany-int", "Gi0/1", "germany-ASA", "Gi0/1")
-    lab.create_link("germany-web", "Ethernet0", "germany-ASA", "Gi0/2")
-    lab.create_link("germany-edge", "Gi0/0", "germany-ASA", "Gi0/0")
+    #Delta Force Links 
+    lab.create_link("delta-sw2", "Gi1/1", "delta-pc8", "Ethernet0")
+    lab.create_link("delta-sw2", "Gi1/0", "delta-pc7", "Ethernet0")
+    lab.create_link("delta-sw2", "Gi1/2", "delta-pc6", "Ethernet0")
+    lab.create_link("delta-sw2", "Gi0/1", "delta-pc5", "Ethernet0")
+    lab.create_link("delta-sw2", "Gi0/3", "delta-sw1", "Gi0/3")
+    lab.create_link("delta-sw1", "Gi1/2", "delta-pc4", "Ethernet0")
+    lab.create_link("delta-sw1", "Gi1/0", "delta-pc3", "Ethernet0")
+    lab.create_link("delta-sw1", "Gi0/1", "delta-pc2", "Ethernet0")
+    lab.create_link("delta-sw1", "Gi0/0", "delta-pc1", "Ethernet0")
+    lab.create_link("delta-sw1", "Gi0/2", "delta-int", "Gi0/2")
+    lab.create_link("delta-int", "Gi0/1", "delta-ASA", "Gi0/1")
+    lab.create_link("delta-web", "Ethernet0", "delta-ASA", "Gi0/2")
+    lab.create_link("delta-edge", "Gi0/0", "delta-ASA", "Gi0/0")
 
-    #Europe Links 
-    lab.create_link("europe-sw2", "Gi0/0", "europe-pc1", "Ethernet0")
-    lab.create_link("europe-sw2", "Gi1/0", "europe-pc2", "Ethernet0")
-    lab.create_link("europe-sw2", "Gi0/1", "europe-pc3", "Ethernet0")
-    lab.create_link("europe-sw2", "Gi1/1", "europe-pc4", "Ethernet0")
-    lab.create_link("europe-sw2", "Gi0/3", "europe-sw1", "Gi0/3")
-    lab.create_link("europe-sw1", "Gi0/0", "europe-pc5", "Ethernet0")
-    lab.create_link("europe-sw1", "Gi1/0", "europe-pc6", "Ethernet0")
-    lab.create_link("europe-sw1", "Gi0/1", "europe-pc7", "Ethernet0")
-    lab.create_link("europe-sw1", "Gi1/1", "europe-pc8", "Ethernet0")
-    lab.create_link("europe-sw1", "Gi0/2", "europe-int", "Gi0/2")
-    lab.create_link("europe-int", "Gi0/1", "europe-ASA", "Gi0/1")
-    lab.create_link("europe-web", "Ethernet0", "europe-ASA", "Gi0/2")   
-    lab.create_link("europe-edge", "Gi0/0", "europe-ASA", "Gi0/0")
+    #Echo Team Links
+    lab.create_link("echo-sw2", "Gi1/2", "echo-pc1", "Ethernet0")
+    lab.create_link("echo-sw2", "Gi1/0", "echo-pc2", "Ethernet0")
+    lab.create_link("echo-sw2", "Gi0/2", "echo-pc3", "Ethernet0")
+    lab.create_link("echo-sw2", "Gi1/1", "echo-pc4", "Ethernet0")
+    lab.create_link("echo-sw2", "Gi0/3", "echo-sw1", "Gi0/3")
+    lab.create_link("echo-sw1", "Gi0/0", "echo-pc5", "Ethernet0")
+    lab.create_link("echo-sw1", "Gi1/0", "echo-pc6", "Ethernet0")
+    lab.create_link("echo-sw1", "Gi0/1", "echo-pc7", "Ethernet0")
+    lab.create_link("echo-sw1", "Gi1/1", "echo-pc8", "Ethernet0")
+    lab.create_link("echo-sw1", "Gi0/2", "echo-int", "Gi0/2")
+    lab.create_link("echo-int", "Gi0/1", "echo-ASA", "Gi0/1")
+    lab.create_link("echo-web", "Ethernet0", "echo-ASA", "Gi0/2")
+    lab.create_link("echo-edge", "Gi0/0", "echo-ASA", "Gi0/0")
 
-    #America Links
-    lab.create_link("us-sw2", "Gi1/2", "us-pc1", "Ethernet0")
-    lab.create_link("us-sw2", "Gi1/0", "us-pc2", "Ethernet0")
-    lab.create_link("us-sw2", "Gi0/2", "us-pc3", "Ethernet0")
-    lab.create_link("us-sw2", "Gi1/1", "us-pc4", "Ethernet0")
-    lab.create_link("us-sw2", "Gi0/3", "us-sw1", "Gi0/3")
-    lab.create_link("us-sw1", "Gi0/0", "us-pc5", "Ethernet0")
-    lab.create_link("us-sw1", "Gi1/0", "us-pc6", "Ethernet0")
-    lab.create_link("us-sw1", "Gi0/1", "us-pc7", "Ethernet0")
-    lab.create_link("us-sw1", "Gi1/1", "us-pc8", "Ethernet0")
-    lab.create_link("us-sw1", "Gi0/2", "us-int", "Gi0/2")
-    lab.create_link("us-int", "Gi0/1", "us-ASA", "Gi0/1")
-    lab.create_link("us-web", "Ethernet0", "us-ASA", "Gi0/2")
-    lab.create_link("us-edge", "Gi0/0", "us-ASA", "Gi0/0")
+    #Team Foxtrot Links 
+    lab.create_link("foxtrot-sw2", "Gi0/0", "foxtrot-pc1", "Ethernet0")
+    lab.create_link("foxtrot-sw2", "Gi1/0", "foxtrot-pc2", "Ethernet0")
+    lab.create_link("foxtrot-sw2", "Gi0/1", "foxtrot-pc3", "Ethernet0")
+    lab.create_link("foxtrot-sw2", "Gi1/1", "foxtrot-pc4", "Ethernet0")
+    lab.create_link("foxtrot-sw2", "Gi0/3", "foxtrot-sw1", "Gi0/3")
+    lab.create_link("foxtrot-sw1", "Gi0/0", "foxtrot-pc5", "Ethernet0")
+    lab.create_link("foxtrot-sw1", "Gi1/0", "foxtrot-pc6", "Ethernet0")
+    lab.create_link("foxtrot-sw1", "Gi0/1", "foxtrot-pc7", "Ethernet0")
+    lab.create_link("foxtrot-sw1", "Gi1/1", "foxtrot-pc8", "Ethernet0")
+    lab.create_link("foxtrot-sw1", "Gi0/2", "foxtrot-int", "Gi0/2")
+    lab.create_link("foxtrot-int", "Gi0/1", "foxtrot-ASA", "Gi0/1")
+    lab.create_link("foxtrot-web", "Ethernet0", "foxtrot-ASA", "Gi0/2")   
+    lab.create_link("foxtrot-edge", "Gi0/0", "foxtrot-ASA", "Gi0/0")
+    
+    #Team Golf Links
+    lab.create_link("golf-sw2", "Gi0/3", "golf-pc1", "Ethernet0")
+    lab.create_link("golf-sw2", "Gi0/1", "golf-pc2", "Ethernet0")
+    lab.create_link("golf-sw2", "Gi1/0", "golf-pc3", "Ethernet0")
+    lab.create_link("golf-sw2", "Gi0/0", "golf-pc4", "Ethernet0")
+    lab.create_link("golf-sw1", "Gi0/2", "golf-sw2", "Gi0/2")
+    lab.create_link("golf-sw1", "Gi0/0", "golf-pc5", "Ethernet0")
+    lab.create_link("golf-sw1", "Gi1/0", "golf-pc6", "Ethernet0")
+    lab.create_link("golf-sw1", "Gi1/1", "golf-pc7", "Ethernet0")
+    lab.create_link("golf-sw1", "Gi0/3", "golf-pc8", "Ethernet0")
+    lab.create_link("golf-sw1", "Gi0/1", "golf-int", "Gi0/2")
+    lab.create_link("golf-int", "Gi0/1", "golf-ASA", "Gi0/1")
+    lab.create_link("golf-web", "Ethernet0", "golf-ASA", "Gi0/2")
+    lab.create_link("golf-edge", "Gi0/0", "golf-ASA", "Gi0/0")
+
 
     #Edge Router Links
-    lab.create_link("alpha-edge", "Gi0/1", "india-edge", "Gi0/1")
+    lab.create_link("alpha-edge", "Gi0/1", "golf-edge", "Gi0/1")
     lab.create_link("alpha-edge", "Gi0/2", "beta-edge", "Gi0/2")
     lab.create_link("alpha-edge", "Gi0/3", "europe-edge", "Gi0/4")
     lab.create_link("alpha-edge", "Gi0/4", "china-edge", "Gi0/5")
     lab.create_link("alpha-edge", "Gi0/5", "us-edge", "Gi0/5")
     lab.create_link("alpha-edge", "Gi0/6", "germany-edge", "Gi0/6")
-    lab.create_link("india-edge", "Gi0/2", "europe-edge", "Gi0/2")
+    lab.create_link("golf-edge", "Gi0/2", "europe-edge", "Gi0/2")
     lab.create_link("europe-edge", "Gi0/3", "us-edge", "Gi0/3")
-    lab.create_link("beta-edge", "Gi0/3", "china-edge", "Gi0/3")
-    lab.create_link("china-edge", "Gi0/4", "germany-edge", "Gi0/4")
+    lab.create_link("bravo-edge", "Gi0/3", "charlie-edge", "Gi0/3")
+    lab.create_link("charlie-edge", "Gi0/4", "germany-edge", "Gi0/4")
     lab.create_link("germany-edge", "Gi0/5", "us-edge", "Gi0/4")
-    
+
+    #alpha-switzerland
+    #bravo-japan
+    #charlie-china
+    #delta-germany
+    #echo-america/us
+    #foxtrot-europe
+    #golf-india
   
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
