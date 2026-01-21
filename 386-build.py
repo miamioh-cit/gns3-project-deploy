@@ -406,32 +406,32 @@ for SERVER_URL in SERVER_URLS:
     sw13 = lab.get_node("echo-sw2")
     sw13.start()
 
-    lab.create_node(name='alpha-ASA.16.2-3', template='Cisco ASAv 9.9.2', x='-101', y='-225')
-    ASA0 = lab.get_node("alpha-ASA.16.2-3")
+    lab.create_node(name='alpha-ASA', template='Cisco ASAv 9.9.2', x='-101', y='-225')
+    ASA0 = lab.get_node("alpha-ASA")
     ASA0.start()
 
-    lab.create_node(name='golf-ASA', template='Cisco ASAv 9.9.2', x='-403', y='-112')
-    ASA1 = lab.get_node("golf-ASA")
+    lab.create_node(name='golf-asa', template='Cisco ASAv 9.9.2', x='-403', y='-112')
+    ASA1 = lab.get_node("golf-asa")
     ASA1.start()
 
-    lab.create_node(name='bravo-ASA', template='Cisco ASAv 9.9.2', x='193', y='-118')
-    ASA2 = lab.get_node("bravo-ASA")
+    lab.create_node(name='bravo-asa', template='Cisco ASAv 9.9.2', x='193', y='-118')
+    ASA2 = lab.get_node("bravo-asa")
     ASA2.start()
 
-    lab.create_node(name='charlie-ASA', template='Cisco ASAv 9.9.2', x='199', y='194')
-    ASA3 = lab.get_node("charlie-ASA")
+    lab.create_node(name='charlie-asa', template='Cisco ASAv 9.9.2', x='199', y='194')
+    ASA3 = lab.get_node("charlie-asa")
     ASA3.start()
 
-    lab.create_node(name='delta-ASA', template='Cisco ASAv 9.9.2', x='198', y='463')
-    ASA4 = lab.get_node("delta-ASA")
+    lab.create_node(name='delta-asa', template='Cisco ASAv 9.9.2', x='198', y='463')
+    ASA4 = lab.get_node("delta-asa")
     ASA4.start()
 
-    lab.create_node(name='echo-ASA', template='Cisco ASAv 9.9.2', x='-400', y='493')
-    ASA6 = lab.get_node("echo-ASA")
+    lab.create_node(name='echo-asa', template='Cisco ASAv 9.9.2', x='-400', y='493')
+    ASA6 = lab.get_node("echo-asa")
     ASA6.start()
     
-    lab.create_node(name='foxtrot-ASA', template='Cisco ASAv 9.9.2', x='-398', y='198')
-    ASA5 = lab.get_node("foxtrot-ASA")
+    lab.create_node(name='foxtrot-asa', template='Cisco ASAv 9.9.2', x='-398', y='198')
+    ASA5 = lab.get_node("foxtrot-asa")
     ASA5.start()
     
     #Team Alpha links 
@@ -460,9 +460,9 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("bravo-sw1", "Gi1/0", "bravo-pc2", "Ethernet0")
     lab.create_link("bravo-sw1", "Gi1/1", "bravo-pc1", "Ethernet0")
     lab.create_link("bravo-sw1", "Gi0/2", "bravo-int", "Gi0/2")
-    lab.create_link("bravo-int", "Gi0/1", "bravo-ASA", "Gi0/1")
-    lab.create_link("bravo-web", "Ethernet0", "bravo-ASA", "Gi0/2")
-    lab.create_link("bravo-edge", "Gi0/0", "bravo-ASA", "Gi0/0")
+    lab.create_link("bravo-int", "Gi0/1", "bravo-asa", "Gi0/1")
+    lab.create_link("bravo-web", "Ethernet0", "bravo-asa", "Gi0/2")
+    lab.create_link("bravo-edge", "Gi0/0", "bravo-asa", "Gi0/0")
 
     #Charlie Team Links 
     lab.create_link("charlie-sw2", "Gi1/1", "charlie-pc8", "Ethernet0")
@@ -475,9 +475,9 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("charlie-sw1", "Gi1/2", "charlie-pc2", "Ethernet0")
     lab.create_link("charlie-sw1", "Gi0/1", "charlie-pc1", "Ethernet0")
     lab.create_link("charlie-sw1", "Gi0/2", "charlie-int", "Gi0/2")
-    lab.create_link("charlie-int", "Gi0/1", "charlie-ASA", "Gi0/1")
-    lab.create_link("charlie-web", "Ethernet0", "charlie-ASA", "Gi0/2")
-    lab.create_link("china-edge", "Gi0/0", "china-ASA", "Gi0/0")
+    lab.create_link("charlie-int", "Gi0/1", "charlie-asa", "Gi0/1")
+    lab.create_link("charlie-web", "Ethernet0", "charlie-asa", "Gi0/2")
+    lab.create_link("china-edge", "Gi0/0", "charlie-asa", "Gi0/0")
 
     #Delta Force Links 
     lab.create_link("delta-sw2", "Gi1/1", "delta-pc8", "Ethernet0")
@@ -490,9 +490,9 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("delta-sw1", "Gi0/1", "delta-pc2", "Ethernet0")
     lab.create_link("delta-sw1", "Gi0/0", "delta-pc1", "Ethernet0")
     lab.create_link("delta-sw1", "Gi0/2", "delta-int", "Gi0/2")
-    lab.create_link("delta-int", "Gi0/1", "delta-ASA", "Gi0/1")
-    lab.create_link("delta-web", "Ethernet0", "delta-ASA", "Gi0/2")
-    lab.create_link("delta-edge", "Gi0/0", "delta-ASA", "Gi0/0")
+    lab.create_link("delta-int", "Gi0/1", "delta-asa", "Gi0/1")
+    lab.create_link("delta-web", "Ethernet0", "delta-asa", "Gi0/2")
+    lab.create_link("delta-edge", "Gi0/0", "delta-asa", "Gi0/0")
 
     #Echo Team Links
     lab.create_link("echo-sw2", "Gi1/2", "echo-pc1", "Ethernet0")
@@ -505,9 +505,9 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("echo-sw1", "Gi0/1", "echo-pc7", "Ethernet0")
     lab.create_link("echo-sw1", "Gi1/1", "echo-pc8", "Ethernet0")
     lab.create_link("echo-sw1", "Gi0/2", "echo-int", "Gi0/2")
-    lab.create_link("echo-int", "Gi0/1", "echo-ASA", "Gi0/1")
-    lab.create_link("echo-web", "Ethernet0", "echo-ASA", "Gi0/2")
-    lab.create_link("echo-edge", "Gi0/0", "echo-ASA", "Gi0/0")
+    lab.create_link("echo-int", "Gi0/1", "echo-asa", "Gi0/1")
+    lab.create_link("echo-web", "Ethernet0", "echo-asa", "Gi0/2")
+    lab.create_link("echo-edge", "Gi0/0", "echo-asa", "Gi0/0")
 
     #Team Foxtrot Links 
     lab.create_link("foxtrot-sw2", "Gi0/0", "foxtrot-pc1", "Ethernet0")
@@ -520,9 +520,9 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("foxtrot-sw1", "Gi0/1", "foxtrot-pc7", "Ethernet0")
     lab.create_link("foxtrot-sw1", "Gi1/1", "foxtrot-pc8", "Ethernet0")
     lab.create_link("foxtrot-sw1", "Gi0/2", "foxtrot-int", "Gi0/2")
-    lab.create_link("foxtrot-int", "Gi0/1", "foxtrot-ASA", "Gi0/1")
-    lab.create_link("foxtrot-web", "Ethernet0", "foxtrot-ASA", "Gi0/2")   
-    lab.create_link("foxtrot-edge", "Gi0/0", "foxtrot-ASA", "Gi0/0")
+    lab.create_link("foxtrot-int", "Gi0/1", "foxtrot-asa", "Gi0/1")
+    lab.create_link("foxtrot-web", "Ethernet0", "foxtrot-asa", "Gi0/2")   
+    lab.create_link("foxtrot-edge", "Gi0/0", "foxtrot-asa", "Gi0/0")
     
     #Team Golf Links
     lab.create_link("golf-sw2", "Gi0/3", "golf-pc1", "Ethernet0")
@@ -535,9 +535,9 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("golf-sw1", "Gi1/1", "golf-pc7", "Ethernet0")
     lab.create_link("golf-sw1", "Gi0/3", "golf-pc8", "Ethernet0")
     lab.create_link("golf-sw1", "Gi0/1", "golf-int", "Gi0/2")
-    lab.create_link("golf-int", "Gi0/1", "golf-ASA", "Gi0/1")
-    lab.create_link("golf-web", "Ethernet0", "golf-ASA", "Gi0/2")
-    lab.create_link("golf-edge", "Gi0/0", "golf-ASA", "Gi0/0")
+    lab.create_link("golf-int", "Gi0/1", "golf-asa", "Gi0/1")
+    lab.create_link("golf-web", "Ethernet0", "golf-asa", "Gi0/2")
+    lab.create_link("golf-edge", "Gi0/0", "golf-asa", "Gi0/0")
 
 
     #Edge Router Links
