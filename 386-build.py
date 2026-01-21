@@ -407,7 +407,7 @@ for SERVER_URL in SERVER_URLS:
     sw13.start()
 
     lab.create_node(name='alpha-ASA', template='Cisco ASAv 9.9.2', x='-101', y='-225')
-    ASA0 = lab.get_node("alpha-ASA")
+    ASA0 = lab.get_node("alpha-asa")
     ASA0.start()
 
     lab.create_node(name='golf-asa', template='Cisco ASAv 9.9.2', x='-403', y='-112')
