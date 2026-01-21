@@ -401,7 +401,7 @@ for SERVER_URL in SERVER_URLS:
     sw12 = lab.get_node("us-sw1")
     sw12.start()
 
-    lab.create_node(name='america-sw2', template='Cisco IOSvL2 15.2.1', x='-850', y='534')
+    lab.create_node(name='us-sw2', template='Cisco IOSvL2 15.2.1', x='-850', y='534')
     sw13 = lab.get_node("us-sw2")
     sw13.start()
 
