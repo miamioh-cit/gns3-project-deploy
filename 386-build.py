@@ -413,31 +413,31 @@ for SERVER_URL in SERVER_URLS:
     ASA1.start()
 
 #Add WebServers    
-    lab.create_node(name='alpha-web', template='VPCS', x='35', y='-225')
+    lab.create_node(name='alpha-web', template='ubuntu', x='35', y='-225')
     VPC9 = lab.get_node("alpha-web")
     VPC9.start()
 
-    lab.create_node(name='bravo-web', template='VPCS', x='305', y='-328')
+    lab.create_node(name='bravo-web', template='ubuntu', x='305', y='-328')
     VPC37 = lab.get_node("bravo-web")
     VPC37.start()
     
-    lab.create_node(name='charlie-web', template='VPCS', x='192', y='45')
+    lab.create_node(name='charlie-web', template='ubuntu', x='192', y='45')
     VPC54 = lab.get_node("charlie-web")
     VPC54.start()
 
-    lab.create_node(name='delta-web', template='VPCS', x='192', y='645')
+    lab.create_node(name='delta-web', template='ubuntu', x='192', y='645')
     VPC63 = lab.get_node("delta-web")
     VPC63.start()
     
-    lab.create_node(name='echo-web', template='VPCS', x='-407', y='645')
+    lab.create_node(name='echo-web', template='ubuntu', x='-407', y='645')
     VPC36 = lab.get_node("echo-web")
     VPC36.start()
     
-    lab.create_node(name='foxtrot-web', template='VPCS', x='-407', y='45')
+    lab.create_node(name='foxtrot-web', template='ubuntu', x='-407', y='45')
     VPC19 = lab.get_node("foxtrot-web")
     VPC19.start()
 
-    lab.create_node(name='golf-web', template='VPCS', x='-515', y='-331')
+    lab.create_node(name='golf-web', template='ubuntu', x='-515', y='-331')
     VPC14 = lab.get_node("golf-web")
     VPC14.start()
 
@@ -454,7 +454,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("alpha-sw1", "Gi1/0", "alpha-pc8", "Ethernet0")
     lab.create_link("alpha-sw1", "Gi0/2", "alpha-int", "Gi0/2")
     lab.create_link("alpha-int", "Gi0/1", "alpha-asa", "Gi0/1")
-    lab.create_link("alpha-web", "Ethernet0", "alpha-asa", "Gi0/2")
+    lab.create_link("alpha-web", "eth0", "alpha-asa", "Gi0/2")
     lab.create_link("alpha-edge", "Gi0/0", "alpha-asa", "Gi0/0")
     
 #Team Bravo Links
@@ -469,7 +469,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("bravo-sw1", "Gi1/1", "bravo-pc1", "Ethernet0")
     lab.create_link("bravo-sw1", "Gi0/2", "bravo-int", "Gi0/2")
     lab.create_link("bravo-int", "Gi0/1", "bravo-asa", "Gi0/1")
-    lab.create_link("bravo-web", "Ethernet0", "bravo-asa", "Gi0/2")
+    lab.create_link("bravo-web", "eth0", "bravo-asa", "Gi0/2")
     lab.create_link("bravo-edge", "Gi0/0", "bravo-asa", "Gi0/0")
 
 #Charlie Team Links 
@@ -484,7 +484,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("charlie-sw1", "Gi0/1", "charlie-pc1", "Ethernet0")
     lab.create_link("charlie-sw1", "Gi0/2", "charlie-int", "Gi0/2")
     lab.create_link("charlie-int", "Gi0/1", "charlie-asa", "Gi0/1")
-    lab.create_link("charlie-web", "Ethernet0", "charlie-asa", "Gi0/2")
+    lab.create_link("charlie-web", "eth0", "charlie-asa", "Gi0/2")
     lab.create_link("charlie-edge", "Gi0/0", "charlie-asa", "Gi0/0")
 
 #Delta Force Links 
@@ -499,7 +499,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("delta-sw1", "Gi0/0", "delta-pc1", "Ethernet0")
     lab.create_link("delta-sw1", "Gi0/2", "delta-int", "Gi0/2")
     lab.create_link("delta-int", "Gi0/1", "delta-asa", "Gi0/1")
-    lab.create_link("delta-web", "Ethernet0", "delta-asa", "Gi0/2")
+    lab.create_link("delta-web", "eth0", "delta-asa", "Gi0/2")
     lab.create_link("delta-edge", "Gi0/0", "delta-asa", "Gi0/0")
 
 #Echo Team Links
@@ -514,7 +514,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("echo-sw1", "Gi1/1", "echo-pc8", "Ethernet0")
     lab.create_link("echo-sw1", "Gi0/2", "echo-int", "Gi0/2")
     lab.create_link("echo-int", "Gi0/1", "echo-asa", "Gi0/1")
-    lab.create_link("echo-web", "Ethernet0", "echo-asa", "Gi0/2")
+    lab.create_link("echo-web", "eth0", "echo-asa", "Gi0/2")
     lab.create_link("echo-edge", "Gi0/0", "echo-asa", "Gi0/0")
 
 #Team Foxtrot Links 
@@ -529,7 +529,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("foxtrot-sw1", "Gi1/1", "foxtrot-pc8", "Ethernet0")
     lab.create_link("foxtrot-sw1", "Gi0/2", "foxtrot-int", "Gi0/2")
     lab.create_link("foxtrot-int", "Gi0/1", "foxtrot-asa", "Gi0/1")
-    lab.create_link("foxtrot-web", "Ethernet0", "foxtrot-asa", "Gi0/2")   
+    lab.create_link("foxtrot-web", "eth0", "foxtrot-asa", "Gi0/2")   
     lab.create_link("foxtrot-edge", "Gi0/0", "foxtrot-asa", "Gi0/0")
     
 #Team Golf Links
@@ -544,7 +544,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("golf-sw1", "Gi0/3", "golf-pc8", "Ethernet0")
     lab.create_link("golf-sw1", "Gi0/1", "golf-int", "Gi0/2")
     lab.create_link("golf-int", "Gi0/1", "golf-asa", "Gi0/1")
-    lab.create_link("golf-web", "Ethernet0", "golf-asa", "Gi0/2")
+    lab.create_link("golf-web", "eth0", "golf-asa", "Gi0/2")
     lab.create_link("golf-edge", "Gi0/0", "golf-asa", "Gi0/0")
 
 
