@@ -485,7 +485,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("charlie-sw1", "Gi0/2", "charlie-int", "Gi0/2")
     lab.create_link("charlie-int", "Gi0/1", "charlie-asa", "Gi0/1")
     lab.create_link("charlie-web", "Ethernet0", "charlie-asa", "Gi0/2")
-    lab.create_link("china-edge", "Gi0/0", "charlie-asa", "Gi0/0")
+    lab.create_link("charlie-edge", "Gi0/0", "charlie-asa", "Gi0/0")
 
 #Delta Force Links 
     lab.create_link("delta-sw2", "Gi1/1", "delta-pc8", "Ethernet0")
