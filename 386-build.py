@@ -43,7 +43,7 @@ for SERVER_URL in SERVER_URLS:
 
     
     # Create and start all nodes
-    lab.create_node(name='alpha-pc1', template='Windows 10 w/ Edge', x='-257', y='-704')
+    lab.create_node(name='alpha-pc1', template='Windows 11', x='-257', y='-704')
     VPC1 = lab.get_node("alpha-pc1")
     VPC1.start()
    
@@ -75,7 +75,7 @@ for SERVER_URL in SERVER_URLS:
     VPC8 = lab.get_node("alpha-pc8")
     VPC8.start()
 
-    lab.create_node(name='bravo-pc1', template='Windows 10 w/ Edge', x='417', y='-329')
+    lab.create_node(name='bravo-pc1', template='Windows 11', x='417', y='-329')
     VPC38 = lab.get_node("bravo-pc1")
     VPC38.start()
 
@@ -107,7 +107,7 @@ for SERVER_URL in SERVER_URLS:
     VPC45 = lab.get_node("bravo-pc8")
     VPC45.start()
     
-    lab.create_node(name='charlie-pc1', template='Windows 10 w/ Edge', x='417', y='45')
+    lab.create_node(name='charlie-pc1', template='Windows 11', x='417', y='45')
     VPC46 = lab.get_node("charlie-pc1")
     VPC46.start()
 
@@ -139,7 +139,7 @@ for SERVER_URL in SERVER_URLS:
     VPC53 = lab.get_node("charlie-pc8")
     VPC53.start()
 
-    lab.create_node(name='delta-pc1', template='Windows 10 w/ Edge', x='422', y='420')
+    lab.create_node(name='delta-pc1', template='Windows 11', x='422', y='420')
     VPC55 = lab.get_node("delta-pc1")
     VPC55.start()
 
@@ -171,7 +171,7 @@ for SERVER_URL in SERVER_URLS:
     VPC62 = lab.get_node("delta-pc8")
     VPC62.start()
     
-    lab.create_node(name='echo-pc1', template='Windows 10 w/ Edge', x='-932', y='420')
+    lab.create_node(name='echo-pc1', template='Windows 11', x='-932', y='420')
     VPC28 = lab.get_node("echo-pc1")
     VPC28.start()
 
@@ -203,7 +203,7 @@ for SERVER_URL in SERVER_URLS:
     VPC35 = lab.get_node("echo-pc8")
     VPC35.start()
 
-    lab.create_node(name='foxtrot-pc1', template='Windows 10 w/ Edge', x='-932', y='45')
+    lab.create_node(name='foxtrot-pc1', template='Windows 11', x='-932', y='45')
     VPC20 = lab.get_node("foxtrot-pc1")
     VPC20.start()
 
@@ -235,7 +235,7 @@ for SERVER_URL in SERVER_URLS:
     VPC27 = lab.get_node("foxtrot-pc8")
     VPC27.start()
 
-    lab.create_node(name='golf-pc1', template='Windows 10 w/ Edge', x='-932', y='-329')
+    lab.create_node(name='golf-pc1', template='Windows 11', x='-932', y='-329')
     VPC10 = lab.get_node("golf-pc1")
     VPC10.start()
 
@@ -440,6 +440,39 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(name='golf-web', template='ubuntu', x='-515', y='-331')
     VPC14 = lab.get_node("golf-web")
     VPC14.start()
+    
+#Add Kali Nodes for Opposing Team    
+    lab.create_node(name='hub-0', template='Ethernet hub', x='-136', y='500')
+    VPC909 = lab.get_node("hub-0")
+    VPC909.start()
+    
+    lab.create_node(name='alpha-kali', template='Kali Linux', x='-336', y='1000')
+    VPC999 = lab.get_node("alpha-kali")
+    VPC999.start()
+
+    lab.create_node(name='bravo-kali', template='Kali Linux', x='-256', y='1000')
+    VPC937 = lab.get_node("bravo-kali")
+    VPC937.start()
+    
+    lab.create_node(name='charlie-kali', template='Kali Linux', x='-192', y='1000')
+    VPC954 = lab.get_node("charlie-kali")
+    VPC954.start()
+
+    lab.create_node(name='delta-kali', template='Kali Linux', x='192', y='1000')
+    VPC963 = lab.get_node("delta-kali")
+    VPC963.start()
+    
+    lab.create_node(name='echo-kali', template='Kali Linux', x='207', y='1000')
+    VPC936 = lab.get_node("echo-kali")
+    VPC936.start()
+    
+    lab.create_node(name='foxtrot-kali', template='Kali Linux', x='407', y='1000')
+    VPC919 = lab.get_node("foxtrot-kali")
+    VPC919.start()
+
+    lab.create_node(name='golf-kali', template='Kali Linux', x='515', y='-1000')
+    VPC914 = lab.get_node("golf-kali")
+    VPC914.start()
 
     
 #Team Alpha links 
@@ -560,7 +593,16 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("bravo-edge", "Gi0/3", "charlie-edge", "Gi0/3")
     lab.create_link("charlie-edge", "Gi0/4", "delta-edge", "Gi0/4")
     lab.create_link("delta-edge", "Gi0/5", "echo-edge", "Gi0/4")
-
+    
+    lab.create_link("delta-edge", "Gi0/7", "hub-0", "Ethernet0")
+    lab.create_link("alpha-kali", "Ethernet0", "hub-0", "Ethernet1")
+    lab.create_link("bravo-kali", "Ethernet0", "hub-0", "Ethernet2")
+    lab.create_link("charlie-kali", "Ethernet0", "hub-0", "Ethernet3")
+    lab.create_link("delta-kali", "Ethernet0", "hub-0", "Ethernet4")
+    lab.create_link("echo-kali", "Ethernet0", "hub-0", "Ethernet5")
+    lab.create_link("foxtrot-kali", "Ethernet0", "hub-0", "Ethernet6")
+    lab.create_link("golf-kali", "Ethernet0", "hub-0", "Ethernet6")
+    
     #alpha-switzerland
     #bravo-japan
     #charlie-china
