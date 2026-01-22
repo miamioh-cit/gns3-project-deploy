@@ -559,7 +559,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("foxtrot-edge", "Gi0/3", "echo-edge", "Gi0/3")
     lab.create_link("bravo-edge", "Gi0/3", "charlie-edge", "Gi0/3")
     lab.create_link("charlie-edge", "Gi0/4", "delta-edge", "Gi0/4")
-    lab.create_link("delto-edge", "Gi0/5", "echo-edge", "Gi0/4")
+    lab.create_link("delta-edge", "Gi0/5", "echo-edge", "Gi0/4")
 
     #alpha-switzerland
     #bravo-japan
