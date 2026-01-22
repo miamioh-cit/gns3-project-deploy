@@ -43,7 +43,7 @@ for SERVER_URL in SERVER_URLS:
 
     
     # Create and start all nodes
-    lab.create_node(name='alpha-pc1', template='VPCS', x='-257', y='-704')
+    lab.create_node(name='alpha-pc1', template='Windows 10 w/ Edge', x='-257', y='-704')
     VPC1 = lab.get_node("alpha-pc1")
     VPC1.start()
    
@@ -75,7 +75,7 @@ for SERVER_URL in SERVER_URLS:
     VPC8 = lab.get_node("alpha-pc8")
     VPC8.start()
 
-    lab.create_node(name='bravo-pc1', template='VPCS', x='417', y='-329')
+    lab.create_node(name='bravo-pc1', template='Windows 10 w/ Edge', x='417', y='-329')
     VPC38 = lab.get_node("bravo-pc1")
     VPC38.start()
 
@@ -107,7 +107,7 @@ for SERVER_URL in SERVER_URLS:
     VPC45 = lab.get_node("bravo-pc8")
     VPC45.start()
     
-    lab.create_node(name='charlie-pc1', template='VPCS', x='417', y='45')
+    lab.create_node(name='charlie-pc1', template='Windows 10 w/ Edge', x='417', y='45')
     VPC46 = lab.get_node("charlie-pc1")
     VPC46.start()
 
@@ -139,7 +139,7 @@ for SERVER_URL in SERVER_URLS:
     VPC53 = lab.get_node("charlie-pc8")
     VPC53.start()
 
-    lab.create_node(name='delta-pc1', template='VPCS', x='422', y='420')
+    lab.create_node(name='delta-pc1', template='Windows 10 w/ Edge', x='422', y='420')
     VPC55 = lab.get_node("delta-pc1")
     VPC55.start()
 
@@ -171,7 +171,7 @@ for SERVER_URL in SERVER_URLS:
     VPC62 = lab.get_node("delta-pc8")
     VPC62.start()
     
-    lab.create_node(name='echo-pc1', template='VPCS', x='-932', y='420')
+    lab.create_node(name='echo-pc1', template='Windows 10 w/ Edge', x='-932', y='420')
     VPC28 = lab.get_node("echo-pc1")
     VPC28.start()
 
@@ -203,7 +203,7 @@ for SERVER_URL in SERVER_URLS:
     VPC35 = lab.get_node("echo-pc8")
     VPC35.start()
 
-    lab.create_node(name='foxtrot-pc1', template='VPCS', x='-932', y='45')
+    lab.create_node(name='foxtrot-pc1', template='Windows 10 w/ Edge', x='-932', y='45')
     VPC20 = lab.get_node("foxtrot-pc1")
     VPC20.start()
 
@@ -235,7 +235,7 @@ for SERVER_URL in SERVER_URLS:
     VPC27 = lab.get_node("foxtrot-pc8")
     VPC27.start()
 
-    lab.create_node(name='golf-pc1', template='VPCS', x='-932', y='-329')
+    lab.create_node(name='golf-pc1', template='Windows 10 w/ Edge', x='-932', y='-329')
     VPC10 = lab.get_node("golf-pc1")
     VPC10.start()
 
@@ -443,7 +443,7 @@ for SERVER_URL in SERVER_URLS:
 
     
 #Team Alpha links 
-    lab.create_link("alpha-sw2", "Gi0/1", "alpha-pc1", "Ethernet0")
+    lab.create_link("alpha-sw2", "Gi0/1", "alpha-pc1", "NIC1")
     lab.create_link("alpha-sw2", "Gi1/2", "alpha-pc2", "Ethernet0")
     lab.create_link("alpha-sw2", "Gi1/0", "alpha-pc3", "Ethernet0")
     lab.create_link("alpha-sw2", "Gi1/1", "alpha-pc4", "Ethernet0")
@@ -466,7 +466,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("bravo-sw1", "Gi0/1", "bravo-pc4", "Ethernet0")
     lab.create_link("bravo-sw1", "Gi0/0", "bravo-pc3", "Ethernet0")
     lab.create_link("bravo-sw1", "Gi1/0", "bravo-pc2", "Ethernet0")
-    lab.create_link("bravo-sw1", "Gi1/1", "bravo-pc1", "Ethernet0")
+    lab.create_link("bravo-sw1", "Gi1/1", "bravo-pc1", "NIC1")
     lab.create_link("bravo-sw1", "Gi0/2", "bravo-int", "Gi0/2")
     lab.create_link("bravo-int", "Gi0/1", "bravo-asa", "Gi0/1")
     lab.create_link("bravo-web", "eth0", "bravo-asa", "Gi0/2")
@@ -481,7 +481,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("charlie-sw1", "Gi1/1", "charlie-pc4", "Ethernet0")
     lab.create_link("charlie-sw1", "Gi1/0", "charlie-pc3", "Ethernet0")
     lab.create_link("charlie-sw1", "Gi1/2", "charlie-pc2", "Ethernet0")
-    lab.create_link("charlie-sw1", "Gi0/1", "charlie-pc1", "Ethernet0")
+    lab.create_link("charlie-sw1", "Gi0/1", "charlie-pc1", "NIC1")
     lab.create_link("charlie-sw1", "Gi0/2", "charlie-int", "Gi0/2")
     lab.create_link("charlie-int", "Gi0/1", "charlie-asa", "Gi0/1")
     lab.create_link("charlie-web", "eth0", "charlie-asa", "Gi0/2")
@@ -496,14 +496,14 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("delta-sw1", "Gi1/2", "delta-pc4", "Ethernet0")
     lab.create_link("delta-sw1", "Gi1/0", "delta-pc3", "Ethernet0")
     lab.create_link("delta-sw1", "Gi0/1", "delta-pc2", "Ethernet0")
-    lab.create_link("delta-sw1", "Gi0/0", "delta-pc1", "Ethernet0")
+    lab.create_link("delta-sw1", "Gi0/0", "delta-pc1", "NIC1")
     lab.create_link("delta-sw1", "Gi0/2", "delta-int", "Gi0/2")
     lab.create_link("delta-int", "Gi0/1", "delta-asa", "Gi0/1")
     lab.create_link("delta-web", "eth0", "delta-asa", "Gi0/2")
     lab.create_link("delta-edge", "Gi0/0", "delta-asa", "Gi0/0")
 
 #Echo Team Links
-    lab.create_link("echo-sw2", "Gi1/2", "echo-pc1", "Ethernet0")
+    lab.create_link("echo-sw2", "Gi1/2", "echo-pc1", "NIC1")
     lab.create_link("echo-sw2", "Gi1/0", "echo-pc2", "Ethernet0")
     lab.create_link("echo-sw2", "Gi0/2", "echo-pc3", "Ethernet0")
     lab.create_link("echo-sw2", "Gi1/1", "echo-pc4", "Ethernet0")
@@ -518,7 +518,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("echo-edge", "Gi0/0", "echo-asa", "Gi0/0")
 
 #Team Foxtrot Links 
-    lab.create_link("foxtrot-sw2", "Gi0/0", "foxtrot-pc1", "Ethernet0")
+    lab.create_link("foxtrot-sw2", "Gi0/0", "foxtrot-pc1", "NIC1")
     lab.create_link("foxtrot-sw2", "Gi1/0", "foxtrot-pc2", "Ethernet0")
     lab.create_link("foxtrot-sw2", "Gi0/1", "foxtrot-pc3", "Ethernet0")
     lab.create_link("foxtrot-sw2", "Gi1/1", "foxtrot-pc4", "Ethernet0")
@@ -533,7 +533,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("foxtrot-edge", "Gi0/0", "foxtrot-asa", "Gi0/0")
     
 #Team Golf Links
-    lab.create_link("golf-sw2", "Gi0/3", "golf-pc1", "Ethernet0")
+    lab.create_link("golf-sw2", "Gi0/3", "golf-pc1", "NIC1")
     lab.create_link("golf-sw2", "Gi0/1", "golf-pc2", "Ethernet0")
     lab.create_link("golf-sw2", "Gi1/0", "golf-pc3", "Ethernet0")
     lab.create_link("golf-sw2", "Gi0/0", "golf-pc4", "Ethernet0")
