@@ -442,35 +442,35 @@ for SERVER_URL in SERVER_URLS:
     VPC14.start()
     
 #Add Kali Nodes for Opposing Team    
-    lab.create_node(name='hub-0', template='Ethernet hub', x='-136', y='500')
+    lab.create_node(name='hub-0', template='Ethernet hub', x='-125', y='750')
     VPC909 = lab.get_node("hub-0")
     VPC909.start()
     
-    lab.create_node(name='alpha-kali', template='Kali Linux', x='-336', y='1000')
+    lab.create_node(name='alpha-kali', template='Kali Linux', x='-200', y='1000')
     VPC999 = lab.get_node("alpha-kali")
     VPC999.start()
 
-    lab.create_node(name='bravo-kali', template='Kali Linux', x='-256', y='1000')
+    lab.create_node(name='bravo-kali', template='Kali Linux', x='-250', y='1000')
     VPC937 = lab.get_node("bravo-kali")
     VPC937.start()
     
-    lab.create_node(name='charlie-kali', template='Kali Linux', x='-192', y='1000')
+    lab.create_node(name='charlie-kali', template='Kali Linux', x='-0', y='1000')
     VPC954 = lab.get_node("charlie-kali")
     VPC954.start()
 
-    lab.create_node(name='delta-kali', template='Kali Linux', x='192', y='1000')
+    lab.create_node(name='delta-kali', template='Kali Linux', x='200', y='1000')
     VPC963 = lab.get_node("delta-kali")
     VPC963.start()
     
-    lab.create_node(name='echo-kali', template='Kali Linux', x='207', y='1000')
+    lab.create_node(name='echo-kali', template='Kali Linux', x='250', y='1000')
     VPC936 = lab.get_node("echo-kali")
     VPC936.start()
     
-    lab.create_node(name='foxtrot-kali', template='Kali Linux', x='407', y='1000')
+    lab.create_node(name='foxtrot-kali', template='Kali Linux', x='500', y='1000')
     VPC919 = lab.get_node("foxtrot-kali")
     VPC919.start()
 
-    lab.create_node(name='golf-kali', template='Kali Linux', x='515', y='-1000')
+    lab.create_node(name='golf-kali', template='Kali Linux', x='525', y='-1000')
     VPC914 = lab.get_node("golf-kali")
     VPC914.start()
 
