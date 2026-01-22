@@ -601,7 +601,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("delta-kali", "Ethernet0", "hub-0", "Ethernet4")
     lab.create_link("echo-kali", "Ethernet0", "hub-0", "Ethernet5")
     lab.create_link("foxtrot-kali", "Ethernet0", "hub-0", "Ethernet6")
-    lab.create_link("golf-kali", "Ethernet0", "hub-0", "Ethernet6")
+    lab.create_link("golf-kali", "Ethernet0", "hub-0", "Ethernet7")
     
     #alpha-switzerland
     #bravo-japan
