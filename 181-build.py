@@ -128,11 +128,11 @@ for SERVER_URL in SERVER_URLS:
     linux4.start()
 
 
-    lab.create_link("s1-router", "Gi0/2", "router-5", "Gi0/0")
-    lab.create_link("s2-router", "Gi0/2", "router-5", "Gi0/1")
-    lab.create_link("s3-router", "Gi0/2", "router-5", "Gi0/2")
-    lab.create_link("s4-router", "Gi0/2", "router-5", "Gi0/3")
-    lab.create_link("core-5", "Gi0/4", "internet", "eth0")
+    lab.create_link("s1-router", "Gi0/2", "core", "Gi0/0")
+    lab.create_link("s2-router", "Gi0/2", "core", "Gi0/1")
+    lab.create_link("s3-router", "Gi0/2", "core", "Gi0/2")
+    lab.create_link("s4-router", "Gi0/2", "core", "Gi0/3")
+    lab.create_link("core", "Gi0/4", "internet", "eth0")
 
     lab.create_link("s1-router", "Gi0/0", "s1-switch", "Gi0/0")
     lab.create_link("s2-router", "Gi0/0", "s2-switch", "Gi0/0")
