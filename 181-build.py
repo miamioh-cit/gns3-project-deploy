@@ -1,7 +1,7 @@
 import logging
 from gns3fy import Gns3Connector, Project, Node, Link
 
-LAB_NAME = "cit181-sp26-1"
+LAB_NAME = "cit181-sp26"
 
 BASE_IP = "http://10.48.229."
 
@@ -59,8 +59,8 @@ for SERVER_URL in SERVER_URLS:
     router4 = lab.get_node("s4-router")
     router4.start()
 
-    lab.create_node(name='router-5', template='Cisco IOSv 15.7(3)M3', x=-78, y=-147, properties={"adapters": 16})
-    router5 = lab.get_node("router-5")
+    lab.create_node(name='core', template='Cisco IOSv 15.7(3)M3', x=-78, y=-147, properties={"adapters": 16})
+    router5 = lab.get_node("core")
     router5.start()
 
     lab.create_node(name='s1-web', template='Windows Server 2022', x=-325, y=76)
@@ -80,19 +80,19 @@ for SERVER_URL in SERVER_URLS:
     server4.start()
 
     lab.create_node(name='s1-dhcp', template='Windows 11', x=-354, y=200)
-    server3 = lab.get_node("s1-dhcp")
+    server3 = lab.get_node("s1-client")
     server3.start()
 
     lab.create_node(name='s2-dhcp', template='Windows 11', x=-118, y=200)
-    server4 = lab.get_node("s2-dhcp")
+    server4 = lab.get_node("s2-client")
     server4.start()
     
     lab.create_node(name='s3-dhcp', template='Windows 11', x=150, y=200)
-    server5 = lab.get_node("s3-dhcp")
+    server5 = lab.get_node("s3-client")
     server5.start()
 
     lab.create_node(name='s4-dhcp', template='Windows 11', x=410, y=200)
-    server6 = lab.get_node("s4-dhcp")
+    server6 = lab.get_node("s4-client")
     server6.start()
 
     lab.create_node(name='s1-switch', template='Cisco IOSvL2 15.2.1', x=-452, y=214)
@@ -132,27 +132,27 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("s2-router", "Gi0/2", "router-5", "Gi0/1")
     lab.create_link("s3-router", "Gi0/2", "router-5", "Gi0/2")
     lab.create_link("s4-router", "Gi0/2", "router-5", "Gi0/3")
-    lab.create_link("router-5", "Gi0/4", "internet", "eth0")
+    lab.create_link("core-5", "Gi0/4", "internet", "eth0")
 
     lab.create_link("s1-router", "Gi0/0", "s1-switch", "Gi0/0")
     lab.create_link("s2-router", "Gi0/0", "s2-switch", "Gi0/0")
     lab.create_link("s3-router", "Gi0/0", "s3-switch", "Gi0/0")
     lab.create_link("s4-router", "Gi0/0", "s4-switch", "Gi0/0")
 
-    lab.create_link("s1-router", "Gi0/1", "s1-web", "NIC1")
-    lab.create_link("s2-router", "Gi0/1", "s2-web", "NIC1")
-    lab.create_link("s3-router", "Gi0/1", "s3-web", "NIC1")
-    lab.create_link("s4-router", "Gi0/1", "s4-web", "NIC1")
+    lab.create_link("s1-router", "Gi0/1", "s1-web", "Ethernet0")
+    lab.create_link("s2-router", "Gi0/1", "s2-web", "Ethernet0")
+    lab.create_link("s3-router", "Gi0/1", "s3-web", "Ethernet0")
+    lab.create_link("s4-router", "Gi0/1", "s4-web", "Ethernet0")
 
     lab.create_link("s1-switch", "Gi0/1", "s1-ubuntu", "eth0")
     lab.create_link("s2-switch", "Gi0/1", "s2-ubuntu", "eth0")
     lab.create_link("s3-switch", "Gi0/1", "s3-ubuntu", "eth0")
     lab.create_link("s4-switch", "Gi0/1", "s4-ubuntu", "eth0")
 
-    lab.create_link("s1-switch", "Gi0/2", "s1-dhcp", "NIC1")
-    lab.create_link("s2-switch", "Gi0/2", "s2-dhcp", "NIC1")
-    lab.create_link("s3-switch", "Gi0/2", "s3-dhcp", "NIC1")
-    lab.create_link("s4-switch", "Gi0/2", "s4-dhcp", "NIC1")
+    lab.create_link("s1-switch", "Gi0/2", "s1-client", "Ethernet0")
+    lab.create_link("s2-switch", "Gi0/2", "s2-client", "Ethernet0")
+    lab.create_link("s3-switch", "Gi0/2", "s3-client", "Ethernet0")
+    lab.create_link("s4-switch", "Gi0/2", "s4-client", "Ethernet0")
 
     
     print("-----------------------------------------------------------------------")
