@@ -79,19 +79,19 @@ for SERVER_URL in SERVER_URLS:
     server4 = lab.get_node("s4-web")
     server4.start()
 
-    lab.create_node(name='s1-dhcp', template='Windows 11', x=-354, y=200)
+    lab.create_node(name='s1-client', template='Windows 11', x=-354, y=200)
     server3 = lab.get_node("s1-client")
     server3.start()
 
-    lab.create_node(name='s2-dhcp', template='Windows 11', x=-118, y=200)
+    lab.create_node(name='s2-client', template='Windows 11', x=-118, y=200)
     server4 = lab.get_node("s2-client")
     server4.start()
     
-    lab.create_node(name='s3-dhcp', template='Windows 11', x=150, y=200)
+    lab.create_node(name='s3-client', template='Windows 11', x=150, y=200)
     server5 = lab.get_node("s3-client")
     server5.start()
 
-    lab.create_node(name='s4-dhcp', template='Windows 11', x=410, y=200)
+    lab.create_node(name='s4-client', template='Windows 11', x=410, y=200)
     server6 = lab.get_node("s4-client")
     server6.start()
 
