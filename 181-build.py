@@ -63,35 +63,35 @@ for SERVER_URL in SERVER_URLS:
     router5 = lab.get_node("router-5")
     router5.start()
 
-    lab.create_node(name='s1-web', template='Windows Server 2016', x=-325, y=76)
+    lab.create_node(name='s1-web', template='Windows Server 2022', x=-325, y=76)
     server1 = lab.get_node("s1-web")
     server1.start()
 
-    lab.create_node(name='s2-web', template='Windows Server 2016', x=-89, y=76)
+    lab.create_node(name='s2-web', template='Windows Server 2022', x=-89, y=76)
     server2 = lab.get_node("s2-web")
     server2.start()
 
-    lab.create_node(name='s3-web', template='Windows Server 2016', x=189, y=76)
+    lab.create_node(name='s3-web', template='Windows Server 2022', x=189, y=76)
     server3 = lab.get_node("s3-web")
     server3.start()
 
-    lab.create_node(name='s4-web', template='Windows Server 2016', x=449, y=76)
+    lab.create_node(name='s4-web', template='Windows Server 2022', x=449, y=76)
     server4 = lab.get_node("s4-web")
     server4.start()
 
-    lab.create_node(name='s1-dhcp', template='Windows Server 2016', x=-354, y=200)
+    lab.create_node(name='s1-dhcp', template='Windows 11', x=-354, y=200)
     server3 = lab.get_node("s1-dhcp")
     server3.start()
 
-    lab.create_node(name='s2-dhcp', template='Windows Server 2016', x=-118, y=200)
+    lab.create_node(name='s2-dhcp', template='Windows 11', x=-118, y=200)
     server4 = lab.get_node("s2-dhcp")
     server4.start()
     
-    lab.create_node(name='s3-dhcp', template='Windows Server 2016', x=150, y=200)
+    lab.create_node(name='s3-dhcp', template='Windows 11', x=150, y=200)
     server5 = lab.get_node("s3-dhcp")
     server5.start()
 
-    lab.create_node(name='s4-dhcp', template='Windows Server 2016', x=410, y=200)
+    lab.create_node(name='s4-dhcp', template='Windows 11', x=410, y=200)
     server6 = lab.get_node("s4-dhcp")
     server6.start()
 
