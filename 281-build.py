@@ -141,7 +141,7 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("ohio-win10-01", "NIC1", "ohio-switch", "Gi0/1")
     lab.create_link("ohio-win10-02", "NIC1", "ohio-switch", "Gi0/2")
     lab.create_link("ohio-win10-03", "NIC1", "ohio-switch", "Gi0/3")
-    lab.create_link("ohio-web", "Ethernet0", "oh-int", "Gi0/2")
+    lab.create_link("ohio-web", "NIC1", "oh-int", "Gi0/2")
     lab.create_link("in-win10-01", "NIC1", "in-edge", "Gi0/2")
     lab.create_link("ky-int", "Gi0/0", "ky-switch-1", "Gi0/0")
     lab.create_link("ky-switch-1", "Gi0/1", "ky-switch-2", "Gi0/0")
