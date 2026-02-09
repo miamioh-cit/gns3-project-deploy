@@ -127,7 +127,7 @@ for SERVER_URL in SERVER_URLS:
     winserver16_3 = lab.get_node("ohio-web")
     winserver16_3.start()
 
-    lab.create_link("offsite-web", "Ethernet0", "offsite-switch", "Gi0/0")
+    lab.create_link("offsite-web", "NIC1", "offsite-switch", "Gi0/0")
     lab.create_link("offsite-win10", "NIC1", "offsite-switch", "Gi0/1")
     lab.create_link("offsite-switch", "Gi0/2", "offsite-router", "Gi0/0")
     lab.create_link("in-edge", "Gi0/0", "offsite-router", "Gi0/1")
