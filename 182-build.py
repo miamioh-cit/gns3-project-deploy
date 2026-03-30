@@ -59,11 +59,11 @@ for SERVER_URL in SERVER_URLS:
     server3 = lab.get_node("client")
     server3.start()
 
-    lab.create_node(name='switch', template='Cisco IOSvL2 15.2.1', x=-75, y=50)
+    lab.create_node(name='switch', template='Cisco IOSvL2 15.2.1', x=-66, y=50)
     sw1 = lab.get_node("switch")
     sw1.start()
 
-    lab.create_node(name='ubuntu', template='ubuntu', x=-75, y=140)
+    lab.create_node(name='ubuntu', template='ubuntu', x=-72, y=140)
     linux1 = lab.get_node("ubuntu")
     linux1.start()
 
