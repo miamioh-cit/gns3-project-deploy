@@ -68,16 +68,16 @@ for SERVER_URL in SERVER_URLS:
     linux1.start()
 
 
-    lab.create_link("s1-router", "Gi0/2", "core", "Gi0/0")
+    lab.create_link("router", "Gi0/2", "core", "Gi0/0")
     lab.create_link("core", "Gi0/4", "internet", "eth0")
 
-    lab.create_link("s1-router", "Gi0/0", "s1-switch", "Gi0/0")
+    lab.create_link("router", "Gi0/0", "switch", "Gi0/0")
 
-    lab.create_link("s1-router", "Gi0/1", "s1-web", "Ethernet0")
+    lab.create_link("router", "Gi0/1", "server", "Ethernet0")
 
-    lab.create_link("s1-switch", "Gi0/1", "s1-ubuntu", "eth0")
+    lab.create_link("switch", "Gi0/1", "ubuntu", "eth0")
 
-    lab.create_link("s1-switch", "Gi0/2", "s1-client", "Ethernet0")
+    lab.create_link("switch", "Gi0/2", "client", "Ethernet0")
 
     
     print("-----------------------------------------------------------------------")
