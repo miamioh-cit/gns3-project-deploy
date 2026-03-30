@@ -43,28 +43,28 @@ for SERVER_URL in SERVER_URLS:
 
     lab.create_node(name='internet', template='Cloud', x=-120, y=-292)
 
-    lab.create_node(name='s1-router', template='Cisco IOSv 15.7(3)M3', x=-454, y=-9)
-    router1 = lab.get_node("s1-router")
+    lab.create_node(name='router', template='Cisco IOSv 15.7(3)M3', x=-454, y=-9)
+    router1 = lab.get_node("router")
     router1.start()
 
     lab.create_node(name='core', template='Cisco IOSv 15.7(3)M3', x=-78, y=-147, properties={"adapters": 16})
     router5 = lab.get_node("core")
     router5.start()
 
-    lab.create_node(name='s1-web', template='Windows Server 2022', x=-325, y=76)
-    server1 = lab.get_node("s1-web")
+    lab.create_node(name='server', template='Windows Server 2022', x=-325, y=76)
+    server1 = lab.get_node("server")
     server1.start()
 
-    lab.create_node(name='s1-client', template='Windows 11', x=-354, y=200)
-    server3 = lab.get_node("s1-client")
+    lab.create_node(name='client', template='Windows 11', x=-354, y=200)
+    server3 = lab.get_node("client")
     server3.start()
 
-    lab.create_node(name='s1-switch', template='Cisco IOSvL2 15.2.1', x=-452, y=214)
-    sw1 = lab.get_node("s1-switch")
+    lab.create_node(name='switch', template='Cisco IOSvL2 15.2.1', x=-452, y=214)
+    sw1 = lab.get_node("switch")
     sw1.start()
 
-    lab.create_node(name='s1-ubuntu', template='ubuntu', x=-452, y=325)
-    linux1 = lab.get_node("s1-ubuntu")
+    lab.create_node(name='ubuntu', template='ubuntu', x=-452, y=325)
+    linux1 = lab.get_node("ubuntu")
     linux1.start()
 
 
