@@ -17,7 +17,7 @@ except Exception as e:
 if not SERVER_LAST_OCTETS:
     raise ValueError("No valid server last octets found in 'datastore'.")
 
-SERVER_URLS = [f"{BASE_IP}{octet}:80" for octet in SERVER_LAST_OCTETS]
+SERVER_URLS = [f"{BASE_IP}{octet}:3080" for octet in SERVER_LAST_OCTETS]
 
 GNS3_USER = "gns3"
 GNS3_PW = "gns3"
