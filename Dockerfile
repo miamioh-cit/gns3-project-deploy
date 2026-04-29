@@ -10,6 +10,7 @@ COPY 181-build.py /app/
 COPY 182-build.py /app/
 COPY 225-build.py /app/
 COPY 281-build.py /app/
+COPY 282-build.py /app/
 COPY 284-build.py /app/
 COPY 285-build.py /app/
 COPY 325-build.py /app/
