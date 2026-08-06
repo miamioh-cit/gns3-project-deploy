@@ -317,7 +317,12 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("PLC-Clarification", "ETH1", "Vlan-40", "Gi0/0")
 
 #HMI's
-   
+    lab.create_link("Vlan-10", "ETH0", "HMI-Influent", "Gi0/2")
+    lab.create_link("Vlan-20", "ETH0", "HMI-Primary", "Gi0/1")
+    lab.create_link("Vlan-30", "ETH0", "HMI-Aeration", "Gi0/3")
+    lab.create_link("Vlan-40", "ETH0", "HMI-Clarification", "Gi0/3")
+
+    
 
 
     
