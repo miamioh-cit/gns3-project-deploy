@@ -78,7 +78,7 @@ for SERVER_URL in SERVER_URLS:
     sw9.start()
 
     lab.create_node(name='FT-301', template='generic-sensor', x=254, y=-606)
-    sw10 = lab.get_node(FT-301")
+    sw10 = lab.get_node("FT-301")
     sw10.start()
 
     lab.create_node(name='MLSS-301', template='generic-sensor', x=330, y=-599)
