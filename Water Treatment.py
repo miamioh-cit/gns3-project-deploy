@@ -322,6 +322,22 @@ for SERVER_URL in SERVER_URLS:
     lab.create_link("Vlan-30", "ETH0", "HMI-Aeration", "Gi0/3")
     lab.create_link("Vlan-40", "ETH0", "HMI-Clarification", "Gi0/3")
 
+ #ignition and far left side
+    lab.create_link("Vlan-10", "ETH7", "Ignition-Switch", "Gi0/0")
+    lab.create_link("Ignition-Switch", "ETH0", "ignition-1", "Gi0/7")
+    lab.create_link("Ignition-Switch", "ETH6", "Vlan-50", "Gi0/6")
+    lab.create_link("Ignition-Switch", "ETH7", "Vlan-20", "Gi0/2")
+    lab.create_link("Ignition-Switch", "ETH2", "Vlan-30", "Gi0/0")
+    lab.create_link("Ignition-Switch", "ETH1", "Vlan-40", "Gi0/4")
+    lab.create_link("Ignition-Switch", "ETH6", "Vlan-50", "Gi0/6")
+    lab.create_link("Ignition-Switch", "ETH7", "Vlan-60", "Gi0/5")
+    lab.create_link("Ignition-Switch", "ETH7", "Vlan-70", "Gi0/6")
+
+    #Vlan 50
+    lab.create_link("Vlan-50", "ETH0", "HMI-Disenfection", "Gi0/1")
+    lab.create_link("Vlan-50", "ETH1", "PLC-Disenfection", "Gi0/0")
+    
+        
     
 
 
