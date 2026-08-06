@@ -41,7 +41,9 @@ for SERVER_URL in SERVER_URLS:
     available_templates = [template["name"] for template in server.get_templates()]
     logging.debug(f"Available Templates: {available_templates}")
 
-    
+    lab.create_node(name='H-101', template='generic-sensor', x=-575, y=-625)
+    sw1 = lab.get_node("LT-101")
+    sw1.start()
 
     lab.create_node(name='LT-101', template='generic-sensor', x=-483, y=-628)
     sw2 = lab.get_node("LT-101")
