@@ -336,7 +336,45 @@ for SERVER_URL in SERVER_URLS:
     #Vlan 50
     lab.create_link("Vlan-50", "ETH0", "HMI-Disenfection", "Gi0/1")
     lab.create_link("Vlan-50", "ETH1", "PLC-Disenfection", "Gi0/0")
-    
+
+    #PLC-Disenfection
+    lab.create_link("PLC-Disenfection", "ETH0", "Vlan-05", "Gi0/0")
+    lab.create_link("Vlan-05", "ETH0", "CL-501", "Gi0/1")
+    lab.create_link("Vlan-05", "ETH0", "FT-501", "Gi0/2")
+    lab.create_link("Vlan-05", "ETH0", "LT-501", "Gi0/3")
+    lab.create_link("Vlan-05", "ETH0", "AV-501", "Gi0/4")
+
+    #Vlan 60
+    lab.create_link("Vlan-60", "ETH0", "HMI-Thickening", "Gi0/2")
+    lab.create_link("Vlan-60", "ETH1", "PLC-Thickening", "Gi0/0")
+
+    #PLC-Disenfection
+    lab.create_link("PLC-Thickening", "ETH0", "Vlan-06", "Gi0/0")
+    lab.create_link("Vlan-06", "ETH0", "LT-601", "Gi0/1")
+    lab.create_link("Vlan-06", "ETH0", "FT-601", "Gi0/2")
+    lab.create_link("Vlan-06", "ETH0", "SS-601", "Gi0/3")
+    lab.create_link("Vlan-06", "ETH0", "P-601", "Gi0/4")
+
+    #Vlan 70
+    lab.create_link("Vlan-70", "ETH0", "HMI-Digestion", "Gi0/5")
+    lab.create_link("Vlan-70", "ETH1", "PLC-Digestion", "Gi0/0")
+
+    #PLC-Disenfection
+    lab.create_link("PLC-Digestion", "ETH0", "Vlan-07", "Gi0/0")
+    lab.create_link("Vlan-07", "ETH0", "T-701", "Gi0/1")
+    lab.create_link("Vlan-07", "ETH0", "PT-701", "Gi0/2")
+    lab.create_link("Vlan-07", "ETH0", "FT-701", "Gi0/3")
+    lab.create_link("Vlan-07", "ETH0", "GAS-701", "Gi0/4")
+
+    #scada and kali linux
+    lab.create_link("Vlan-10", "ETH0", "scada-server", "Gi0/1")
+    lab.create_link("Vlan-20", "ETH1", "scada-server", "Gi0/2")
+    lab.create_link("Vlan-30", "ETH2", "scada-server", "Gi0/1")
+    lab.create_link("Vlan-40", "ETH3", "scada-server", "Gi0/2")
+    lab.create_link("Vlan-50", "ETH4", "scada-server", "Gi0/7")
+    lab.create_link("Vlan-60", "ETH5", "scada-server", "Gi0/3")
+    lab.create_link("Vlan-70", "ETH6", "scada-server", "Gi0/6")
+    lab.create_link("scada-server", "ETH7", "KaliLinux-1", "Gi0/0")
         
     
 
