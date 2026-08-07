@@ -126,7 +126,7 @@ for SERVER_URL in SERVER_URLS:
     HMI1.start()
 
     lab.create_node(name='PLC-Influent', template='generic-plc', x=-419, y=-367)
-    PLC1 = lab.get_node("PlC-Influent")
+    PLC1 = lab.get_node("PLC-Influent")
     PLC1.start()
 
     lab.create_node(name='HMI-Primary', template='generic-hmi', x=-234, y=-362)
