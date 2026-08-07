@@ -284,94 +284,94 @@ for SERVER_URL in SERVER_URLS:
 
 # --- Top Vlan-01 Segment ---
     lab.create_link("PLC-Influent", "eth0", "Vlan-01", "e0")
-    lab.create_link("FT-101", "eth0", "Vlan-01", "e1")
-    lab.create_link("LT-101", "eth0", "Vlan-01", "e2")
-    lab.create_link("DP-101", "eth0", "Vlan-01", "e3")
-    lab.create_link("P-101", "eth0", "Vlan-01", "e4")
+    lab.create_link("FT-101", "eth0", "Vlan-01", "Ethernet1")
+    lab.create_link("LT-101", "eth0", "Vlan-01", "Ethernet2")
+    lab.create_link("DP-101", "eth0", "Vlan-01", "Ethernet3")
+    lab.create_link("P-101", "eth0", "Vlan-01", "Ethernet4")
 
     # --- Top Vlan-02 Segment ---
-    lab.create_link("PLC-Primary", "eth0", "Vlan-02", "e0")
-    lab.create_link("FT-201", "eth0", "Vlan-02", "e1")
-    lab.create_link("LT-201", "eth0", "Vlan-02", "e2")
-    lab.create_link("DP-201", "eth0", "Vlan-02", "e3")
-    lab.create_link("MV-201", "eth0", "Vlan-02", "e4")
+    lab.create_link("PLC-Primary", "eth0", "Vlan-02", "Ethernet0")
+    lab.create_link("FT-201", "eth0", "Vlan-02", "Ethernet1")
+    lab.create_link("LT-201", "eth0", "Vlan-02", "Ethernet2")
+    lab.create_link("DP-201", "eth0", "Vlan-02", "Ethernet3")
+    lab.create_link("MV-201", "eth0", "Vlan-02", "Ethernet4")
 
     # --- Top Vlan-03 Segment ---
-    lab.create_link("PLC-Aeration", "eth0", "Vlan-03", "e0")
-    lab.create_link("DO-301", "eth0", "Vlan-03", "e1")
-    lab.create_link("FT-301", "eth0", "Vlan-03", "e2")
-    lab.create_link("MLSS-301", "eth0", "Vlan-03", "e3")
-    lab.create_link("SV-301", "eth0", "Vlan-03", "e4")
+    lab.create_link("PLC-Aeration", "eth0", "Vlan-03", "Ethernet0")
+    lab.create_link("DO-301", "eth0", "Vlan-03", "Ethernet1")
+    lab.create_link("FT-301", "eth0", "Vlan-03", "Ethernet2")
+    lab.create_link("MLSS-301", "eth0", "Vlan-03", "Ethernet3")
+    lab.create_link("SV-301", "eth0", "Vlan-03", "Ethernet")
 
     # --- Top Vlan-04 Segment ---
-    lab.create_link("PLC-Clarification", "eth0", "Vlan-04", "e0")
-    lab.create_link("FT-401", "eth0", "Vlan-04", "e1")
-    lab.create_link("LT-401", "eth0", "Vlan-04", "e2")
-    lab.create_link("TU-401", "eth0", "Vlan-04", "e3")
-    lab.create_link("DL-401", "eth0", "Vlan-04", "e4")
+    lab.create_link("PLC-Clarification", "eth0", "Vlan-04", "Ethernet0")
+    lab.create_link("FT-401", "eth0", "Vlan-04", "Ethernet1")
+    lab.create_link("LT-401", "eth0", "Vlan-04", "Ethernet2")
+    lab.create_link("TU-401", "eth0", "Vlan-04", "Ethernet3")
+    lab.create_link("DL-401", "eth0", "Vlan-04", "Ethernet4")
 
     # --- Distribution Vlan-10 Segment ---
-    lab.create_link("PLC-Influent", "eth1", "Vlan-10", "e0")
-    lab.create_link("HMI-Influent", "eth0", "Vlan-10", "e1")
-    lab.create_link("Vlan-10", "e2", "Ignition-Switch", "e0")
+    lab.create_link("PLC-Influent", "eth1", "Vlan-10", "Ethernet0")
+    lab.create_link("HMI-Influent", "eth0", "Vlan-10", "Ethernet1")
+    lab.create_link("Vlan-10", "e2", "Ignition-Switch", "Ethernet0")
     lab.create_link("Vlan-10", "e3", "scada-server", "eth0")
 
     # --- Distribution Vlan-20 Segment ---
-    lab.create_link("PLC-Primary", "eth1", "Vlan-20", "e0")
-    lab.create_link("HMI-Primary", "eth0", "Vlan-20", "e1")
-    lab.create_link("Vlan-20", "e2", "Ignition-Switch", "e1")
+    lab.create_link("PLC-Primary", "eth1", "Vlan-20", "Ethernet0")
+    lab.create_link("HMI-Primary", "eth0", "Vlan-20", "Ethernet1")
+    lab.create_link("Vlan-20", "e2", "Ignition-Switch", "Ethernet1")
     lab.create_link("Vlan-20", "e3", "scada-server", "eth1")
 
     # --- Distribution Vlan-30 Segment ---
-    lab.create_link("PLC-Aeration", "eth1", "Vlan-30", "e0")
-    lab.create_link("HMI-Aeration", "eth0", "Vlan-30", "e1")
-    lab.create_link("Vlan-30", "e2", "Ignition-Switch", "e2")
+    lab.create_link("PLC-Aeration", "eth1", "Vlan-30", "Ethernet0")
+    lab.create_link("HMI-Aeration", "eth0", "Vlan-30", "Ethernet1")
+    lab.create_link("Vlan-30", "e2", "Ignition-Switch", "Ethernet2")
     lab.create_link("Vlan-30", "e3", "scada-server", "eth2")
 
     # --- Distribution Vlan-40 Segment ---
-    lab.create_link("PLC-Clarification", "eth1", "Vlan-40", "e0")
-    lab.create_link("HMI-Clarification", "eth0", "Vlan-40", "e1")
-    lab.create_link("Vlan-40", "e2", "Ignition-Switch", "e3")
+    lab.create_link("PLC-Clarification", "eth1", "Vlan-40", "Ethernet0")
+    lab.create_link("HMI-Clarification", "eth0", "Vlan-40", "Ethernet1")
+    lab.create_link("Vlan-40", "e2", "Ignition-Switch", "Ethernet3")
     lab.create_link("Vlan-40", "e3", "scada-server", "eth3")
 
     # --- Distribution Vlan-50 Segment ---
-    lab.create_link("PLC-Disenfection", "eth1", "Vlan-50", "e0")
-    lab.create_link("HMI-Disenfection", "eth0", "Vlan-50", "e1")
-    lab.create_link("Vlan-50", "e2", "Ignition-Switch", "e4")
+    lab.create_link("PLC-Disenfection", "eth1", "Vlan-50", "Ethernet0")
+    lab.create_link("HMI-Disenfection", "eth0", "Vlan-50", "Ethernet1")
+    lab.create_link("Vlan-50", "e2", "Ignition-Switch", "Ethernet4")
     lab.create_link("Vlan-50", "e3", "scada-server", "eth4")
 
     # --- Distribution Vlan-60 Segment ---
-    lab.create_link("PLC-Thickening", "eth1", "Vlan-60", "e0")
-    lab.create_link("HMI-Thickening", "eth0", "Vlan-60", "e1")
-    lab.create_link("Vlan-60", "e2", "Ignition-Switch", "e5")
+    lab.create_link("PLC-Thickening", "eth1", "Vlan-60", "Ethernet0")
+    lab.create_link("HMI-Thickening", "eth0", "Vlan-60", "Ethernet1")
+    lab.create_link("Vlan-60", "e2", "Ignition-Switch", "Ethernet5")
     lab.create_link("Vlan-60", "e3", "scada-server", "eth5")
 
     # --- Distribution Vlan-70 Segment ---
-    lab.create_link("PLC-Digestion", "eth1", "Vlan-70", "e0")
-    lab.create_link("HMI-Digestion", "eth0", "Vlan-70", "e1")
-    lab.create_link("Vlan-70", "e2", "Ignition-Switch", "e6")
+    lab.create_link("PLC-Digestion", "eth1", "Vlan-70", "Ethernet0")
+    lab.create_link("HMI-Digestion", "eth0", "Vlan-70", "Ethernet1")
+    lab.create_link("Vlan-70", "e2", "Ignition-Switch", "Ethernet6")
     lab.create_link("Vlan-70", "e3", "scada-server", "eth6")
 
     # --- Bottom Vlan-05 Segment ---
-    lab.create_link("PLC-Disenfection", "eth0", "Vlan-05", "e0")
-    lab.create_link("CL-501", "eth0", "Vlan-05", "e1")
-    lab.create_link("FT-501", "eth0", "Vlan-05", "e2")
-    lab.create_link("LT-501", "eth0", "Vlan-05", "e3")
-    lab.create_link("AV-501", "eth0", "Vlan-05", "e4")
+    lab.create_link("PLC-Disenfection", "eth0", "Vlan-05", "Ethernet0")
+    lab.create_link("CL-501", "eth0", "Vlan-05", "Ethernet1")
+    lab.create_link("FT-501", "eth0", "Vlan-05", "Ethernet2")
+    lab.create_link("LT-501", "eth0", "Vlan-05", "Ethernet3")
+    lab.create_link("AV-501", "eth0", "Vlan-05", "Ethernet4")
 
     # --- Bottom Vlan-06 Segment ---
-    lab.create_link("PLC-Thickening", "eth0", "Vlan-06", "e0")
-    lab.create_link("LT-601", "eth0", "Vlan-06", "e1")
-    lab.create_link("FT-601", "eth0", "Vlan-06", "e2")
-    lab.create_link("SS-601", "eth0", "Vlan-06", "e3")
-    lab.create_link("P-601", "eth0", "Vlan-06", "e4")
+    lab.create_link("PLC-Thickening", "eth0", "Vlan-06", "Ethernet0")
+    lab.create_link("LT-601", "eth0", "Vlan-06", "Ethernet1")
+    lab.create_link("FT-601", "eth0", "Vlan-06", "Ethernet2")
+    lab.create_link("SS-601", "eth0", "Vlan-06", "Ethernet3")
+    lab.create_link("P-601", "eth0", "Vlan-06", "Ethernet4")
 
     # --- Bottom Vlan-07 Segment ---
-    lab.create_link("PLC-Digestion", "eth0", "Vlan-07", "e0")
-    lab.create_link("T-701", "eth0", "Vlan-07", "e1")
-    lab.create_link("PT-701", "eth0", "Vlan-07", "e2")
-    lab.create_link("FT-701", "eth0", "Vlan-07", "e3")
-    lab.create_link("GAS-701", "eth0", "Vlan-07", "e4")
+    lab.create_link("PLC-Digestion", "eth0", "Vlan-07", "Ethernet0")
+    lab.create_link("T-701", "eth0", "Vlan-07", "Ethernet1")
+    lab.create_link("PT-701", "eth0", "Vlan-07", "Ethernet2")
+    lab.create_link("FT-701", "eth0", "Vlan-07", "Ethernet3")
+    lab.create_link("GAS-701", "eth0", "Vlan-07", "Ethernet4")
 
     # --- Core / Outer Edge Devices ---
     lab.create_link("Ignition-Switch", "e7", "ignition-1", "eth0")
