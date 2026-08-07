@@ -153,11 +153,11 @@ for SERVER_URL in SERVER_URLS:
     PLC4 = lab.get_node("PLC-Clarification")
     PLC4.start()
 
-    lab.create_node(name='Vlan-10', template='Ethernet Switch', x=-511, y=-199)
+    lab.create_node(name='Vlan-10', template='Ethernet switch', x=-511, y=-199)
     Vlan10 = lab.get_node("Vlan-10")
     Vlan10.start()
 
-    lab.create_node(name='Vlan-20', template='Ethernet Switch', x=-146, y=-243)
+    lab.create_node(name='Vlan-20', template='Ethernet switch', x=-146, y=-243)
     Vlan20 = lab.get_node("Vlan-20")
     Vlan20.start()
 
