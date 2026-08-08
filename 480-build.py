@@ -289,6 +289,7 @@ for SERVER_URL in SERVER_URLS:
 
 
 # --- Top Vlan-01 Segment ---
+    
     try:
         lab.create_link("PLC-Influent", "eth0", "Vlan-01", "Ethernet0")
     except Exception as e:
@@ -315,19 +316,49 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error creating link: {e}")
 
     # --- Top Vlan-02 Segment ---
-    lab.create_link("PLC-Primary", "eth0", "Vlan-02", "Ethernet0")
-    lab.create_link("FT-201", "eth0", "Vlan-02", "Ethernet1")
-    lab.create_link("LT-201", "eth0", "Vlan-02", "Ethernet2")
-    lab.create_link("DP-201", "eth0", "Vlan-02", "Ethernet3")
-    lab.create_link("MV-201", "eth0", "Vlan-02", "Ethernet4")
-
+    try:
+        lab.create_link("PLC-Primary", "eth0", "Vlan-02", "Ethernet0")
+    except Exception as e:
+        print(f"Error creating link: {e}")
+    try:
+        lab.create_link("FT-201", "eth0", "Vlan-02", "Ethernet1")
+    except Exception as e:
+        print(f"Error creating link: {e}")
+    try:    
+        lab.create_link("LT-201", "eth0", "Vlan-02", "Ethernet2")
+    except Exception as e:
+        print(f"Error creating link: {e}")
+    try:
+        lab.create_link("DP-201", "eth0", "Vlan-02", "Ethernet3")
+    except Exception as e:
+        print(f"Error creating link: {e}")
+    try:
+        lab.create_link("MV-201", "eth0", "Vlan-02", "Ethernet4")
+    except Exception as e:
+        print(f"Error creating link: {e}")
+        
     # --- Top Vlan-03 Segment ---
-    lab.create_link("PLC-Aeration", "eth0", "Vlan-03", "Ethernet0")
-    lab.create_link("DO-301", "eth0", "Vlan-03", "Ethernet1")
-    lab.create_link("FT-301", "eth0", "Vlan-03", "Ethernet2")
-    lab.create_link("MLSS-301", "eth0", "Vlan-03", "Ethernet3")
-    lab.create_link("SV-301", "eth0", "Vlan-03", "Ethernet")
-
+    try:
+        lab.create_link("PLC-Aeration", "eth0", "Vlan-03", "Ethernet0")
+    except Exception as e:
+        print(f"Error creating link: {e}")
+    try:
+        lab.create_link("DO-301", "eth0", "Vlan-03", "Ethernet1")
+    except Exception as e:
+        print(f"Error creating link: {e}")
+    try:
+        lab.create_link("FT-301", "eth0", "Vlan-03", "Ethernet2")
+    except Exception as e:
+        print(f"Error creating link: {e}")
+    try:
+        lab.create_link("MLSS-301", "eth0", "Vlan-03", "Ethernet3")
+    except Exception as e:
+        print(f"Error creating link: {e}")
+    try:
+        lab.create_link("SV-301", "eth0", "Vlan-03", "Ethernet")
+    except Exception as e:
+        print(f"Error creating link: {e}")
+        
     # --- Top Vlan-04 Segment ---
     lab.create_link("PLC-Clarification", "eth0", "Vlan-04", "Ethernet0")
     lab.create_link("FT-401", "eth0", "Vlan-04", "Ethernet1")
