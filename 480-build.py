@@ -283,7 +283,7 @@ for SERVER_URL in SERVER_URLS:
 
 
 # --- Top Vlan-01 Segment ---
-    lab.create_link("PLC-Influent", "eth0", "Vlan-01", "e0")
+    lab.create_link("PLC-Influent", "eth0", "Vlan-01", "Ethernet0")
     lab.create_link("FT-101", "eth0", "Vlan-01", "Ethernet1")
     lab.create_link("LT-101", "eth0", "Vlan-01", "Ethernet2")
     lab.create_link("DP-101", "eth0", "Vlan-01", "Ethernet3")
