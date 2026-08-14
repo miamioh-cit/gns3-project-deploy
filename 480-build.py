@@ -290,7 +290,7 @@ for SERVER_URL in SERVER_URLS:
 
     
    # --- Top Vlan-01 Segment ---
-      try:
+    try:
         lab.create_link("PLC-Influent", "eth0", "Vlan-01", "Ethernet0")
     except Exception as e:
         print(f"Error creating link: {e}")
