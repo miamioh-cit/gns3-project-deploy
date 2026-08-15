@@ -57,235 +57,231 @@ for SERVER_URL in SERVER_URLS:
 
     lab.create_node(name='DP-101', template='generic-sensor', x=-380, y=-619)
     sw3 = lab.get_node("DP-101")
-    sw3.start()
+
 
     lab.create_node(name='P-101', template='generic-sensor', x=-299, y=-623)
     sw4 = lab.get_node("P-101")
-    sw4.start()
+
 
     lab.create_node(name='FT-201', template='generic-sensor', x=-194, y=-627)
     sw5 = lab.get_node("FT-201")
-    sw5.start()
+
 
     lab.create_node(name='LT-201', template='generic-sensor', x=-109, y=-632)
     sw6 = lab.get_node("LT-201")
-    sw6.start()
 
     lab.create_node(name='DP-201', template='generic-sensor', x=-25, y=-618)
     sw7 = lab.get_node("DP-201")
-    sw7.start()
+
 
     lab.create_node(name='MV-201', template='generic-sensor', x=58, y=-620)
     sw8 = lab.get_node("MV-201")
-    sw8.start()
+
 
     lab.create_node(name='DO-301', template='generic-sensor', x=177, y=-606)
     sw9 = lab.get_node("DO-301")
-    sw9.start()
+
 
     lab.create_node(name='FT-301', template='generic-sensor', x=254, y=-606)
     sw10 = lab.get_node("FT-301")
-    sw10.start()
+
 
     lab.create_node(name='MLSS-301', template='generic-sensor', x=330, y=-599)
     sw11 = lab.get_node("MLSS-301")
-    sw11.start()
+
 
     lab.create_node(name='SV-301', template='generic-sensor', x=406, y=-604)
     sw12 = lab.get_node("SV-301")
-    sw12.start()
+
 
     lab.create_node(name='FT-401', template='generic-sensor', x=596, y=-578)
     sw13 = lab.get_node("FT-401")
-    sw13.start()
+
 
     lab.create_node(name='LT-401', template='generic-sensor', x=687, y=-575)
     sw14 = lab.get_node("LT-401")
-    sw14.start()
 
+    
     lab.create_node(name='TU-401', template='generic-sensor', x=786, y=-577)
     sw15 = lab.get_node("TU-401")
-    sw15.start()
+  
 
     lab.create_node(name='DL-401', template='generic-sensor', x=892, y=-575)
     sw16 = lab.get_node("DL-401")
-    sw16.start()
+ 
 
     lab.create_node(name='Vlan-01', template='Ethernet switch', x=-424, y=-476)
     vlan1 = lab.get_node("Vlan-01")
-    vlan1.start()
+ 
 
     lab.create_node(name='Vlan-02', template='Ethernet switch', x=-81, y=-504)
     vlan2 = lab.get_node("Vlan-02")
-    vlan2.start()
+
 
     lab.create_node(name='Vlan-03', template='Ethernet switch', x=307, y=-467)
     vlan3 = lab.get_node("Vlan-03")
-    vlan3.start()
-
+  
     lab.create_node(name='Vlan-04', template='Ethernet switch', x=741, y=-474)
     vlan4 = lab.get_node("Vlan-04")
-    vlan4.start()
+
 
     lab.create_node(name='HMI-Influent', template='generic-hmi', x=-549, y=-316)
     HMI1 = lab.get_node("HMI-Influent")
-    HMI1.start()
 
     lab.create_node(name='PLC-Influent', template='generic-plc', x=-419, y=-367)
     PLC1 = lab.get_node("PLC-Influent")
-    PLC1.start()
+    
 
     lab.create_node(name='HMI-Primary', template='generic-hmi', x=-234, y=-362)
     HMI2 = lab.get_node("HMI-Primary")
-    HMI2.start()
+    
 
     lab.create_node(name='PLC-Primary', template='generic-plc', x=-76, y=-364)
     PLC2 = lab.get_node("PLC-Primary")
-    PLC2.start()
+    
 
     lab.create_node(name='HMI-Aeration', template='generic-hmi', x=184, y=-365)
     HMI3 = lab.get_node("HMI-Aeration")
-    HMI3.start()
+    
 
     lab.create_node(name='PLC-Aeration', template='generic-plc', x=312, y=-356)
     PLC3 = lab.get_node("PLC-Aeration")
-    PLC3.start()
+    
 
     lab.create_node(name='HMI-Clarification', template='generic-hmi', x=598, y=-325)
     HMI4 = lab.get_node("HMI-Clarification")
-    HMI4.start()
+    
 
     lab.create_node(name='PLC-Clarification', template='generic-plc', x=746, y=-340)
     PLC4 = lab.get_node("PLC-Clarification")
-    PLC4.start()
+    
 
     lab.create_node(name='Vlan-10', template='Ethernet switch', x=-511, y=-199)
     Vlan10 = lab.get_node("Vlan-10")
-    Vlan10.start()
+    
 
     lab.create_node(name='Vlan-20', template='Ethernet switch', x=-146, y=-243)
     Vlan20 = lab.get_node("Vlan-20")
-    Vlan20.start()
+    
 
     lab.create_node(name='Vlan-30', template='Ethernet switch', x=236, y=-225)
     Vlan30 = lab.get_node("Vlan-30")
-    Vlan30.start()
+    
 
     lab.create_node(name='Vlan-40', template='Ethernet switch', x=562, y=-196)
     Vlan40 = lab.get_node("Vlan-40")
-    Vlan40.start()
+    
 
     lab.create_node(name='Ignition-Switch', template='Ethernet switch', x=-414, y=-41)
     sw17 = lab.get_node("Ignition-Switch")
-    sw17.start()
+    
 
     lab.create_node(name='scada-server', template='generic-scada', x=135, y=-54)
     scada = lab.get_node("scada-server")
-    scada.start()
+    
 
     lab.create_node(name='KaliLinux-1', template='Kali Linux', x=662, y=-48)
     KL = lab.get_node("KaliLinux-1")
-    KL.start()
+    
 
     lab.create_node(name='ignition-1', template='ignition', x=-632, y=61)
     sw18 = lab.get_node("ignition-1")
-    sw18.start()
+    
 
     lab.create_node(name='Vlan-50', template='Ethernet switch', x=-412, y=99)
     Vlan50 = lab.get_node("Vlan-50")
-    Vlan50.start()
+    
 
     lab.create_node(name='Vlan-60', template='Ethernet switch', x=-4, y=98)
     Vlan60 = lab.get_node("Vlan-60")
-    Vlan60.start()
+    
 
     lab.create_node(name='Vlan-70', template='Ethernet switch', x=460, y=92)
     Vlan70 = lab.get_node("Vlan-70")
-    Vlan70.start()
+    
 
     lab.create_node(name='HMI-Disenfection', template='generic-hmi', x=-673, y=-180)
     HMI5 = lab.get_node("HMI-Disenfection")
-    HMI5.start()
+    
 
     lab.create_node(name='PLC-Disenfection', template='generic-plc', x=-408, y=194)
     PLC5 = lab.get_node("PLC-Disenfection")
-    PLC5.start()
+    
 
     lab.create_node(name='HMI-Thickening', template='generic-hmi', x=-154, y=218)
     HMI6 = lab.get_node("HMI-Thickening")
-    HMI6.start()
+    
 
     lab.create_node(name='PLC-Thickening', template='generic-plc', x=-5, y=203)
     PLC6 = lab.get_node("PLC-Thickening")
-    PLC6.start()
+    
 
     lab.create_node(name='HMI-Digestion', template='generic-hmi', x=280, y=166)
     HMI7 = lab.get_node("HMI-Digestion")
-    HMI7.start()
+    
 
     lab.create_node(name='PLC-Digestion', template='generic-plc', x=467, y=189)
     PLC7 = lab.get_node("PLC-Digestion")
-    PLC7.start()
+    
 
     lab.create_node(name='Vlan-05', template='Ethernet switch', x=-410, y=317)
     Vlan05 = lab.get_node("Vlan-05")
-    Vlan05.start()
+    
 
     lab.create_node(name='Vlan-06', template='Ethernet switch', x=-8, y=306)
     Vlan06 = lab.get_node("Vlan-06")
-    Vlan06.start()
+    
 
     lab.create_node(name='Vlan-07', template='Ethernet switch', x=482, y=325)
     Vlan07 = lab.get_node("Vlan-07")
-    Vlan07.start()
+    
 
     lab.create_node(name='CL-501', template='generic-sensor', x=-564, y=402)
     sw19 = lab.get_node("CL-501")
-    sw19.start()
-
+    
     lab.create_node(name='FT-501', template='generic-sensor', x=-474, y=403)
     sw20 = lab.get_node("FT-501")
-    sw20.start()
+    
 
     lab.create_node(name='LT-501', template='generic-sensor', x=-325, y=402)
     sw21 = lab.get_node("LT-501")
-    sw21.start()
+    
 
     lab.create_node(name='AV-501', template='generic-sensor', x=-231, y=402)
     sw22 = lab.get_node("AV-501")
-    sw22.start()
+    
 
     lab.create_node(name='LT-601', template='generic-sensor', x=-107, y=398)
     sw23 = lab.get_node("LT-601")
-    sw23.start()
+    
 
     lab.create_node(name='FT-601', template='generic-sensor', x=-24, y=397)
     sw24 = lab.get_node("FT-601")
-    sw24.start()
+    
 
     lab.create_node(name='SS-601', template='generic-sensor', x=63, y=396)
     sw25 = lab.get_node("SS-601")
-    sw25.start()
+    
 
     lab.create_node(name='P-601', template='generic-sensor', x=154, y=394)
     sw26 = lab.get_node("P-601")
-    sw26.start()
+    
 
     lab.create_node(name='T-701', template='generic-sensor', x=344, y=410)
     sw27 = lab.get_node("T-701")
-    sw27.start()
+    
 
     lab.create_node(name='PT-701', template='generic-sensor', x=442, y=412)
     sw28 = lab.get_node("PT-701")
-    sw28.start()
+    
 
     lab.create_node(name='FT-701', template='generic-sensor', x=548, y=410)
     sw29 = lab.get_node("FT-701")
-    sw29.start()
+    
 
     lab.create_node(name='GAS-701', template='generic-sensor', x=647, y=412)
     sw30 = lab.get_node("GAS-701")
-    sw30.start()
+    
 
 
     
