@@ -203,7 +203,7 @@ for SERVER_URL in SERVER_URLS:
     Vlan70 = lab.get_node("Vlan-70")
     Vlan70.start()
 
-    lab.create_node(name='HMI-Disenfection', template='generic-hmi', x=-566, y=-180)
+    lab.create_node(name='HMI-Disenfection', template='generic-hmi', x=-673, y=-180)
     HMI5 = lab.get_node("HMI-Disenfection")
     HMI5.start()
 
@@ -355,7 +355,7 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error creating link: {e}")
     try:
-        lab.create_link("SV-301", "eth0", "Vlan-03", "Ethernet")
+        lab.create_link("SV-301", "eth0", "Vlan-03", "Ethernet4")
     except Exception as e:
         print(f"Error creating link: {e}")
         
