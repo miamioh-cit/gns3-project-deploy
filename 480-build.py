@@ -17,7 +17,7 @@ except Exception as e:
 if not SERVER_LAST_OCTETS:
     raise ValueError("No valid server last octets found in 'datastore'.")
 
-SERVER_URLS = [f"{BASE_IP}{octet}:80" for octet in SERVER_LAST_OCTETS]
+SERVER_URLS = [f"{BASE_IP}{octet}:5280" for octet in SERVER_LAST_OCTETS]
 
 GNS3_USER = "gns3"
 GNS3_PW = "gns3"
@@ -549,21 +549,21 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking PLC-Digestion to Vlan-07: {e}")
     try:
-        lab.create_link("T-701", "eth0", "Vlan-07", "Ethernet1")
+        lab.create_link("Vlan-07", "Ethernet1", "T-701", "eth0")
     except Exception as e:
-        print(f"Error linking T-701 to Vlan-07: {e}")
+        print(f"Error linking Vlan-07 to T-701: {e}")
     try:
-        lab.create_link("PT-701", "eth0", "Vlan-07", "Ethernet2")
+        lab.create_link("Vlan-07", "Ethernet2", "PT-701", "eth0")
     except Exception as e:
-        print(f"Error linking PT-701 to Vlan-07: {e}")
+        print(f"Error linking Vlan-07 to PT-701: {e}")
     try:
-        lab.create_link("FT-701", "eth0", "Vlan-07", "Ethernet3")
+        lab.create_link("Vlan-07", "Ethernet3", "FT-701", "eth0")
     except Exception as e:
-        print(f"Error linking FT-701 to Vlan-07: {e}")
+        print(f"Error linking Vlan-07 to FT-701: {e}")
     try:
-        lab.create_link("GAS-701", "eth0", "Vlan-07", "Ethernet4")
+        lab.create_link("Vlan-07", "Ethernet4", "GAS-701", "eth0")
     except Exception as e:
-        print(f"Error linking GAS-701 to Vlan-07: {e}")
+        print(f"Error linking Vlan-07 to GAS-701: {e}")
 
     # --- Core / Outer Edge Devices ---
     try:
