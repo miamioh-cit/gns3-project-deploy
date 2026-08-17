@@ -572,7 +572,7 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking Ignition-Switch to ignition-1: {e}")
     try:
-        lab.create_link("scada-server", "eth7", "KaliLinux-1", "eth0")
+        lab.create_link("scada-server", "eth7", "KaliLinux-1", "Ethernet0")
     except Exception as e:
         print(f"Error linking scada-server to KaliLinux-1: {e}")
 
