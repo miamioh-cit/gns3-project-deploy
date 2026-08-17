@@ -288,7 +288,7 @@ for SERVER_URL in SERVER_URLS:
 
     # --- Top Vlan-01 Segment ---
     try:
-        lab.create_link("PLC-Influent", "eth0", "Vlan-01", "Ethernet0")
+        lab.create_link("PLC-Influent", "eth0", "Vlan-01", "Ethernet7")
     except Exception as e:
         print(f"Error linking PLC-Influent to Vlan-01: {e}")
     try:
@@ -380,15 +380,15 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking PLC-Influent to Vlan-10: {e}")
     try:
-        lab.create_link("HMI-Influent", "eth0", "Vlan-10", "Ethernet1")
+        lab.create_link("HMI-Influent", "eth0", "Vlan-10", "Ethernet2")
     except Exception as e:
         print(f"Error linking HMI-Influent to Vlan-10: {e}")
     try:
-        lab.create_link("Vlan-10", "Ethernet2", "Ignition-Switch", "Ethernet0")
+        lab.create_link("Vlan-10", "Ethernet7", "Ignition-Switch", "Ethernet0")
     except Exception as e:
         print(f"Error linking Vlan-10 to Ignition-Switch: {e}")
     try:
-        lab.create_link("Vlan-10", "Ethernet3", "scada-server", "eth0")
+        lab.create_link("Vlan-10", "Ethernet1", "scada-server", "eth0")
     except Exception as e:
         print(f"Error linking Vlan-10 to scada-server: {e}")
 
@@ -402,29 +402,29 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking HMI-Primary to Vlan-20: {e}")
     try:
-        lab.create_link("Vlan-20", "Ethernet2", "Ignition-Switch", "Ethernet1")
+        lab.create_link("Vlan-20", "Ethernet7", "Ignition-Switch", "Ethernet1")
     except Exception as e:
         print(f"Error linking Vlan-20 to Ignition-Switch: {e}")
     try:
-        lab.create_link("Vlan-20", "Ethernet3", "scada-server", "eth1")
+        lab.create_link("Vlan-20", "Ethernet2", "scada-server", "eth1")
     except Exception as e:
         print(f"Error linking Vlan-20 to scada-server: {e}")
 
     # --- Distribution Vlan-30 Segment ---
     try:
-        lab.create_link("PLC-Aeration", "eth1", "Vlan-30", "Ethernet0")
+        lab.create_link("PLC-Aeration", "eth1", "Vlan-30", "Ethernet2")
     except Exception as e:
         print(f"Error linking PLC-Aeration to Vlan-30: {e}")
     try:
-        lab.create_link("HMI-Aeration", "eth0", "Vlan-30", "Ethernet1")
+        lab.create_link("HMI-Aeration", "eth0", "Vlan-30", "Ethernet3")
     except Exception as e:
         print(f"Error linking HMI-Aeration to Vlan-30: {e}")
     try:
-        lab.create_link("Vlan-30", "Ethernet2", "Ignition-Switch", "Ethernet2")
+        lab.create_link("Vlan-30", "Ethernet0", "Ignition-Switch", "Ethernet2")
     except Exception as e:
         print(f"Error linking Vlan-30 to Ignition-Switch: {e}")
     try:
-        lab.create_link("Vlan-30", "Ethernet3", "scada-server", "eth2")
+        lab.create_link("Vlan-30", "Ethernet1", "scada-server", "eth2")
     except Exception as e:
         print(f"Error linking Vlan-30 to scada-server: {e}")
 
@@ -434,15 +434,15 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking PLC-Clarification to Vlan-40: {e}")
     try:
-        lab.create_link("HMI-Clarification", "eth0", "Vlan-40", "Ethernet1")
+        lab.create_link("HMI-Clarification", "eth0", "Vlan-40", "Ethernet3")
     except Exception as e:
         print(f"Error linking HMI-Clarification to Vlan-40: {e}")
     try:
-        lab.create_link("Vlan-40", "Ethernet2", "Ignition-Switch", "Ethernet3")
+        lab.create_link("Vlan-40", "Ethernet1", "Ignition-Switch", "Ethernet3")
     except Exception as e:
         print(f"Error linking Vlan-40 to Ignition-Switch: {e}")
     try:
-        lab.create_link("Vlan-40", "Ethernet3", "scada-server", "eth3")
+        lab.create_link("Vlan-40", "Ethernet2", "scada-server", "eth3")
     except Exception as e:
         print(f"Error linking Vlan-40 to scada-server: {e}")
 
@@ -456,11 +456,11 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking HMI-Disenfection to Vlan-50: {e}")
     try:
-        lab.create_link("Vlan-50", "Ethernet2", "Ignition-Switch", "Ethernet4")
+        lab.create_link("Vlan-50", "Ethernet6", "Ignition-Switch", "Ethernet6")
     except Exception as e:
         print(f"Error linking Vlan-50 to Ignition-Switch: {e}")
     try:
-        lab.create_link("Vlan-50", "Ethernet3", "scada-server", "eth4")
+        lab.create_link("Vlan-50", "Ethernet7", "scada-server", "eth4")
     except Exception as e:
         print(f"Error linking Vlan-50 to scada-server: {e}")
 
@@ -470,11 +470,11 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking PLC-Thickening to Vlan-60: {e}")
     try:
-        lab.create_link("HMI-Thickening", "eth0", "Vlan-60", "Ethernet1")
+        lab.create_link("HMI-Thickening", "eth0", "Vlan-60", "Ethernet2")
     except Exception as e:
         print(f"Error linking HMI-Thickening to Vlan-60: {e}")
     try:
-        lab.create_link("Vlan-60", "Ethernet2", "Ignition-Switch", "Ethernet5")
+        lab.create_link("Vlan-60", "Ethernet7", "Ignition-Switch", "Ethernet4")
     except Exception as e:
         print(f"Error linking Vlan-60 to Ignition-Switch: {e}")
     try:
@@ -488,15 +488,15 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking PLC-Digestion to Vlan-70: {e}")
     try:
-        lab.create_link("HMI-Digestion", "eth0", "Vlan-70", "Ethernet1")
+        lab.create_link("HMI-Digestion", "eth0", "Vlan-70", "Ethernet5)
     except Exception as e:
         print(f"Error linking HMI-Digestion to Vlan-70: {e}")
     try:
-        lab.create_link("Vlan-70", "Ethernet2", "Ignition-Switch", "Ethernet6")
+        lab.create_link("Vlan-70", "Ethernet7", "Ignition-Switch", "Ethernet5")
     except Exception as e:
         print(f"Error linking Vlan-70 to Ignition-Switch: {e}")
     try:
-        lab.create_link("Vlan-70", "Ethernet3", "scada-server", "eth6")
+        lab.create_link("Vlan-70", "Ethernet6", "scada-server", "eth6")
     except Exception as e:
         print(f"Error linking Vlan-70 to scada-server: {e}")
 
