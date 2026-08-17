@@ -488,7 +488,7 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking PLC-Digestion to Vlan-70: {e}")
     try:
-        lab.create_link("HMI-Digestion", "eth0", "Vlan-70", "Ethernet5)
+        lab.create_link("HMI-Digestion", "eth0", "Vlan-70", "Ethernet5")
     except Exception as e:
         print(f"Error linking HMI-Digestion to Vlan-70: {e}")
     try:
