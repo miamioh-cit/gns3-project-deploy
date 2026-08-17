@@ -283,313 +283,298 @@ for SERVER_URL in SERVER_URLS:
 
 
     
-   # --- Top Vlan-01 Segment ---
+ # Refresh project state before linking to ensure all nodes/ports are registered
+    lab.get()
+
+    # --- Top Vlan-01 Segment ---
     try:
-        lab.create_link("PLC-Influent", "eth0", "Vlan-01", "Ethernet0")
+        lab.create_link("PLC-Influent", "eth0", "Vlan-01", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
-    
+        print(f"Error linking PLC-Influent to Vlan-01: {e}")
     try:
-        lab.create_link("FT-101", "eth0", "Vlan-01", "Ethernet1")
+        lab.create_link("H-101", "eth0", "Vlan-01", "e1") # Fixed: Was FT-101, but node is H-101
     except Exception as e:
-        print(f"Error creating link: {e}")
-    
+        print(f"Error linking H-101 to Vlan-01: {e}")
     try:
-        lab.create_link("LT-101", "eth0", "Vlan-01", "Ethernet2")
+        lab.create_link("LT-101", "eth0", "Vlan-01", "e2")
     except Exception as e:
-        print(f"Error creating link: {e}")
-    
+        print(f"Error linking LT-101 to Vlan-01: {e}")
     try:
-        lab.create_link("DP-101", "eth0", "Vlan-01", "Ethernet3")
+        lab.create_link("DP-101", "eth0", "Vlan-01", "e3")
     except Exception as e:
-        print(f"Error creating link: {e}")
-    
+        print(f"Error linking DP-101 to Vlan-01: {e}")
     try:
-        lab.create_link("P-101", "eth0", "Vlan-01", "Ethernet4")
+        lab.create_link("P-101", "eth0", "Vlan-01", "e4")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking P-101 to Vlan-01: {e}")
 
     # --- Top Vlan-02 Segment ---
     try:
-        lab.create_link("PLC-Primary", "eth0", "Vlan-02", "Ethernet0")
+        lab.create_link("PLC-Primary", "eth0", "Vlan-02", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Primary to Vlan-02: {e}")
     try:
-        lab.create_link("FT-201", "eth0", "Vlan-02", "Ethernet1")
+        lab.create_link("FT-201", "eth0", "Vlan-02", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking FT-201 to Vlan-02: {e}")
     try:    
-        lab.create_link("LT-201", "eth0", "Vlan-02", "Ethernet2")
+        lab.create_link("LT-201", "eth0", "Vlan-02", "e2")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking LT-201 to Vlan-02: {e}")
     try:
-        lab.create_link("DP-201", "eth0", "Vlan-02", "Ethernet3")
+        lab.create_link("DP-201", "eth0", "Vlan-02", "e3")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking DP-201 to Vlan-02: {e}")
     try:
-        lab.create_link("MV-201", "eth0", "Vlan-02", "Ethernet4")
+        lab.create_link("MV-201", "eth0", "Vlan-02", "e4")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking MV-201 to Vlan-02: {e}")
         
     # --- Top Vlan-03 Segment ---
     try:
-        lab.create_link("PLC-Aeration", "eth0", "Vlan-03", "Ethernet0")
+        lab.create_link("PLC-Aeration", "eth0", "Vlan-03", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Aeration to Vlan-03: {e}")
     try:
-        lab.create_link("DO-301", "eth0", "Vlan-03", "Ethernet1")
+        lab.create_link("DO-301", "eth0", "Vlan-03", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking DO-301 to Vlan-03: {e}")
     try:
-        lab.create_link("FT-301", "eth0", "Vlan-03", "Ethernet2")
+        lab.create_link("FT-301", "eth0", "Vlan-03", "e2")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking FT-301 to Vlan-03: {e}")
     try:
-        lab.create_link("MLSS-301", "eth0", "Vlan-03", "Ethernet3")
+        lab.create_link("MLSS-301", "eth0", "Vlan-03", "e3")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking MLSS-301 to Vlan-03: {e}")
     try:
-        lab.create_link("SV-301", "eth0", "Vlan-03", "Ethernet4")
+        lab.create_link("SV-301", "eth0", "Vlan-03", "e4")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking SV-301 to Vlan-03: {e}")
         
     # --- Top Vlan-04 Segment ---
     try:
-        lab.create_link("PLC-Clarification", "eth0", "Vlan-04", "Ethernet0")
+        lab.create_link("PLC-Clarification", "eth0", "Vlan-04", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Clarification to Vlan-04: {e}")
     try:
-        lab.create_link("FT-401", "eth0", "Vlan-04", "Ethernet1")
+        lab.create_link("FT-401", "eth0", "Vlan-04", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking FT-401 to Vlan-04: {e}")
     try:
-        lab.create_link("LT-401", "eth0", "Vlan-04", "Ethernet2")
+        lab.create_link("LT-401", "eth0", "Vlan-04", "e2")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking LT-401 to Vlan-04: {e}")
     try:
-        lab.create_link("TU-401", "eth0", "Vlan-04", "Ethernet3")
+        lab.create_link("TU-401", "eth0", "Vlan-04", "e3")
     except Exception as e:  
-        print(f"Error creating link: {e}")
+        print(f"Error linking TU-401 to Vlan-04: {e}")
     try:
-        lab.create_link("DL-401", "eth0", "Vlan-04", "Ethernet4")
+        lab.create_link("DL-401", "eth0", "Vlan-04", "e4")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking DL-401 to Vlan-04: {e}")
+
     # --- Distribution Vlan-10 Segment ---
     try:
-        lab.create_link("PLC-Influent", "eth1", "Vlan-10", "Ethernet0")
+        lab.create_link("PLC-Influent", "eth1", "Vlan-10", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Influent to Vlan-10: {e}")
     try:
-        lab.create_link("HMI-Influent", "eth0", "Vlan-10", "Ethernet1")
+        lab.create_link("HMI-Influent", "eth0", "Vlan-10", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking HMI-Influent to Vlan-10: {e}")
     try:
-        lab.create_link("Vlan-10", "e2", "Ignition-Switch", "Ethernet0")
+        lab.create_link("Vlan-10", "e2", "Ignition-Switch", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-10 to Ignition-Switch: {e}")
     try:
         lab.create_link("Vlan-10", "e3", "scada-server", "eth0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-10 to scada-server: {e}")
 
     # --- Distribution Vlan-20 Segment ---
     try:
-        lab.create_link("PLC-Primary", "eth1", "Vlan-20", "Ethernet0")
+        lab.create_link("PLC-Primary", "eth1", "Vlan-20", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Primary to Vlan-20: {e}")
     try:
-        lab.create_link("HMI-Primary", "eth0", "Vlan-20", "Ethernet1")
+        lab.create_link("HMI-Primary", "eth0", "Vlan-20", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking HMI-Primary to Vlan-20: {e}")
     try:
-        lab.create_link("Vlan-20", "e2", "Ignition-Switch", "Ethernet1")
+        lab.create_link("Vlan-20", "e2", "Ignition-Switch", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-20 to Ignition-Switch: {e}")
     try:
         lab.create_link("Vlan-20", "e3", "scada-server", "eth1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-20 to scada-server: {e}")
 
     # --- Distribution Vlan-30 Segment ---
     try:
-        lab.create_link("PLC-Aeration", "eth1", "Vlan-30", "Ethernet0")
+        lab.create_link("PLC-Aeration", "eth1", "Vlan-30", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Aeration to Vlan-30: {e}")
     try:
-        lab.create_link("HMI-Aeration", "eth0", "Vlan-30", "Ethernet1")
+        lab.create_link("HMI-Aeration", "eth0", "Vlan-30", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking HMI-Aeration to Vlan-30: {e}")
     try:
-        lab.create_link("Vlan-30", "e2", "Ignition-Switch", "Ethernet2")
+        lab.create_link("Vlan-30", "e2", "Ignition-Switch", "e2")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-30 to Ignition-Switch: {e}")
     try:
         lab.create_link("Vlan-30", "e3", "scada-server", "eth2")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-30 to scada-server: {e}")
 
     # --- Distribution Vlan-40 Segment ---
     try:
-        lab.create_link("PLC-Clarification", "eth1", "Vlan-40", "Ethernet0")
+        lab.create_link("PLC-Clarification", "eth1", "Vlan-40", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Clarification to Vlan-40: {e}")
     try:
-        lab.create_link("HMI-Clarification", "eth0", "Vlan-40", "Ethernet1")
+        lab.create_link("HMI-Clarification", "eth0", "Vlan-40", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking HMI-Clarification to Vlan-40: {e}")
     try:
-        lab.create_link("Vlan-40", "e2", "Ignition-Switch", "Ethernet3")
+        lab.create_link("Vlan-40", "e2", "Ignition-Switch", "e3")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-40 to Ignition-Switch: {e}")
     try:
         lab.create_link("Vlan-40", "e3", "scada-server", "eth3")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-40 to scada-server: {e}")
+
     # --- Distribution Vlan-50 Segment ---
     try:
-        lab.create_link("PLC-Disenfection", "eth1", "Vlan-50", "Ethernet0")
+        lab.create_link("PLC-Disenfection", "eth1", "Vlan-50", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Disenfection to Vlan-50: {e}")
     try:
-        lab.create_link("HMI-Disenfection", "eth0", "Vlan-50", "Ethernet1")
+        lab.create_link("HMI-Disenfection", "eth0", "Vlan-50", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking HMI-Disenfection to Vlan-50: {e}")
     try:
-        lab.create_link("Vlan-50", "e2", "Ignition-Switch", "Ethernet4")
+        lab.create_link("Vlan-50", "e2", "Ignition-Switch", "e4")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-50 to Ignition-Switch: {e}")
     try:
         lab.create_link("Vlan-50", "e3", "scada-server", "eth4")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-50 to scada-server: {e}")
+
     # --- Distribution Vlan-60 Segment ---
     try:
-        lab.create_link("PLC-Thickening", "eth1", "Vlan-60", "Ethernet0")
+        lab.create_link("PLC-Thickening", "eth1", "Vlan-60", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Thickening to Vlan-60: {e}")
     try:
-        lab.create_link("HMI-Thickening", "eth0", "Vlan-60", "Ethernet1")
+        lab.create_link("HMI-Thickening", "eth0", "Vlan-60", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking HMI-Thickening to Vlan-60: {e}")
     try:
-        lab.create_link("Vlan-60", "e2", "Ignition-Switch", "Ethernet5")
+        lab.create_link("Vlan-60", "e2", "Ignition-Switch", "e5")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-60 to Ignition-Switch: {e}")
     try:
         lab.create_link("Vlan-60", "e3", "scada-server", "eth5")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-60 to scada-server: {e}")
+
     # --- Distribution Vlan-70 Segment ---
     try:
-        lab.create_link("PLC-Digestion", "eth1", "Vlan-70", "Ethernet0")
+        lab.create_link("PLC-Digestion", "eth1", "Vlan-70", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Digestion to Vlan-70: {e}")
     try:
-        lab.create_link("HMI-Digestion", "eth0", "Vlan-70", "Ethernet1")
+        lab.create_link("HMI-Digestion", "eth0", "Vlan-70", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking HMI-Digestion to Vlan-70: {e}")
     try:
-        lab.create_link("Vlan-70", "e2", "Ignition-Switch", "Ethernet6")
+        lab.create_link("Vlan-70", "e2", "Ignition-Switch", "e6")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-70 to Ignition-Switch: {e}")
     try:
         lab.create_link("Vlan-70", "e3", "scada-server", "eth6")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Vlan-70 to scada-server: {e}")
 
     # --- Bottom Vlan-05 Segment ---
     try:
-        lab.create_link("PLC-Disenfection", "eth0", "Vlan-05", "Ethernet0")
+        lab.create_link("PLC-Disenfection", "eth0", "Vlan-05", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Disenfection to Vlan-05: {e}")
     try:
-        lab.create_link("CL-501", "eth0", "Vlan-05", "Ethernet1")
+        lab.create_link("CL-501", "eth0", "Vlan-05", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking CL-501 to Vlan-05: {e}")
     try:
-        lab.create_link("FT-501", "eth0", "Vlan-05", "Ethernet2")
+        lab.create_link("FT-501", "eth0", "Vlan-05", "e2")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking FT-501 to Vlan-05: {e}")
     try:
-        lab.create_link("LT-501", "eth0", "Vlan-05", "Ethernet3")
+        lab.create_link("LT-501", "eth0", "Vlan-05", "e3")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking LT-501 to Vlan-05: {e}")
     try:
-        lab.create_link("AV-501", "eth0", "Vlan-05", "Ethernet4")
+        lab.create_link("AV-501", "eth0", "Vlan-05", "e4")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking AV-501 to Vlan-05: {e}")
 
     # --- Bottom Vlan-06 Segment ---
     try:
-        lab.create_link("PLC-Thickening", "eth0", "Vlan-06", "Ethernet0")
+        lab.create_link("PLC-Thickening", "eth0", "Vlan-06", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Thickening to Vlan-06: {e}")
     try:
-        lab.create_link("LT-601", "eth0", "Vlan-06", "Ethernet1")
+        lab.create_link("LT-601", "eth0", "Vlan-06", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking LT-601 to Vlan-06: {e}")
     try:
-        lab.create_link("FT-601", "eth0", "Vlan-06", "Ethernet2")
+        lab.create_link("FT-601", "eth0", "Vlan-06", "e2")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking FT-601 to Vlan-06: {e}")
     try:
-        lab.create_link("SS-601", "eth0", "Vlan-06", "Ethernet3")
+        lab.create_link("SS-601", "eth0", "Vlan-06", "e3")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking SS-601 to Vlan-06: {e}")
     try:
-        lab.create_link("P-601", "eth0", "Vlan-06", "Ethernet4")
+        lab.create_link("P-601", "eth0", "Vlan-06", "e4")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking P-601 to Vlan-06: {e}")
 
     # --- Bottom Vlan-07 Segment ---
     try:
-        lab.create_link("PLC-Digestion", "eth0", "Vlan-07", "Ethernet0")
+        lab.create_link("PLC-Digestion", "eth0", "Vlan-07", "e0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PLC-Digestion to Vlan-07: {e}")
     try:
-        lab.create_link("T-701", "eth0", "Vlan-07", "Ethernet1")
+        lab.create_link("T-701", "eth0", "Vlan-07", "e1")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking T-701 to Vlan-07: {e}")
     try:
-        lab.create_link("PT-701", "eth0", "Vlan-07", "Ethernet2")
+        lab.create_link("PT-701", "eth0", "Vlan-07", "e2")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking PT-701 to Vlan-07: {e}")
     try:
-        lab.create_link("FT-701", "eth0", "Vlan-07", "Ethernet3")
+        lab.create_link("FT-701", "eth0", "Vlan-07", "e3")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking FT-701 to Vlan-07: {e}")
     try:
-        lab.create_link("GAS-701", "eth0", "Vlan-07", "Ethernet4")
+        lab.create_link("GAS-701", "eth0", "Vlan-07", "e4")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking GAS-701 to Vlan-07: {e}")
 
     # --- Core / Outer Edge Devices ---
     try:
         lab.create_link("Ignition-Switch", "e7", "ignition-1", "eth0")
     except Exception as e:
-        print(f"Error creating link: {e}")
+        print(f"Error linking Ignition-Switch to ignition-1: {e}")
     try:
         lab.create_link("scada-server", "eth7", "KaliLinux-1", "eth0")
     except Exception as e:
-        print(f"Error creating link: {e}")
-
-
-
-    
-
-
-    
-
-
-    
-
-    print("-----------------------------------------------------------------------")
-    print("Nodes created, started and linked. Here are the links:")
-    print("-----------------------------------------------------------------------")
-    lab.links_summary()
-    print("-----------------------------------------------------------------------")
-    print(LAB_NAME + f" build is Complete on {SERVER_URL}. It is now safe to open the project in GNS3")
-
+        print(f"Error linking scada-server to KaliLinux-1: {e}")
 
 
     print("-----------------------------------------------------------------------")
