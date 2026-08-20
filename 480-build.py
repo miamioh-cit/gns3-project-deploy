@@ -60,6 +60,61 @@ def configure_interfaces(node, config):
 
 
 # =========================================================
+# CONTAINER ENVIRONMENT CONFIGURATION
+# =========================================================
+
+PLC_ENV = {
+
+    "PLC-Influent": {
+        "SCENARIO": "wastewater",
+        "PLC_LOGIC_FILE": "wastewater/plc-influent-logic.yaml",
+        "PLC_SCAN_SUBNETS": "192.168.1.0/24",
+    },
+
+    "PLC-Primary": {
+        "SCENARIO": "wastewater",
+        "PLC_LOGIC_FILE": "wastewater/plc-primary-logic.yaml",
+        "PLC_SCAN_SUBNETS": "192.168.2.0/24",
+    },
+
+    "PLC-Aeration": {
+        "SCENARIO": "wastewater",
+        "PLC_LOGIC_FILE": "wastewater/plc-aeration-logic.yaml",
+        "PLC_SCAN_SUBNETS": "192.168.3.0/24",
+    },
+
+    "PLC-Clarification": {
+        "SCENARIO": "wastewater",
+        "PLC_LOGIC_FILE": "wastewater/plc-clarification-logic.yaml",
+        "PLC_SCAN_SUBNETS": "192.168.4.0/24",
+    },
+
+    "PLC-Disenfection": {
+        "SCENARIO": "wastewater",
+        "PLC_LOGIC_FILE": "wastewater/plc-disinfection-logic.yaml",
+        "PLC_SCAN_SUBNETS": "192.168.5.0/24",
+    },
+
+    "PLC-Thickening": {
+        "SCENARIO": "wastewater",
+        "PLC_LOGIC_FILE": "wastewater/plc-thickening-logic.yaml",
+        "PLC_SCAN_SUBNETS": "192.168.6.0/24",
+    },
+
+    "PLC-Digestion": {
+        "SCENARIO": "wastewater",
+        "PLC_LOGIC_FILE": "wastewater/plc-digestion-logic.yaml",
+        "PLC_SCAN_SUBNETS": "192.168.7.0/24",
+    },
+}
+
+
+SCADA_ENV = {
+    "SCADA_SUBNETS": "172.16.0.0/24",
+}
+
+
+# =========================================================
 # WORKING PLC NETWORK CONFIGS
 # =========================================================
 
