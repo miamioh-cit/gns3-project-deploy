@@ -682,18 +682,10 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(
         name="KaliLinux-1",
         template="Kali Linux",
-        x=662,
+        x=-662,
         y=-48
     )
     KL = lab.get_node("KaliLinux-1")
-
-    lab.create_node(
-        name="Core-1",
-        template="ignition",
-        x=-632,
-        y=61
-    )
-    sw18 = lab.get_node("Core-1")
 
 
     # =====================================================
