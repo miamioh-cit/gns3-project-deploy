@@ -217,7 +217,7 @@ SPECIAL_CONFIGS = {
     "scada-server": """
 auto eth0
 iface eth0 inet static
-    address 172.25.10.201
+    address 172.16.0.200
     netmask 255.255.255.0
 
 auto eth1
