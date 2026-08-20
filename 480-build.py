@@ -1186,7 +1186,7 @@ for SERVER_URL in SERVER_URLS:
         lab.create_link(
             "Vlan-10",
             "Ethernet7",
-            "Core-Switch",
+            "Core-Hub",
             "Ethernet0"
         )
     except Exception as e:
@@ -1221,7 +1221,7 @@ for SERVER_URL in SERVER_URLS:
         lab.create_link(
             "Vlan-20",
             "Ethernet7",
-            "Core-Switch",
+            "Core-Hub",
             "Ethernet1"
         )
     except Exception as e:
@@ -1256,7 +1256,7 @@ for SERVER_URL in SERVER_URLS:
         lab.create_link(
             "Vlan-30",
             "Ethernet0",
-            "Core-Switch",
+            "Core-Hub",
             "Ethernet2"
         )
     except Exception as e:
@@ -1289,7 +1289,7 @@ for SERVER_URL in SERVER_URLS:
 
     try:
         lab.create_link(
-            "Core-Switch",
+            "Core-Hub",
             "Ethernet3",
             "Vlan-40",
             "Ethernet1"
@@ -1326,7 +1326,7 @@ for SERVER_URL in SERVER_URLS:
         lab.create_link(
             "Vlan-50",
             "Ethernet6",
-            "Core-Switch",
+            "Core-Hub",
             "Ethernet6"
         )
     except Exception as e:
@@ -1361,7 +1361,7 @@ for SERVER_URL in SERVER_URLS:
         lab.create_link(
             "Vlan-60",
             "Ethernet7",
-            "Core-Switch",
+            "Core-Hub",
             "Ethernet4"
         )
     except Exception as e:
@@ -1394,7 +1394,7 @@ for SERVER_URL in SERVER_URLS:
 
     try:
         lab.create_link(
-            "Core-Switch",
+            "Core-Hub",
             "Ethernet5",
             "Vlan-70",
             "Ethernet7"
@@ -1579,17 +1579,7 @@ for SERVER_URL in SERVER_URLS:
 
     try:
         lab.create_link(
-            "Core-Switch",
-            "Ethernet7",
-            "Core-1",
-            "eth0"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to Core-1: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
+            "Core-Hub",
             "Ethernet7",
             "scada-server",
             "eth0"
@@ -1599,7 +1589,7 @@ for SERVER_URL in SERVER_URLS:
 
     try:
         lab.create_link(
-            "Core-Switch",
+            "Core-Hub",
             "Ethernet8",
             "KaliLinux-1",
             "Ethernet0"
