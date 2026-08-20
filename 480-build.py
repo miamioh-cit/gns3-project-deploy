@@ -1,7 +1,7 @@
 import logging
 from gns3fy import Gns3Connector, Project, Node, Link
 
-LAB_NAME = "480-Test2"
+LAB_NAME = "480-Test1"
 
 BASE_IP = "http://10.48.229."
 
@@ -27,8 +27,9 @@ GNS3_USER = "gns3"
 GNS3_PW = "gns3"
 
 
+# =========================================================
 # NETWORK CONFIGURATION HELPERS
-
+# =========================================================
 
 def configure_interfaces(node, config):
     """
@@ -58,7 +59,9 @@ def configure_interfaces(node, config):
         print(f"[FAIL] Network configuration for {node.name}: {e}")
 
 
+# =========================================================
 # WORKING PLC NETWORK CONFIGS
+# =========================================================
 
 PLC_CONFIGS = {
 
@@ -148,7 +151,9 @@ iface eth1 inet static
 }
 
 
+# =========================================================
 # WORKING HMI NETWORK CONFIGS
+# =========================================================
 
 HMI_CONFIGS = {
 
@@ -203,34 +208,59 @@ iface eth0 inet static
 }
 
 
-# SCADA + IGNITION CONFIGS
+# =========================================================
+# SCADA + CORE CONFIGS
+# =========================================================
 
 SPECIAL_CONFIGS = {
 
     "scada-server": """
 auto eth0
 iface eth0 inet static
-    address 172.16.0.200
+    address 172.25.10.201
     netmask 255.255.255.0
-""",
 
-    "Core-1": """
-auto eth0
-iface eth0 inet static
-    address 172.16.0.201
+auto eth1
+iface eth1 inet static
+    address 172.25.20.201
     netmask 255.255.255.0
-""",
 
-    "KaliLinux-1": """
-auto eth0
-iface eth0 inet static
-    address 172.16.0.202
+auto eth2
+iface eth2 inet static
+    address 172.25.30.201
+    netmask 255.255.255.0
+
+auto eth3
+iface eth3 inet static
+    address 172.25.40.201
+    netmask 255.255.255.0
+
+auto eth4
+iface eth4 inet static
+    address 172.25.50.201
+    netmask 255.255.255.0
+
+auto eth5
+iface eth5 inet static
+    address 172.25.60.201
+    netmask 255.255.255.0
+
+auto eth6
+iface eth6 inet static
+    address 172.25.70.201
+    netmask 255.255.255.0
+
+auto eth7
+iface eth7 inet static
+    address 172.25.99.201
     netmask 255.255.255.0
 """
 }
 
 
+# =========================================================
 # WORKING FIELD SENSOR CONFIGS
+# =========================================================
 
 SENSOR_IPS = {
 
@@ -303,7 +333,9 @@ iface eth0 inet static
 """
 
 
+# =========================================================
 # BUILD PROJECT
+# =========================================================
 
 for SERVER_URL in SERVER_URLS:
 
@@ -345,7 +377,9 @@ for SERVER_URL in SERVER_URLS:
     )
 
 
+    # =====================================================
     # TOP FIELD DEVICES
+    # =====================================================
 
     try:
         lab.create_node(
@@ -482,7 +516,9 @@ for SERVER_URL in SERVER_URLS:
     sw16 = lab.get_node("DL-401")
 
 
+    # =====================================================
     # TOP VLANS
+    # =====================================================
 
     lab.create_node(
         name="Vlan-01",
@@ -517,7 +553,9 @@ for SERVER_URL in SERVER_URLS:
     vlan4 = lab.get_node("Vlan-04")
 
 
+    # =====================================================
     # HMI / PLC TOP SECTION
+    # =====================================================
 
     lab.create_node(
         name="HMI-Influent",
@@ -584,7 +622,46 @@ for SERVER_URL in SERVER_URLS:
     PLC4 = lab.get_node("PLC-Clarification")
 
 
+    # =====================================================
+    # DISTRIBUTION VLANS 10-40
+    # =====================================================
+
+    lab.create_node(
+        name="Vlan-10",
+        template="Ethernet switch",
+        x=-511,
+        y=-199
+    )
+    Vlan10 = lab.get_node("Vlan-10")
+
+    lab.create_node(
+        name="Vlan-20",
+        template="Ethernet switch",
+        x=-146,
+        y=-243
+    )
+    Vlan20 = lab.get_node("Vlan-20")
+
+    lab.create_node(
+        name="Vlan-30",
+        template="Ethernet switch",
+        x=236,
+        y=-225
+    )
+    Vlan30 = lab.get_node("Vlan-30")
+
+    lab.create_node(
+        name="Vlan-40",
+        template="Ethernet switch",
+        x=562,
+        y=-196
+    )
+    Vlan40 = lab.get_node("Vlan-40")
+
+
+    # =====================================================
     # CORE DEVICES
+    # =====================================================
 
     lab.create_node(
         name="Core-Switch",
@@ -619,7 +696,33 @@ for SERVER_URL in SERVER_URLS:
     sw18 = lab.get_node("Core-1")
 
 
+    # =====================================================
     # BOTTOM PLCS / HMIS
+    # =====================================================
+
+    lab.create_node(
+        name="Vlan-50",
+        template="Ethernet switch",
+        x=-412,
+        y=99
+    )
+    Vlan50 = lab.get_node("Vlan-50")
+
+    lab.create_node(
+        name="Vlan-60",
+        template="Ethernet switch",
+        x=-4,
+        y=98
+    )
+    Vlan60 = lab.get_node("Vlan-60")
+
+    lab.create_node(
+        name="Vlan-70",
+        template="Ethernet switch",
+        x=460,
+        y=92
+    )
+    Vlan70 = lab.get_node("Vlan-70")
 
     lab.create_node(
         name="HMI-Disenfection",
@@ -670,7 +773,9 @@ for SERVER_URL in SERVER_URLS:
     PLC7 = lab.get_node("PLC-Digestion")
 
 
+    # =====================================================
     # BOTTOM VLANS
+    # =====================================================
 
     lab.create_node(
         name="Vlan-05",
@@ -697,7 +802,9 @@ for SERVER_URL in SERVER_URLS:
     Vlan07 = lab.get_node("Vlan-07")
 
 
+    # =====================================================
     # BOTTOM FIELD DEVICES
+    # =====================================================
 
     lab.create_node(
         name="CL-501",
@@ -796,12 +903,16 @@ for SERVER_URL in SERVER_URLS:
     sw30 = lab.get_node("GAS-701")
 
 
+    # =====================================================
     # REFRESH PROJECT INVENTORY
+    # =====================================================
 
     lab.get()
 
 
+    # =====================================================
     # APPLY WORKING NETWORK CONFIGURATIONS
+    # =====================================================
 
     print("-----------------------------------------------------------------------")
     print("Applying working network configurations...")
@@ -828,12 +939,16 @@ for SERVER_URL in SERVER_URLS:
     print("-----------------------------------------------------------------------")
 
 
+    # =====================================================
     # REFRESH AGAIN AFTER NODE RESTARTS
+    # =====================================================
 
     lab.get()
 
 
+    # =====================================================
     # TOP VLAN-01 SEGMENT
+    # =====================================================
 
     try:
         lab.create_link(
@@ -886,7 +1001,9 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking P-101 to Vlan-01: {e}")
 
 
+    # =====================================================
     # TOP VLAN-02 SEGMENT
+    # =====================================================
 
     try:
         lab.create_link(
@@ -939,7 +1056,9 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-02 to MV-201: {e}")
 
 
+    # =====================================================
     # TOP VLAN-03 SEGMENT
+    # =====================================================
 
     try:
         lab.create_link(
@@ -992,7 +1111,9 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-03 to SV-301: {e}")
 
 
+    # =====================================================
     # TOP VLAN-04 SEGMENT
+    # =====================================================
 
     try:
         lab.create_link(
@@ -1045,7 +1166,254 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-04 to DL-401: {e}")
 
 
+    # =====================================================
+    # DISTRIBUTION VLAN-10
+    # =====================================================
+
+    try:
+        lab.create_link(
+            "PLC-Influent",
+            "eth1",
+            "Vlan-10",
+            "Ethernet0"
+        )
+    except Exception as e:
+        print(f"Error linking PLC-Influent to Vlan-10: {e}")
+
+    try:
+        lab.create_link(
+            "Vlan-10",
+            "Ethernet2",
+            "HMI-Influent",
+            "eth0"
+        )
+    except Exception as e:
+        print(f"Error linking Vlan-10 to HMI-Influent: {e}")
+
+    try:
+        lab.create_link(
+            "Vlan-10",
+            "Ethernet7",
+            "Core-Switch",
+            "Ethernet0"
+        )
+    except Exception as e:
+        print(f"Error linking Vlan-10 to Core-Switch: {e}")
+
+
+    # =====================================================
+    # DISTRIBUTION VLAN-20
+    # =====================================================
+
+    try:
+        lab.create_link(
+            "PLC-Primary",
+            "eth1",
+            "Vlan-20",
+            "Ethernet0"
+        )
+    except Exception as e:
+        print(f"Error linking PLC-Primary to Vlan-20: {e}")
+
+    try:
+        lab.create_link(
+            "Vlan-20",
+            "Ethernet1",
+            "HMI-Primary",
+            "eth0"
+        )
+    except Exception as e:
+        print(f"Error linking HMI-Primary to Vlan-20: {e}")
+
+    try:
+        lab.create_link(
+            "Vlan-20",
+            "Ethernet7",
+            "Core-Switch",
+            "Ethernet1"
+        )
+    except Exception as e:
+        print(f"Error linking Vlan-20 to Core-Switch: {e}")
+
+
+    # =====================================================
+    # DISTRIBUTION VLAN-30
+    # =====================================================
+
+    try:
+        lab.create_link(
+            "PLC-Aeration",
+            "eth1",
+            "Vlan-30",
+            "Ethernet2"
+        )
+    except Exception as e:
+        print(f"Error linking PLC-Aeration to Vlan-30: {e}")
+
+    try:
+        lab.create_link(
+            "Vlan-30",
+            "Ethernet3",
+            "HMI-Aeration",
+            "eth0"
+        )
+    except Exception as e:
+        print(f"Error linking HMI-Aeration to Vlan-30: {e}")
+
+    try:
+        lab.create_link(
+            "Vlan-30",
+            "Ethernet0",
+            "Core-Switch",
+            "Ethernet2"
+        )
+    except Exception as e:
+        print(f"Error linking Vlan-30 to Core-Switch: {e}")
+
+
+    # =====================================================
+    # DISTRIBUTION VLAN-40
+    # =====================================================
+
+    try:
+        lab.create_link(
+            "PLC-Clarification",
+            "eth1",
+            "Vlan-40",
+            "Ethernet0"
+        )
+    except Exception as e:
+        print(f"Error linking PLC-Clarification to Vlan-40: {e}")
+
+    try:
+        lab.create_link(
+            "Vlan-40",
+            "Ethernet3",
+            "HMI-Clarification",
+            "eth0"
+        )
+    except Exception as e:
+        print(f"Error linking HMI-Clarification to Vlan-40: {e}")
+
+    try:
+        lab.create_link(
+            "Core-Switch",
+            "Ethernet3",
+            "Vlan-40",
+            "Ethernet1"
+        )
+    except Exception as e:
+        print(f"Error linking Core-Switch to Vlan-40: {e}")
+
+
+    # =====================================================
+    # DISTRIBUTION VLAN-50
+    # =====================================================
+
+    try:
+        lab.create_link(
+            "PLC-Disenfection",
+            "eth1",
+            "Vlan-50",
+            "Ethernet0"
+        )
+    except Exception as e:
+        print(f"Error linking PLC-Disenfection to Vlan-50: {e}")
+
+    try:
+        lab.create_link(
+            "HMI-Disenfection",
+            "eth0",
+            "Vlan-50",
+            "Ethernet1"
+        )
+    except Exception as e:
+        print(f"Error linking HMI-Disenfection to Vlan-50: {e}")
+
+    try:
+        lab.create_link(
+            "Vlan-50",
+            "Ethernet6",
+            "Core-Switch",
+            "Ethernet6"
+        )
+    except Exception as e:
+        print(f"Error linking Vlan-50 to Core-Switch: {e}")
+
+
+    # =====================================================
+    # DISTRIBUTION VLAN-60
+    # =====================================================
+
+    try:
+        lab.create_link(
+            "PLC-Thickening",
+            "eth1",
+            "Vlan-60",
+            "Ethernet0"
+        )
+    except Exception as e:
+        print(f"Error linking PLC-Thickening to Vlan-60: {e}")
+
+    try:
+        lab.create_link(
+            "HMI-Thickening",
+            "eth0",
+            "Vlan-60",
+            "Ethernet2"
+        )
+    except Exception as e:
+        print(f"Error linking HMI-Thickening to Vlan-60: {e}")
+
+    try:
+        lab.create_link(
+            "Vlan-60",
+            "Ethernet7",
+            "Core-Switch",
+            "Ethernet4"
+        )
+    except Exception as e:
+        print(f"Error linking Vlan-60 to Core-Switch: {e}")
+
+
+    # =====================================================
+    # DISTRIBUTION VLAN-70
+    # =====================================================
+
+    try:
+        lab.create_link(
+            "PLC-Digestion",
+            "eth1",
+            "Vlan-70",
+            "Ethernet0"
+        )
+    except Exception as e:
+        print(f"Error linking PLC-Digestion to Vlan-70: {e}")
+
+    try:
+        lab.create_link(
+            "HMI-Digestion",
+            "eth0",
+            "Vlan-70",
+            "Ethernet5"
+        )
+    except Exception as e:
+        print(f"Error linking HMI-Digestion to Vlan-70: {e}")
+
+    try:
+        lab.create_link(
+            "Core-Switch",
+            "Ethernet5",
+            "Vlan-70",
+            "Ethernet7"
+        )
+    except Exception as e:
+        print(f"Error linking Core-Switch to Vlan-70: {e}")
+
+
+    # =====================================================
     # BOTTOM VLAN-05
+    # =====================================================
 
     try:
         lab.create_link(
@@ -1098,7 +1466,9 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-05 to AV-501: {e}")
 
 
+    # =====================================================
     # BOTTOM VLAN-06
+    # =====================================================
 
     try:
         lab.create_link(
@@ -1151,7 +1521,9 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-06 to P-601: {e}")
 
 
+    # =====================================================
     # BOTTOM VLAN-07
+    # =====================================================
 
     try:
         lab.create_link(
@@ -1205,148 +1577,23 @@ for SERVER_URL in SERVER_URLS:
 
 
     # =====================================================
-    # FLAT CORE NETWORK
+    # CORE / OUTER EDGE
+    #
+    # SCADA NOW HAS ONLY ONE CONNECTION:
+    # Core-Switch -> scada-server
+    #
+    # KALI NOW CONNECTS TO CORE-SWITCH.
     # =====================================================
 
     try:
         lab.create_link(
             "Core-Switch",
-            "Ethernet0",
-            "PLC-Influent",
-            "eth1"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to PLC-Influent: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet1",
-            "HMI-Influent",
-            "eth0"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to HMI-Influent: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet2",
-            "PLC-Primary",
-            "eth1"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to PLC-Primary: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet3",
-            "HMI-Primary",
-            "eth0"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to HMI-Primary: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet4",
-            "PLC-Aeration",
-            "eth1"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to PLC-Aeration: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet5",
-            "HMI-Aeration",
-            "eth0"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to HMI-Aeration: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet6",
-            "PLC-Clarification",
-            "eth1"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to PLC-Clarification: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
             "Ethernet7",
-            "HMI-Clarification",
+            "Core-1",
             "eth0"
         )
     except Exception as e:
-        print(f"Error linking Core-Switch to HMI-Clarification: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet8",
-            "PLC-Disenfection",
-            "eth1"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to PLC-Disenfection: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet9",
-            "HMI-Disenfection",
-            "eth0"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to HMI-Disenfection: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet10",
-            "PLC-Thickening",
-            "eth1"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to PLC-Thickening: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet11",
-            "HMI-Thickening",
-            "eth0"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to HMI-Thickening: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet12",
-            "PLC-Digestion",
-            "eth1"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to PLC-Digestion: {e}")
-
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet13",
-            "HMI-Digestion",
-            "eth0"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to HMI-Digestion: {e}")
+        print(f"Error linking Core-Switch to Core-1: {e}")
 
     try:
         lab.create_link(
@@ -1368,18 +1615,10 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking Core-Switch to KaliLinux-1: {e}")
 
-    try:
-        lab.create_link(
-            "Core-Switch",
-            "Ethernet16",
-            "Core-1",
-            "eth0"
-        )
-    except Exception as e:
-        print(f"Error linking Core-Switch to Core-1: {e}")
 
-
+    # =====================================================
     # FINAL OUTPUT
+    # =====================================================
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
