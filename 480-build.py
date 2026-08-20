@@ -249,7 +249,7 @@ iface eth7 inet static
     netmask 255.255.255.0
 """,
 
-    "ignition-1": """
+    "Core-1": """
 auto eth0
 iface eth0 inet static
     address 172.25.10.200
@@ -636,12 +636,12 @@ for SERVER_URL in SERVER_URLS:
     # CORE DEVICES
 
     lab.create_node(
-        name="Ignition-Switch",
+        name="Core-Switch",
         template="Ethernet switch",
         x=-414,
         y=-41
     )
-    sw17 = lab.get_node("Ignition-Switch")
+    sw17 = lab.get_node("Core-Switch")
 
     lab.create_node(
         name="scada-server",
@@ -660,12 +660,12 @@ for SERVER_URL in SERVER_URLS:
     KL = lab.get_node("KaliLinux-1")
 
     lab.create_node(
-        name="ignition-1",
+        name="Core-1",
         template="ignition",
         x=-632,
         y=61
     )
-    sw18 = lab.get_node("ignition-1")
+    sw18 = lab.get_node("Core-1")
 
 
     # BOTTOM PLCS / HMIS
@@ -1145,11 +1145,11 @@ for SERVER_URL in SERVER_URLS:
         lab.create_link(
             "Vlan-10",
             "Ethernet7",
-            "Ignition-Switch",
+            "Core-Switch",
             "Ethernet0"
         )
     except Exception as e:
-        print(f"Error linking Vlan-10 to Ignition-Switch: {e}")
+        print(f"Error linking Vlan-10 to Core-Switch: {e}")
 
     try:
         lab.create_link(
@@ -1190,11 +1190,11 @@ for SERVER_URL in SERVER_URLS:
         lab.create_link(
             "Vlan-20",
             "Ethernet7",
-            "Ignition-Switch",
+            "Core-Switch",
             "Ethernet1"
         )
     except Exception as e:
-        print(f"Error linking Vlan-20 to Ignition-Switch: {e}")
+        print(f"Error linking Vlan-20 to Core-Switch: {e}")
 
     try:
         lab.create_link(
@@ -1233,11 +1233,11 @@ for SERVER_URL in SERVER_URLS:
         lab.create_link(
             "Vlan-30",
             "Ethernet0",
-            "Ignition-Switch",
+            "Core-Switch",
             "Ethernet2"
         )
     except Exception as e:
-        print(f"Error linking Vlan-30 to Ignition-Switch: {e}")
+        print(f"Error linking Vlan-30 to Core-Switch: {e}")
 
     try:
         lab.create_link(
@@ -1274,13 +1274,13 @@ for SERVER_URL in SERVER_URLS:
 
     try:
         lab.create_link(
-            "Ignition-Switch",
+            "Core-Switch",
             "Ethernet3",
             "Vlan-40",
             "Ethernet1"
         )
     except Exception as e:
-        print(f"Error linking Ignition-Switch to Vlan-40: {e}")
+        print(f"Error linking Core-Switch to Vlan-40: {e}")
 
     try:
         lab.create_link(
@@ -1319,11 +1319,11 @@ for SERVER_URL in SERVER_URLS:
         lab.create_link(
             "Vlan-50",
             "Ethernet6",
-            "Ignition-Switch",
+            "Core-Switch",
             "Ethernet6"
         )
     except Exception as e:
-        print(f"Error linking Vlan-50 to Ignition-Switch: {e}")
+        print(f"Error linking Vlan-50 to Core-Switch: {e}")
 
     try:
         lab.create_link(
@@ -1362,11 +1362,11 @@ for SERVER_URL in SERVER_URLS:
         lab.create_link(
             "Vlan-60",
             "Ethernet7",
-            "Ignition-Switch",
+            "Core-Switch",
             "Ethernet4"
         )
     except Exception as e:
-        print(f"Error linking Vlan-60 to Ignition-Switch: {e}")
+        print(f"Error linking Vlan-60 to Core-Switch: {e}")
 
     try:
         lab.create_link(
@@ -1404,13 +1404,13 @@ for SERVER_URL in SERVER_URLS:
 
     try:
         lab.create_link(
-            "Ignition-Switch",
+            "Core-Switch",
             "Ethernet5",
             "Vlan-70",
             "Ethernet7"
         )
     except Exception as e:
-        print(f"Error linking Ignition-Switch to Vlan-70: {e}")
+        print(f"Error linking Core-Switch to Vlan-70: {e}")
 
     try:
         lab.create_link(
@@ -1586,13 +1586,13 @@ for SERVER_URL in SERVER_URLS:
 
     try:
         lab.create_link(
-            "Ignition-Switch",
+            "Core-Switch",
             "Ethernet7",
-            "ignition-1",
+            "Core-1",
             "eth0"
         )
     except Exception as e:
-        print(f"Error linking Ignition-Switch to ignition-1: {e}")
+        print(f"Error linking Core-Switch to Core-1: {e}")
 
     try:
         lab.create_link(
