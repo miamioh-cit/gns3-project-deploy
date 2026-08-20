@@ -42,8 +42,8 @@ for SERVER_URL in SERVER_URLS:
     logging.debug(f"Available Templates: {available_templates}")
 
     try:
-        lab.create_node(name='H-101', template='generic-sensor', x=-575, y=-625)
-        sw1 = lab.get_node("H-101")
+        lab.create_node(name='FT-101', template='generic-sensor', x=-575, y=-625)
+        sw1 = lab.get_node("FT-101")
     except Exception as e:
         print(f"Error creating or starting node: {e}")
     
@@ -292,9 +292,9 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking PLC-Influent to Vlan-01: {e}")
     try:
-        lab.create_link("H-101", "eth0", "Vlan-01", "Ethernet1")  # Fixed node name
+        lab.create_link("FT-101", "eth0", "Vlan-01", "Ethernet1")  # Fixed node name
     except Exception as e:
-        print(f"Error linking H-101 to Vlan-01: {e}")
+        print(f"Error linking FT-101 to Vlan-01: {e}")
     try:
         lab.create_link("LT-101", "eth0", "Vlan-01", "Ethernet2")
     except Exception as e:
