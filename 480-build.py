@@ -27,9 +27,8 @@ GNS3_USER = "gns3"
 GNS3_PW = "gns3"
 
 
-# =========================================================
 # NETWORK CONFIGURATION HELPERS
-# =========================================================
+
 
 def configure_interfaces(node, config):
     """
@@ -59,9 +58,7 @@ def configure_interfaces(node, config):
         print(f"[FAIL] Network configuration for {node.name}: {e}")
 
 
-# =========================================================
 # WORKING PLC NETWORK CONFIGS
-# =========================================================
 
 PLC_CONFIGS = {
 
@@ -151,9 +148,7 @@ iface eth1 inet static
 }
 
 
-# =========================================================
 # WORKING HMI NETWORK CONFIGS
-# =========================================================
 
 HMI_CONFIGS = {
 
@@ -208,9 +203,7 @@ iface eth0 inet static
 }
 
 
-# =========================================================
 # SCADA + IGNITION CONFIGS
-# =========================================================
 
 SPECIAL_CONFIGS = {
 
@@ -265,63 +258,47 @@ iface eth0 inet static
 }
 
 
-# =========================================================
 # WORKING FIELD SENSOR CONFIGS
-# =========================================================
 
 SENSOR_IPS = {
 
-    # -------------------------
     # VLAN 01 / 192.168.1.0/24
-    # -------------------------
     "FT-101": "192.168.1.1",
     "LT-101": "192.168.1.2",
     "DP-101": "192.168.1.3",
     "P-101": "192.168.1.4",
 
-    # -------------------------
     # VLAN 02 / 192.168.2.0/24
-    # -------------------------
     "FT-201": "192.168.2.1",
     "LT-201": "192.168.2.2",
     "DP-201": "192.168.2.3",
     "MV-201": "192.168.2.4",
 
-    # -------------------------
     # VLAN 03 / 192.168.3.0/24
-    # -------------------------
     "DO-301": "192.168.3.1",
     "FT-301": "192.168.3.2",
     "MLSS-301": "192.168.3.3",
     "SV-301": "192.168.3.4",
 
-    # -------------------------
     # VLAN 04 / 192.168.4.0/24
-    # -------------------------
     "FT-401": "192.168.4.1",
     "LT-401": "192.168.4.2",
     "TU-401": "192.168.4.3",
     "DL-401": "192.168.4.4",
 
-    # -------------------------
     # VLAN 05 / 192.168.5.0/24
-    # -------------------------
     "CL-501": "192.168.5.1",
     "FT-501": "192.168.5.2",
     "LT-501": "192.168.5.3",
     "AV-501": "192.168.5.4",
 
-    # -------------------------
     # VLAN 06 / 192.168.6.0/24
-    # -------------------------
     "LT-601": "192.168.6.1",
     "FT-601": "192.168.6.2",
     "SS-601": "192.168.6.3",
     "P-601": "192.168.6.4",
 
-    # -------------------------
     # VLAN 07 / 192.168.7.0/24
-    # -------------------------
     "T-701": "192.168.7.1",
     "PT-701": "192.168.7.2",
     "FT-701": "192.168.7.3",
@@ -340,9 +317,7 @@ iface eth0 inet static
 """
 
 
-# =========================================================
 # BUILD PROJECT
-# =========================================================
 
 for SERVER_URL in SERVER_URLS:
 
@@ -384,9 +359,7 @@ for SERVER_URL in SERVER_URLS:
     )
 
 
-    # =====================================================
     # TOP FIELD DEVICES
-    # =====================================================
 
     try:
         lab.create_node(
@@ -523,9 +496,7 @@ for SERVER_URL in SERVER_URLS:
     sw16 = lab.get_node("DL-401")
 
 
-    # =====================================================
     # TOP VLANS
-    # =====================================================
 
     lab.create_node(
         name="Vlan-01",
@@ -560,9 +531,7 @@ for SERVER_URL in SERVER_URLS:
     vlan4 = lab.get_node("Vlan-04")
 
 
-    # =====================================================
     # HMI / PLC TOP SECTION
-    # =====================================================
 
     lab.create_node(
         name="HMI-Influent",
@@ -629,9 +598,7 @@ for SERVER_URL in SERVER_URLS:
     PLC4 = lab.get_node("PLC-Clarification")
 
 
-    # =====================================================
     # DISTRIBUTION VLANS 10-40
-    # =====================================================
 
     lab.create_node(
         name="Vlan-10",
@@ -666,9 +633,7 @@ for SERVER_URL in SERVER_URLS:
     Vlan40 = lab.get_node("Vlan-40")
 
 
-    # =====================================================
     # CORE DEVICES
-    # =====================================================
 
     lab.create_node(
         name="Ignition-Switch",
@@ -703,9 +668,7 @@ for SERVER_URL in SERVER_URLS:
     sw18 = lab.get_node("ignition-1")
 
 
-    # =====================================================
     # BOTTOM PLCS / HMIS
-    # =====================================================
 
     lab.create_node(
         name="Vlan-50",
@@ -780,9 +743,7 @@ for SERVER_URL in SERVER_URLS:
     PLC7 = lab.get_node("PLC-Digestion")
 
 
-    # =====================================================
     # BOTTOM VLANS
-    # =====================================================
 
     lab.create_node(
         name="Vlan-05",
@@ -809,9 +770,7 @@ for SERVER_URL in SERVER_URLS:
     Vlan07 = lab.get_node("Vlan-07")
 
 
-    # =====================================================
     # BOTTOM FIELD DEVICES
-    # =====================================================
 
     lab.create_node(
         name="CL-501",
@@ -909,17 +868,12 @@ for SERVER_URL in SERVER_URLS:
     )
     sw30 = lab.get_node("GAS-701")
 
-
-    # =====================================================
     # REFRESH PROJECT INVENTORY
-    # =====================================================
 
     lab.get()
 
 
-    # =====================================================
     # APPLY WORKING NETWORK CONFIGURATIONS
-    # =====================================================
 
     print("-----------------------------------------------------------------------")
     print("Applying working network configurations...")
@@ -946,16 +900,12 @@ for SERVER_URL in SERVER_URLS:
     print("-----------------------------------------------------------------------")
 
 
-    # =====================================================
     # REFRESH AGAIN AFTER NODE RESTARTS
-    # =====================================================
 
     lab.get()
 
 
-    # =====================================================
     # TOP VLAN-01 SEGMENT
-    # =====================================================
 
     try:
         lab.create_link(
@@ -1008,9 +958,7 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking P-101 to Vlan-01: {e}")
 
 
-    # =====================================================
     # TOP VLAN-02 SEGMENT
-    # =====================================================
 
     try:
         lab.create_link(
@@ -1063,9 +1011,7 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-02 to MV-201: {e}")
 
 
-    # =====================================================
     # TOP VLAN-03 SEGMENT
-    # =====================================================
 
     try:
         lab.create_link(
@@ -1118,9 +1064,7 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-03 to SV-301: {e}")
 
 
-    # =====================================================
     # TOP VLAN-04 SEGMENT
-    # =====================================================
 
     try:
         lab.create_link(
@@ -1173,9 +1117,9 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-04 to DL-401: {e}")
 
 
-    # =====================================================
+
     # DISTRIBUTION VLAN-10
-    # =====================================================
+
 
     try:
         lab.create_link(
@@ -1218,9 +1162,9 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-10 to scada-server: {e}")
 
 
-    # =====================================================
+
     # DISTRIBUTION VLAN-20
-    # =====================================================
+
 
     try:
         lab.create_link(
@@ -1263,9 +1207,7 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-20 to scada-server: {e}")
 
 
-    # =====================================================
     # DISTRIBUTION VLAN-30
-    # =====================================================
 
     try:
         lab.create_link(
@@ -1308,9 +1250,7 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-30 to scada-server: {e}")
 
 
-    # =====================================================
     # DISTRIBUTION VLAN-40
-    # =====================================================
 
     try:
         lab.create_link(
@@ -1353,9 +1293,7 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-40 to scada-server: {e}")
 
 
-    # =====================================================
     # DISTRIBUTION VLAN-50
-    # =====================================================
 
     try:
         lab.create_link(
@@ -1398,9 +1336,7 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-50 to scada-server: {e}")
 
 
-    # =====================================================
     # DISTRIBUTION VLAN-60
-    # =====================================================
 
     try:
         lab.create_link(
@@ -1443,9 +1379,8 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-60 to scada-server: {e}")
 
 
-    # =====================================================
     # DISTRIBUTION VLAN-70
-    # =====================================================
+
 
     try:
         lab.create_link(
@@ -1488,9 +1423,7 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-70 to scada-server: {e}")
 
 
-    # =====================================================
     # BOTTOM VLAN-05
-    # =====================================================
 
     try:
         lab.create_link(
@@ -1543,9 +1476,7 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-05 to AV-501: {e}")
 
 
-    # =====================================================
     # BOTTOM VLAN-06
-    # =====================================================
 
     try:
         lab.create_link(
@@ -1598,9 +1529,7 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-06 to P-601: {e}")
 
 
-    # =====================================================
     # BOTTOM VLAN-07
-    # =====================================================
 
     try:
         lab.create_link(
@@ -1653,9 +1582,7 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking Vlan-07 to GAS-701: {e}")
 
 
-    # =====================================================
     # CORE / OUTER EDGE
-    # =====================================================
 
     try:
         lab.create_link(
@@ -1678,9 +1605,7 @@ for SERVER_URL in SERVER_URLS:
         print(f"Error linking scada-server to KaliLinux-1: {e}")
 
 
-    # =====================================================
     # FINAL OUTPUT
-    # =====================================================
 
     print("-----------------------------------------------------------------------")
     print("Nodes created, started and linked. Here are the links:")
