@@ -664,12 +664,12 @@ for SERVER_URL in SERVER_URLS:
     # =====================================================
 
     lab.create_node(
-        name="Core-Switch",
-        template="Ethernet switch",
+        name="Core-Hub",
+        template="Ethernet hub",
         x=-414,
         y=-41
     )
-    sw17 = lab.get_node("Core-Switch")
+    sw17 = lab.get_node("Core-Hub")
 
     lab.create_node(
         name="scada-server",
