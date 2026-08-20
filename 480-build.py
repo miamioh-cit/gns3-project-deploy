@@ -65,88 +65,52 @@ PLC_CONFIGS = {
     "PLC-Influent": """
 auto eth0
 iface eth0 inet static
-    address 192.168.1.5
-    netmask 255.255.255.0
-
-auto eth1
-iface eth1 inet static
-    address 172.25.10.5
+    address 172.16.0.1
     netmask 255.255.255.0
 """,
 
     "PLC-Primary": """
 auto eth0
 iface eth0 inet static
-    address 192.168.2.5
-    netmask 255.255.255.0
-
-auto eth1
-iface eth1 inet static
-    address 172.25.20.5
+    address 172.16.0.3
     netmask 255.255.255.0
 """,
 
     "PLC-Aeration": """
 auto eth0
 iface eth0 inet static
-    address 192.168.3.5
-    netmask 255.255.255.0
-
-auto eth1
-iface eth1 inet static
-    address 172.25.30.5
+    address 172.16.0.5
     netmask 255.255.255.0
 """,
 
     "PLC-Clarification": """
 auto eth0
 iface eth0 inet static
-    address 192.168.4.5
-    netmask 255.255.255.0
-
-auto eth1
-iface eth1 inet static
-    address 172.25.40.5
+    address 172.16.0.7
     netmask 255.255.255.0
 """,
 
     "PLC-Disenfection": """
 auto eth0
 iface eth0 inet static
-    address 192.168.5.5
-    netmask 255.255.255.0
-
-auto eth1
-iface eth1 inet static
-    address 172.25.50.5
+    address 172.16.0.9
     netmask 255.255.255.0
 """,
 
     "PLC-Thickening": """
 auto eth0
 iface eth0 inet static
-    address 192.168.6.5
-    netmask 255.255.255.0
-
-auto eth1
-iface eth1 inet static
-    address 172.25.60.5
+    address 172.16.0.11
     netmask 255.255.255.0
 """,
 
     "PLC-Digestion": """
 auto eth0
 iface eth0 inet static
-    address 192.168.7.5
-    netmask 255.255.255.0
-
-auto eth1
-iface eth1 inet static
-    address 172.25.70.5
+    address 172.16.0.13
     netmask 255.255.255.0
 """
 }
-
 
 # WORKING HMI NETWORK CONFIGS
 
@@ -155,49 +119,49 @@ HMI_CONFIGS = {
     "HMI-Influent": """
 auto eth0
 iface eth0 inet static
-    address 172.25.10.100
+    address 172.16.0.2
     netmask 255.255.255.0
 """,
 
     "HMI-Primary": """
 auto eth0
 iface eth0 inet static
-    address 172.25.10.101
+    address 172.16.0.4
     netmask 255.255.255.0
 """,
 
     "HMI-Aeration": """
 auto eth0
 iface eth0 inet static
-    address 172.25.10.102
+    address 172.16.0.6
     netmask 255.255.255.0
 """,
 
     "HMI-Clarification": """
 auto eth0
 iface eth0 inet static
-    address 172.25.10.103
+    address 172.16.0.8
     netmask 255.255.255.0
 """,
 
     "HMI-Disenfection": """
 auto eth0
 iface eth0 inet static
-    address 172.25.10.104
+    address 172.16.0.10
     netmask 255.255.255.0
 """,
 
     "HMI-Thickening": """
 auto eth0
 iface eth0 inet static
-    address 172.25.10.105
+    address 172.16.0.12
     netmask 255.255.255.0
 """,
 
     "HMI-Digestion": """
 auto eth0
 iface eth0 inet static
-    address 172.25.10.106
+    address 172.16.0.14
     netmask 255.255.255.0
 """
 }
