@@ -1590,7 +1590,7 @@ for SERVER_URL in SERVER_URLS:
     try:
         lab.create_link(
             "Core-Switch",
-            "Ethernet14",
+            "Ethernet7",
             "scada-server",
             "eth0"
         )
@@ -1600,7 +1600,7 @@ for SERVER_URL in SERVER_URLS:
     try:
         lab.create_link(
             "Core-Switch",
-            "Ethernet15",
+            "Ethernet8",
             "KaliLinux-1",
             "Ethernet0"
         )
