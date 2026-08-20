@@ -397,7 +397,7 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking PLC-Primary to Vlan-20: {e}")
     try:
-        lab.create_link("Vlan-20", "Ethernet1", "HMI-Primary", "Eth0")
+        lab.create_link("Vlan-20", "Ethernet1", "HMI-Primary", "eth0")
     except Exception as e:
         print(f"Error linking HMI-Primary to Vlan-20: {e}")
     try:
@@ -415,7 +415,7 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking PLC-Aeration to Vlan-30: {e}")
     try:
-        lab.create_link("Vlan-30", "Ethernet3", "HMI-Aeration", "Eth0")
+        lab.create_link("Vlan-30", "Ethernet3", "HMI-Aeration", "eth0")
     except Exception as e:
         print(f"Error linking HMI-Aeration to Vlan-30: {e}")
     try:
