@@ -721,16 +721,16 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(
         name="Core-Hub",
         template="Ethernet hub",
-        x=-414,
-        y=-41
+        x=38,
+        y=-66
     )
     sw17 = lab.get_node("Core-Hub")
 
     lab.create_node(
         name="scada-server",
         template="generic-scada",
-        x=135,
-        y=-54
+        x=375,
+        y=-82
     )
     scada = lab.get_node("scada-server")
 
@@ -774,8 +774,8 @@ for SERVER_URL in SERVER_URLS:
     lab.create_node(
         name="HMI-Disenfection",
         template="generic-hmi",
-        x=-673,
-        y=-180
+        x=-547,
+        y=-200
     )
     HMI5 = lab.get_node("HMI-Disenfection")
 
