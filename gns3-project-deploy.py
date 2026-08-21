@@ -20,10 +20,15 @@ for line in lines:
     line = line.strip()
     if not line:
         continue  # skip empty lines
-    if line.isdigit():
-        project_ids.append(int(line))
+
+    
+    if os.path.isfile(f"{line}-build.py"):
+        project_ids.append(line)
     else:
-        logging.warning(f"Ignoring invalid project ID entry: {line}")
+        logging.warning(
+            f"Ignoring project ID '{line}': "
+            f"build script '{line}-build.py' not found."
+        )
 
 if not project_ids:
     logging.info("No valid project IDs found. Exiting.")
