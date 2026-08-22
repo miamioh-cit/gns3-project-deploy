@@ -72,10 +72,32 @@ def configure_kali(node):
             node.start()
 
         import time
-        time.sleep(8)
 
-        # Create the NetworkManager profile that we manually
-        # proved works on a fresh Kali VM.
+        # Wait for Kali to boot and eth0 to become visible.
+        print("[INFO] Waiting for Kali eth0...")
+
+        for attempt in range(30):
+            try:
+                result = node.execute("nmcli device status")
+
+                if "eth0" in str(result):
+                    print(f"[OK] Kali eth0 detected after {attempt + 1} attempts")
+                    break
+
+            except Exception:
+                pass
+
+            time.sleep(2)
+
+        else:
+            raise RuntimeError("Kali eth0 did not become available after 60 seconds")
+
+        # Remove our profile if a previous deployment somehow left one behind.
+        node.execute(
+            "nmcli connection delete kali-eth0 || true"
+        )
+
+        # Create the working NetworkManager profile.
         node.execute(
             "nmcli connection add "
             "type ethernet "
@@ -87,6 +109,7 @@ def configure_kali(node):
 
         time.sleep(2)
 
+        # Activate it.
         node.execute(
             "nmcli connection up kali-eth0"
         )
