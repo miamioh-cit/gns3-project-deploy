@@ -775,7 +775,7 @@ for SERVER_URL in SERVER_URLS:
         name="HMI-Disenfection",
         template="generic-hmi",
         x=-547,
-        y=-200
+        y=139
     )
     HMI5 = lab.get_node("HMI-Disenfection")
 
