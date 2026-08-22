@@ -719,12 +719,23 @@ for SERVER_URL in SERVER_URLS:
     # =====================================================
 
     lab.create_node(
-        name="Core-Switch",
-        template="Ethernet switch",
-        x=38,
-        y=-66
-    )
-    sw17 = lab.get_node("Core-Switch")
+    name="Core-Switch",
+    template="Ethernet switch",
+    x=38,
+    y=-66,
+    extra_properties={
+        "ports_mapping": [
+            {
+                "name": f"Ethernet{i}",
+                "port_number": i,
+                "type": "access",
+                "vlan": 0
+            }
+            for i in range(10)
+        ]
+    }
+)
+sw17 = lab.get_node("Core-Switch")
 
     lab.create_node(
         name="scada-server",
