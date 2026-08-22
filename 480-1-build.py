@@ -58,7 +58,7 @@ def configure_interfaces(node, config):
     except Exception as e:
         print(f"[FAIL] Network configuration for {node.name}: {e}")
 
-    def configure_kali(node):
+def configure_kali(node):
     """
     Configure a fresh Kali VM with a persistent static IPv4 address
     using NetworkManager.
