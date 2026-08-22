@@ -58,7 +58,43 @@ def configure_interfaces(node, config):
     except Exception as e:
         print(f"[FAIL] Network configuration for {node.name}: {e}")
 
+    def configure_kali(node):
+    """
+    Configure a fresh Kali VM with a persistent static IPv4 address
+    using NetworkManager.
+    """
+    try:
+        node.get()
 
+        status = getattr(node.status, "value", str(node.status)).lower()
+
+        if status != "started":
+            node.start()
+
+        import time
+        time.sleep(8)
+
+        # Create the NetworkManager profile that we manually
+        # proved works on a fresh Kali VM.
+        node.execute(
+            "nmcli connection add "
+            "type ethernet "
+            "ifname eth0 "
+            "con-name kali-eth0 "
+            "ipv4.method manual "
+            "ipv4.addresses 172.16.0.250/24"
+        )
+
+        time.sleep(2)
+
+        node.execute(
+            "nmcli connection up kali-eth0"
+        )
+
+        print("[OK] Kali eth0 configured as 172.16.0.250/24")
+
+    except Exception as e:
+        print(f"[FAIL] Kali network configuration: {e}")
 # =========================================================
 # CONTAINER ENVIRONMENT CONFIGURATION
 # =========================================================
@@ -1662,6 +1698,12 @@ for SERVER_URL in SERVER_URLS:
     except Exception as e:
         print(f"Error linking Core-Switch to KaliLinux-1: {e}")
 
+    
+    # =====================================================
+    # CONFIGURE KALI NETWORK
+    # =====================================================
+
+    configure_kali(KL)
 
     # =====================================================
     # FINAL OUTPUT
