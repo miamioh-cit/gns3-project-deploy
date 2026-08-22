@@ -720,7 +720,7 @@ for SERVER_URL in SERVER_URLS:
 
     lab.create_node(
         name="Core-Switch",
-        template="Core-Switch-10P",
+        template="Ethernet-Switch-10P",
         x=38,
         y=-66
     )
