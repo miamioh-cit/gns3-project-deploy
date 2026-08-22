@@ -72,9 +72,11 @@ def configure_kali(node):
             node.start()
 
         import time
+        time.sleep(8)
 
-        # Wait for Kali to boot and eth0 to become visible.
-        print("[INFO] Waiting for Kali eth0...")
+        print("[KALI TEST] Running nmcli device status...")
+        result = node.execute("nmcli device status")
+        print(f"[KALI TEST] nmcli result: {result}")
 
         for attempt in range(30):
             try:
