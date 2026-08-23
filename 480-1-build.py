@@ -335,41 +335,6 @@ auto eth0
 iface eth0 inet static
     address 172.16.0.200
     netmask 255.255.255.0
-
-auto eth1
-iface eth1 inet static
-    address 172.25.20.201
-    netmask 255.255.255.0
-
-auto eth2
-iface eth2 inet static
-    address 172.25.30.201
-    netmask 255.255.255.0
-
-auto eth3
-iface eth3 inet static
-    address 172.25.40.201
-    netmask 255.255.255.0
-
-auto eth4
-iface eth4 inet static
-    address 172.25.50.201
-    netmask 255.255.255.0
-
-auto eth5
-iface eth5 inet static
-    address 172.25.60.201
-    netmask 255.255.255.0
-
-auto eth6
-iface eth6 inet static
-    address 172.25.70.201
-    netmask 255.255.255.0
-
-auto eth7
-iface eth7 inet static
-    address 172.25.99.201
-    netmask 255.255.255.0
 """
 }
 
