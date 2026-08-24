@@ -32,6 +32,20 @@ GNS3_PW = "gns3"
 # ==========================================
 # 1. TOP OF FILE: Define templates list
 # ==========================================
+
+# Check and register Ethernet-Switch-10P on remote server
+existing_templates = [t["name"] for t in server.get_templates()]
+if "Ethernet-Switch-10P" not in existing_templates:
+    print("Registering template 'Ethernet-Switch-10P' on remote GNS3 server...")
+    server.create_template(
+        name="Ethernet-Switch-10P",
+        template_type="ethernet_switch",
+        compute_id="local",
+        default_name_format="Switch{0}",
+        console_type="none",
+    )
+
+
 REQUIRED_TEMPLATES = [
     {
         "name": "generic-sensor",
