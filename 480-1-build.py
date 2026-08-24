@@ -90,19 +90,15 @@ REQUIRED_TEMPLATES = [
 # =========================================================
 # CREATE 10-PORT LOCAL ETHERNET SWITCH TEMPLATE
 # =========================================================
-
 def ensure_10_port_switch(server_url):
     """
     Ensure that the GNS3 server has a local Ethernet switch
     template with 10 ports.
-
-    The template is created automatically if it does not exist.
     """
 
     template_name = "Ethernet-Switch-10P"
 
     try:
-        # Check templates currently installed
         response = requests.get(
             f"{server_url}/v2/templates",
             auth=(GNS3_USER, GNS3_PW)
@@ -131,74 +127,25 @@ def ensure_10_port_switch(server_url):
             f"[INFO] Creating '{template_name}' on {server_url}..."
         )
 
+        ports = []
+
+        for port_number in range(10):
+            ports.append({
+                "name": f"Ethernet{port_number}",
+                "port_number": port_number,
+                "type": "access",
+                "vlan": 1
+            })
+
         switch_template = {
             "name": template_name,
             "template_type": "ethernet_switch",
-            "category": 6,
+            "category": "switch",
             "compute_id": "local",
-            "port_name_format": "Ethernet{0}",
-            "ports_mapping": [
-                {
-                    "name": "Ethernet0",
-                    "port_number": 0,
-                    "type": "access",
-                    "vlan": 1
-                },
-                {
-                    "name": "Ethernet1",
-                    "port_number": 1,
-                    "type": "access",
-                    "vlan": 1
-                },
-                {
-                    "name": "Ethernet2",
-                    "port_number": 2,
-                    "type": "access",
-                    "vlan": 1
-                },
-                {
-                    "name": "Ethernet3",
-                    "port_number": 3,
-                    "type": "access",
-                    "vlan": 1
-                },
-                {
-                    "name": "Ethernet4",
-                    "port_number": 4,
-                    "type": "access",
-                    "vlan": 1
-                },
-                {
-                    "name": "Ethernet5",
-                    "port_number": 5,
-                    "type": "access",
-                    "vlan": 1
-                },
-                {
-                    "name": "Ethernet6",
-                    "port_number": 6,
-                    "type": "access",
-                    "vlan": 1
-                },
-                {
-                    "name": "Ethernet7",
-                    "port_number": 7,
-                    "type": "access",
-                    "vlan": 1
-                },
-                {
-                    "name": "Ethernet8",
-                    "port_number": 8,
-                    "type": "access",
-                    "vlan": 1
-                },
-                {
-                    "name": "Ethernet9",
-                    "port_number": 9,
-                    "type": "access",
-                    "vlan": 1
-                }
-            ]
+            "default_name_format": "{name}-{0}",
+            "symbol": ":/symbols/ethernet_switch.svg",
+            "builtin": False,
+            "ports_mapping": ports
         }
 
         response = requests.post(
@@ -215,15 +162,15 @@ def ensure_10_port_switch(server_url):
             )
 
         print(
-            f"[OK] Created '{template_name}' with 10 ports"
+            f"[OK] Created '{template_name}' "
+            f"with {len(ports)} ports"
         )
 
     except Exception as e:
         raise RuntimeError(
-            f"Could not ensure 10-port switch template on "
-            f"{server_url}: {e}"
+            f"Could not ensure 10-port switch template "
+            f"on {server_url}: {e}"
         )
-
 
 # ==========================================
 # 2. AROUND LINE 75: Register before creating nodes
