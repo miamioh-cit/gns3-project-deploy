@@ -87,7 +87,12 @@ REQUIRED_TEMPLATES = [
 # 2. AROUND LINE 75: Register before creating nodes
 # ==========================================
 for SERVER_URL in SERVER_URLS:
-    server = Gns3Connector(url=SERVER_URL)
+    # Pass credentials to Gns3Connector
+    server = Gns3Connector(
+        url=SERVER_URL,
+        user=GNS3_USER,
+        cred=GNS3_PW
+    )
     
     try:
         available_templates = [t["name"] for t in server.get_templates()]
@@ -100,7 +105,12 @@ for SERVER_URL in SERVER_URLS:
         if tmpl["name"] not in available_templates:
             print(f"Registering missing template '{tmpl['name']}' on {SERVER_URL}...")
             try:
-                res = requests.post(f"{SERVER_URL}/v2/templates", json=tmpl)
+                # Include auth=(GNS3_USER, GNS3_PW) to resolve HTTP 401
+                res = requests.post(
+                    f"{SERVER_URL}/v2/templates", 
+                    json=tmpl, 
+                    auth=(GNS3_USER, GNS3_PW)
+                )
                 if res.status_code in [200, 201]:
                     print(f"[OK] Successfully registered '{tmpl['name']}'")
                 else:
@@ -108,8 +118,8 @@ for SERVER_URL in SERVER_URLS:
             except Exception as req_err:
                 print(f"[FAIL] Network error registering '{tmpl['name']}': {req_err}")
 
-    # NOW SAFE TO CREATE LAB AND NODES BELOW
-    lab = Project(name=PROJECT_NAME, connector=server)
+    # Fixed variable name from PROJECT_NAME to LAB_NAME
+    lab = Project(name=LAB_NAME, connector=server)
     lab.get()
     
     # ... Node creation code follows (FT-101, LT-101, etc.) ...
