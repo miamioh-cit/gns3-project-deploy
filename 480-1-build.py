@@ -55,9 +55,7 @@ REQUIRED_TEMPLATES = [
             for i in range(10)  # Generates Ethernet0 through Ethernet9 (10 ports)
         ]
     }
-}
-
-    
+},
     {
         "name": "generic-sensor",
         "template_type": "docker",
