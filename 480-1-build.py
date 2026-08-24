@@ -29,49 +29,90 @@ GNS3_PW = "gns3"
 
 
 # Add missing template payloads for Docker nodes
+# ==========================================
+# 1. TOP OF FILE: Define templates list
+# ==========================================
 REQUIRED_TEMPLATES = [
     {
         "name": "generic-sensor",
-        "default_name_format": "{name}-{0}",
         "template_type": "docker",
         "category": "guest",
         "image": "wtaylor8/generic-sensor:latest",
         "adapters": 5,
         "console_type": "telnet",
         "environment": "SCENARIO=wastewater",
-        "compute_id": "local"
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg"
     },
     {
         "name": "generic-plc",
-        "default_name_format": "{name}-{0}",
         "template_type": "docker",
         "category": "guest",
         "image": "wtaylor8/generic-plc:latest",
         "adapters": 5,
         "console_type": "telnet",
-        "compute_id": "local"
+        "environment": "SCENARIO=wastewater",
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg"
     },
     {
         "name": "generic-hmi",
-        "default_name_format": "{name}-{0}",
         "template_type": "docker",
         "category": "guest",
         "image": "wtaylor8/generic-hmi:latest",
         "adapters": 5,
         "console_type": "telnet",
-        "compute_id": "local"
+        "environment": "SCENARIO=wastewater",
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg"
     },
     {
         "name": "generic-scada",
-        "default_name_format": "{name}-{0}",
         "template_type": "docker",
         "category": "guest",
         "image": "wtaylor8/generic-scada:latest",
-        "adapters": 5,
-        "console_type": "telnet",
-        "compute_id": "local"
+        "adapters": 11,
+        "console_type": "http",
+        "environment": "SCENARIO=wastewater",
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg"
     }
 ]
+
+# ==========================================
+# 2. AROUND LINE 75: Register before creating nodes
+# ==========================================
+for SERVER_URL in SERVER_URLS:
+    server = Gns3Connector(url=SERVER_URL)
+    
+    try:
+        available_templates = [t["name"] for t in server.get_templates()]
+    except Exception as e:
+        print(f"[ERROR] Could not connect to GNS3 server at {SERVER_URL}: {e}")
+        continue
+
+    # REGISTER MISSING TEMPLATES ON TARGET SERVER FIRST
+    for tmpl in REQUIRED_TEMPLATES:
+        if tmpl["name"] not in available_templates:
+            print(f"Registering missing template '{tmpl['name']}' on {SERVER_URL}...")
+            try:
+                res = requests.post(f"{SERVER_URL}/v2/templates", json=tmpl)
+                if res.status_code in [200, 201]:
+                    print(f"[OK] Successfully registered '{tmpl['name']}'")
+                else:
+                    print(f"[FAIL] Server rejected '{tmpl['name']}': HTTP {res.status_code} - {res.text}")
+            except Exception as req_err:
+                print(f"[FAIL] Network error registering '{tmpl['name']}': {req_err}")
+
+    # NOW SAFE TO CREATE LAB AND NODES BELOW
+    lab = Project(name=PROJECT_NAME, connector=server)
+    lab.get()
+    
+    # ... Node creation code follows (FT-101, LT-101, etc.) ...
 # =========================================================
 # NETWORK CONFIGURATION HELPERS
 # =========================================================
@@ -521,22 +562,6 @@ for SERVER_URL in SERVER_URLS:
     logging.debug(
         f"Available Templates: {available_templates}"
     )
-
-    # Ensure all required custom templates exist on this GNS3 server
-    for tmpl in REQUIRED_TEMPLATES:
-        if tmpl["name"] not in available_templates:
-            print(f"Template '{tmpl['name']}' missing on {SERVER_URL}. Registering...")
-            try:
-                res = requests.post(f"{SERVER_URL}/v2/templates", json=tmpl)
-                if res.status_code in [200, 201]:
-                    print(f"[OK] Successfully registered '{tmpl['name']}'")
-                else:
-                    print(f"[FAIL] Could not register '{tmpl['name']}': {res.text}")
-            except Exception as req_err:
-                print(f"[FAIL] Error registering template '{tmpl['name']}': {req_err}")
-
-    # Refresh available templates list after registration
-    available_templates = [t["name"] for t in server.get_templates()]
 
     # =====================================================
     # TOP FIELD DEVICES
