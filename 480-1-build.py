@@ -33,6 +33,7 @@ REQUIRED_TEMPLATES = [
     {
         "name": "generic-sensor",
         "template_type": "docker",
+        "category": "guest",
         "image": "wtaylor8/generic-sensor:latest",
         "adapters": 5,
         "console_type": "telnet",
@@ -42,6 +43,7 @@ REQUIRED_TEMPLATES = [
     {
         "name": "generic-plc",
         "template_type": "docker",
+        "category": "guest",
         "image": "wtaylor8/generic-plc:latest",
         "adapters": 5,
         "console_type": "telnet",
@@ -50,6 +52,7 @@ REQUIRED_TEMPLATES = [
     {
         "name": "generic-hmi",
         "template_type": "docker",
+        "category": "guest",
         "image": "wtaylor8/generic-hmi:latest",
         "adapters": 5,
         "console_type": "telnet",
@@ -58,6 +61,7 @@ REQUIRED_TEMPLATES = [
     {
         "name": "generic-scada",
         "template_type": "docker",
+        "category": "guest",
         "image": "wtaylor8/generic-scada:latest",
         "adapters": 5,
         "console_type": "telnet",
