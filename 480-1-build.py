@@ -361,21 +361,6 @@ iface eth0 inet static
 """
 }
 
-# Ensure all required custom templates exist on this GNS3 server
-    for tmpl in REQUIRED_TEMPLATES:
-        if tmpl["name"] not in available_templates:
-            print(f"Template '{tmpl['name']}' missing on {SERVER_URL}. Registering...")
-            try:
-                res = requests.post(f"{SERVER_URL}/v2/templates", json=tmpl)
-                if res.status_code in [200, 201]:
-                    print(f"[OK] Successfully registered '{tmpl['name']}'")
-                else:
-                    print(f"[FAIL] Could not register '{tmpl['name']}': {res.text}")
-            except Exception as req_err:
-                print(f"[FAIL] Error registering template '{tmpl['name']}': {req_err}")
-
-    # Refresh available templates list after registration
-    available_templates = [t["name"] for t in server.get_templates()]
 
 # =========================================================
 # SCADA + CORE CONFIGS
@@ -521,6 +506,30 @@ for SERVER_URL in SERVER_URLS:
         f"Available Templates: {available_templates}"
     )
 
+    available_templates = [
+        template["name"]
+        for template in server.get_templates()
+    ]
+
+    logging.debug(
+        f"Available Templates: {available_templates}"
+    )
+
+    # Ensure all required custom templates exist on this GNS3 server
+    for tmpl in REQUIRED_TEMPLATES:
+        if tmpl["name"] not in available_templates:
+            print(f"Template '{tmpl['name']}' missing on {SERVER_URL}. Registering...")
+            try:
+                res = requests.post(f"{SERVER_URL}/v2/templates", json=tmpl)
+                if res.status_code in [200, 201]:
+                    print(f"[OK] Successfully registered '{tmpl['name']}'")
+                else:
+                    print(f"[FAIL] Could not register '{tmpl['name']}': {res.text}")
+            except Exception as req_err:
+                print(f"[FAIL] Error registering template '{tmpl['name']}': {req_err}")
+
+    # Refresh available templates list after registration
+    available_templates = [t["name"] for t in server.get_templates()]
 
     # =====================================================
     # TOP FIELD DEVICES
