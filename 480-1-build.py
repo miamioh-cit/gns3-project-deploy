@@ -32,6 +32,7 @@ GNS3_PW = "gns3"
 REQUIRED_TEMPLATES = [
     {
         "name": "generic-sensor",
+        "default_name_format": "{name}-{0}",
         "template_type": "docker",
         "category": "guest",
         "image": "wtaylor8/generic-sensor:latest",
@@ -42,6 +43,7 @@ REQUIRED_TEMPLATES = [
     },
     {
         "name": "generic-plc",
+        "default_name_format": "{name}-{0}",
         "template_type": "docker",
         "category": "guest",
         "image": "wtaylor8/generic-plc:latest",
@@ -51,6 +53,7 @@ REQUIRED_TEMPLATES = [
     },
     {
         "name": "generic-hmi",
+        "default_name_format": "{name}-{0}",
         "template_type": "docker",
         "category": "guest",
         "image": "wtaylor8/generic-hmi:latest",
@@ -60,6 +63,7 @@ REQUIRED_TEMPLATES = [
     },
     {
         "name": "generic-scada",
+        "default_name_format": "{name}-{0}",
         "template_type": "docker",
         "category": "guest",
         "image": "wtaylor8/generic-scada:latest",
@@ -68,7 +72,6 @@ REQUIRED_TEMPLATES = [
         "compute_id": "local"
     }
 ]
-
 # =========================================================
 # NETWORK CONFIGURATION HELPERS
 # =========================================================
