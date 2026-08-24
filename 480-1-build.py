@@ -119,8 +119,18 @@ for SERVER_URL in SERVER_URLS:
                 print(f"[FAIL] Network error registering '{tmpl['name']}': {req_err}")
 
     # Fixed variable name from PROJECT_NAME to LAB_NAME
-    lab = Project(name=LAB_NAME, connector=server)
-    lab.get()
+    # Look up the project UUID first to prevent 404 errors
+    projects = server.get_projects()
+    existing_lab = next((p for p in projects if p["name"] == LAB_NAME), None)
+
+    if existing_lab:
+        lab = Project(project_id=existing_lab["project_id"], connector=server)
+        lab.get()
+        lab.open()
+    else:
+        lab = Project(name=LAB_NAME, connector=server)
+        lab.create()
+        lab.open()
     
     # ... Node creation code follows (FT-101, LT-101, etc.) ...
 # =========================================================
