@@ -33,20 +33,31 @@ GNS3_PW = "gns3"
 # 1. TOP OF FILE: Define templates list
 # ==========================================
 
-# Check and register Ethernet-Switch-10P on remote server
-existing_templates = [t["name"] for t in server.get_templates()]
-if "Ethernet-Switch-10P" not in existing_templates:
-    print("Registering template 'Ethernet-Switch-10P' on remote GNS3 server...")
-    server.create_template(
-        name="Ethernet-Switch-10P",
-        template_type="ethernet_switch",
-        compute_id="local",
-        default_name_format="Switch{0}",
-        console_type="none",
-    )
 
 
 REQUIRED_TEMPLATES = [
+    # Add this inside REQUIRED_TEMPLATES = [...] at the top of 480-1-build.py
+
+{
+    "name": "Ethernet-Switch-10P",
+    "template_type": "ethernet_switch",
+    "category": "switch",
+    "default_name_format": "Switch{0}",
+    "compute_id": "local",
+    "properties": {
+        "ports": [
+            {
+                "port_number": i,
+                "name": f"Ethernet{i}",
+                "type": "access",
+                "vlan": 1
+            }
+            for i in range(10)  # Generates Ethernet0 through Ethernet9 (10 ports)
+        ]
+    }
+}
+
+    
     {
         "name": "generic-sensor",
         "template_type": "docker",
