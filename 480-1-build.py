@@ -1,4 +1,5 @@
 import logging
+import requests
 from gns3fy import Gns3Connector, Project, Node, Link
 
 LAB_NAME = "480-Test3"
@@ -26,6 +27,43 @@ SERVER_URLS = [f"{BASE_IP}{octet}:80" for octet in SERVER_LAST_OCTETS]
 GNS3_USER = "gns3"
 GNS3_PW = "gns3"
 
+
+# Add missing template payloads for Docker nodes
+REQUIRED_TEMPLATES = [
+    {
+        "name": "generic-sensor",
+        "template_type": "docker",
+        "image": "wtaylor8/generic-sensor:latest",
+        "adapters": 5,
+        "console_type": "telnet",
+        "environment": "SCENARIO=wastewater",
+        "compute_id": "local"
+    },
+    {
+        "name": "generic-plc",
+        "template_type": "docker",
+        "image": "wtaylor8/generic-plc:latest",
+        "adapters": 5,
+        "console_type": "telnet",
+        "compute_id": "local"
+    },
+    {
+        "name": "generic-hmi",
+        "template_type": "docker",
+        "image": "wtaylor8/generic-hmi:latest",
+        "adapters": 5,
+        "console_type": "telnet",
+        "compute_id": "local"
+    },
+    {
+        "name": "generic-scada",
+        "template_type": "docker",
+        "image": "wtaylor8/generic-scada:latest",
+        "adapters": 5,
+        "console_type": "telnet",
+        "compute_id": "local"
+    }
+]
 
 # =========================================================
 # NETWORK CONFIGURATION HELPERS
@@ -323,6 +361,21 @@ iface eth0 inet static
 """
 }
 
+# Ensure all required custom templates exist on this GNS3 server
+    for tmpl in REQUIRED_TEMPLATES:
+        if tmpl["name"] not in available_templates:
+            print(f"Template '{tmpl['name']}' missing on {SERVER_URL}. Registering...")
+            try:
+                res = requests.post(f"{SERVER_URL}/v2/templates", json=tmpl)
+                if res.status_code in [200, 201]:
+                    print(f"[OK] Successfully registered '{tmpl['name']}'")
+                else:
+                    print(f"[FAIL] Could not register '{tmpl['name']}': {res.text}")
+            except Exception as req_err:
+                print(f"[FAIL] Error registering template '{tmpl['name']}': {req_err}")
+
+    # Refresh available templates list after registration
+    available_templates = [t["name"] for t in server.get_templates()]
 
 # =========================================================
 # SCADA + CORE CONFIGS
