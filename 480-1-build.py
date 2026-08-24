@@ -37,25 +37,6 @@ GNS3_PW = "gns3"
 
 REQUIRED_TEMPLATES = [
     # Add this inside REQUIRED_TEMPLATES = [...] at the top of 480-1-build.py
-
-{
-    "name": "Ethernet-Switch-10P",
-    "template_type": "ethernet_switch",
-    "category": "switch",
-    "default_name_format": "Switch{0}",
-    "compute_id": "local",
-    "properties": {
-        "ports": [
-            {
-                "port_number": i,
-                "name": f"Ethernet{i}",
-                "type": "access",
-                "vlan": 1
-            }
-            for i in range(10)  # Generates Ethernet0 through Ethernet9 (10 ports)
-        ]
-    }
-},
     {
         "name": "generic-sensor",
         "template_type": "docker",
@@ -106,6 +87,144 @@ REQUIRED_TEMPLATES = [
     }
 ]
 
+# =========================================================
+# CREATE 10-PORT LOCAL ETHERNET SWITCH TEMPLATE
+# =========================================================
+
+def ensure_10_port_switch(server_url):
+    """
+    Ensure that the GNS3 server has a local Ethernet switch
+    template with 10 ports.
+
+    The template is created automatically if it does not exist.
+    """
+
+    template_name = "Ethernet-Switch-10P"
+
+    try:
+        # Check templates currently installed
+        response = requests.get(
+            f"{server_url}/v2/templates",
+            auth=(GNS3_USER, GNS3_PW)
+        )
+
+        response.raise_for_status()
+
+        templates = response.json()
+
+        existing = next(
+            (
+                t for t in templates
+                if t.get("name") == template_name
+            ),
+            None
+        )
+
+        if existing:
+            print(
+                f"[OK] Template '{template_name}' already exists "
+                f"on {server_url}"
+            )
+            return
+
+        print(
+            f"[INFO] Creating '{template_name}' on {server_url}..."
+        )
+
+        switch_template = {
+            "name": template_name,
+            "template_type": "ethernet_switch",
+            "category": 6,
+            "compute_id": "local",
+            "port_name_format": "Ethernet{0}",
+            "ports_mapping": [
+                {
+                    "name": "Ethernet0",
+                    "port_number": 0,
+                    "type": "access",
+                    "vlan": 1
+                },
+                {
+                    "name": "Ethernet1",
+                    "port_number": 1,
+                    "type": "access",
+                    "vlan": 1
+                },
+                {
+                    "name": "Ethernet2",
+                    "port_number": 2,
+                    "type": "access",
+                    "vlan": 1
+                },
+                {
+                    "name": "Ethernet3",
+                    "port_number": 3,
+                    "type": "access",
+                    "vlan": 1
+                },
+                {
+                    "name": "Ethernet4",
+                    "port_number": 4,
+                    "type": "access",
+                    "vlan": 1
+                },
+                {
+                    "name": "Ethernet5",
+                    "port_number": 5,
+                    "type": "access",
+                    "vlan": 1
+                },
+                {
+                    "name": "Ethernet6",
+                    "port_number": 6,
+                    "type": "access",
+                    "vlan": 1
+                },
+                {
+                    "name": "Ethernet7",
+                    "port_number": 7,
+                    "type": "access",
+                    "vlan": 1
+                },
+                {
+                    "name": "Ethernet8",
+                    "port_number": 8,
+                    "type": "access",
+                    "vlan": 1
+                },
+                {
+                    "name": "Ethernet9",
+                    "port_number": 9,
+                    "type": "access",
+                    "vlan": 1
+                }
+            ]
+        }
+
+        response = requests.post(
+            f"{server_url}/v2/templates",
+            json=switch_template,
+            auth=(GNS3_USER, GNS3_PW)
+        )
+
+        if response.status_code not in (200, 201):
+            raise RuntimeError(
+                f"Failed to create {template_name}: "
+                f"HTTP {response.status_code}: "
+                f"{response.text}"
+            )
+
+        print(
+            f"[OK] Created '{template_name}' with 10 ports"
+        )
+
+    except Exception as e:
+        raise RuntimeError(
+            f"Could not ensure 10-port switch template on "
+            f"{server_url}: {e}"
+        )
+
+
 # ==========================================
 # 2. AROUND LINE 75: Register before creating nodes
 # ==========================================
@@ -116,6 +235,8 @@ for SERVER_URL in SERVER_URLS:
         user=GNS3_USER,
         cred=GNS3_PW
     )
+
+    ensure_10_port_switch(SERVER_URL)
     
     try:
         available_templates = [t["name"] for t in server.get_templates()]
