@@ -550,7 +550,6 @@ for SERVER_URL in SERVER_URLS:
         SERVER_URL
     )
 
-    lab = server.create_project(name=LAB_NAME)
 
     print("-----------------------------------------------------------------------")
     print(
