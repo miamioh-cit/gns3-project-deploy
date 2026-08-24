@@ -2,7 +2,7 @@ import logging
 import requests
 from gns3fy import Gns3Connector, Project, Node, Link
 
-LAB_NAME = "480-Test3"
+LAB_NAME = "CIT480 Water Sewage Treatment Plant"
 
 BASE_IP = "http://10.48.229."
 
