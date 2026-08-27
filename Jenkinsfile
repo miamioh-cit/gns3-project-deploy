@@ -7,12 +7,14 @@ pipeline {
     }
 
     stages {
-
-        /*
-         * Jenkins automatically checks out the gns3-project-deploy repository
-         * before entering the stages below.
-         */
-
+        stage('Checkout Main Code') {
+             steps {
+                git url: "${GITHUB_URL}",
+                    branch: 'main',
+                    credentialsId: 'Backstage-GNS3-Project-Deploy'
+            }
+        }
+        
         stage('Checkout Course Code') {
             when {
                 expression {
