@@ -62,7 +62,6 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker run --rm ${IMAGE_NAME}"
                     sh "docker run --rm -e GNS3_URL=http://${params.IP_ADDRESS}:80 ${IMAGE_NAME}"
                 }
             }
