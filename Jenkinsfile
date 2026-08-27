@@ -48,13 +48,26 @@ pipeline {
             }
         }
         stage('Run GNS3 Deployment in Docker') {
-            steps {
-                script {
-                    sh "docker run --rm -e GNS3_URL=http://${params.IP_ADDRESS}:80 ${IMAGE_NAME}"
-                }
+    steps {
+        script {
+            withCredentials([
+                usernamePassword(
+                    credentialsId: 'Backstage-GNS3-Project-Deploy',
+                    usernameVariable: 'GNS3_USER',
+                    passwordVariable: 'GNS3_PASSWORD'
+                )
+            ]) {
+                sh '''
+                    docker run --rm \
+                      -e GNS3_URL="http://${IP_ADDRESS}:80" \
+                      -e GNS3_USER="$GNS3_USER" \
+                      -e GNS3_PASSWORD="$GNS3_PASSWORD" \
+                      ${IMAGE_NAME}
+                '''
             }
         }
     }
+}
     post {
         success {
             echo "✅ GNS3 Project ${params.PROJECT_ID} Deployed Successfully to ${params.IP_ADDRESS}!"
