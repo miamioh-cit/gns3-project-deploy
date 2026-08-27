@@ -17,6 +17,7 @@ COPY 325-build.py /app/
 COPY 358-build.py /app/
 COPY 386-build.py /app/
 COPY 480-1-build.py /app/
+COPY 480-2-build.py /app/
 COPY requirements.txt /app/
 COPY project-id /app/
 COPY datastore /app/
