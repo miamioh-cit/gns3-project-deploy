@@ -15,17 +15,8 @@ pipeline {
             }
         }
         
-        stage('Checkout Course Code') {
-            when {
-                expression {
-                    return params.PROJECT_ID == '480-2'
-                }
-            }
-
+        stage('Deploy Custom Course') {
             steps {
-                echo "📚 Project 480-2 detected. Checking out private course repository..."
-
-                // ⬇️ THIS IS THE NEW FIX ⬇️
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'it-ot-security-course', 
@@ -33,34 +24,27 @@ pipeline {
                         passwordVariable: 'COURSE_PAT'
                     )
                 ]) {
-                    sh '''
-                        # Remove old folder to ensure a clean pull
-                        rm -rf course-config
-                        
-                        # Force Git to use the right token by embedding it in the HTTPS URL
-                        git clone --depth 1 --no-tags --branch main https://${COURSE_USER}:${COURSE_PAT}@github.com/kunkelec-stack/it-ot-security-course.git course-config
-                    '''
+                    withEnv(["TARGET_IP=${params.IP_ADDRESS}"]) {
+                        sh '''
+                            echo "📚 Checking out private course repository..."
+                            rm -rf course-config
+                            git clone --depth 1 --no-tags --branch main https://${COURSE_USER}:${COURSE_PAT}@github.com/kunkelec-stack/it-ot-security-course.git course-config
+                            
+                            echo "🐳 Building Docker image..."
+                            cd course-config/course_it_ot_convergence/gns3_water_treatment
+                            
+                            docker builder prune -f || true
+                            docker build --no-cache -t ${IMAGE_NAME} .
+                            
+                            echo "🚀 Running GNS3 deployment via Docker..."
+                            docker run --rm \
+                              -e GNS3_URL=http://${TARGET_IP}:80 \
+                              -e GNS3_USER=gns3 \
+                              -e GNS3_PASSWORD=gns3 \
+                              ${IMAGE_NAME}
+                        '''
+                    }
                 }
-                // ⬆️ END OF THE FIX ⬆️
-
-               sh '''
-                    echo "🔎 Listing all files to find the correct paths..."
-                    
-                    # Print the entire directory tree
-                    ls -R course-config
-                '''
-            }
-        }
-
-        stage('Checkout Code') {
-            steps {
-                /*
-                 * Keep the existing generic deployment checkout.
-                 * This works for ALL projects.
-                 */
-                git url: "${GITHUB_URL}",
-                    branch: 'main',
-                    credentialsId: 'Backstage-GNS3-Project-Deploy'
             }
         }
 
@@ -82,46 +66,20 @@ pipeline {
                             passwordVariable: 'GIT_PASSWORD'
                         )
                     ]) {
-                        sh """
-                            git config user.email "jenkins@miamioh.edu"
-                            git config user.name "Jenkins CI"
+                        withEnv(["TARGET_IP=${params.IP_ADDRESS}", "PROJ_ID=${params.PROJECT_ID}", "DS=${params.DATASTORE}"]) {
+                            sh '''
+                                git config user.email "jenkins@miamioh.edu"
+                                git config user.name "Jenkins CI"
 
-                            git add datastore project-id
+                                git add datastore project-id
 
-                            git diff --staged --quiet || \
-                            git commit -m "Deploy project ${params.PROJECT_ID} to datastore ${params.DATASTORE} (IP: ${params.IP_ADDRESS})"
+                                git diff --staged --quiet || \
+                                git commit -m "Deploy project ${PROJ_ID} to datastore ${DS} (IP: ${TARGET_IP})"
 
-                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/miamioh-cit/gns3-project-deploy.git main
-                        """
+                                git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/miamioh-cit/gns3-project-deploy.git main
+                            '''
+                        }
                     }
-                }
-            }
-        }
-
-        stage('Build Docker Image (No Cache)') {
-            steps {
-                script {
-                    echo "🐳 Building Docker image..."
-
-                    sh "docker builder prune -f || true"
-
-                    sh "docker build --no-cache -t ${IMAGE_NAME} ."
-                }
-            }
-        }
-
-        stage('Run GNS3 Deployment in Docker') {
-            steps {
-                script {
-                    echo "🚀 Running GNS3 deployment..."
-
-                    sh """
-                        docker run --rm \
-                          -e GNS3_URL=http://${params.IP_ADDRESS}:80 \
-                          -e GNS3_USER=gns3 \
-                          -e GNS3_PASSWORD=gns3 \
-                          ${IMAGE_NAME}
-                    """
                 }
             }
         }
@@ -129,9 +87,8 @@ pipeline {
 
     post {
         success {
-            echo "✅ GNS3 Project ${params.PROJECT_ID} Deployed Successfully to ${params.IP_ADDRESS}!"
+            echo "✅ GNS3 Project ${params.PROJECT_ID} Pipeline Completed for ${params.IP_ADDRESS}!"
         }
-
         failure {
             echo "❌ GNS3 Project Deployment Failed!"
         }
