@@ -70,7 +70,7 @@ pipeline {
             }
         }
 
-        // ==========================================
+       // ==========================================
         // ROUTE 2: CUSTOM 480-2 DEPLOYMENT
         // Runs ONLY for 480-2
         // ==========================================
@@ -101,19 +101,8 @@ pipeline {
                           -e GNS3_URL=http://${params.IP_ADDRESS}:80 \\
                           -e GNS3_USER=gns3 \\
                           -e GNS3_PASSWORD=gns3 \\
-                          ${IMAGE_NAME}-480
+                          ${IMAGE_NAME}-480 python YOUR_SCRIPT_NAME.py
                     """
                 }
             }
         }
-    }
-
-    post {
-        success {
-            echo "✅ GNS3 Project ${params.PROJECT_ID} Deployed Successfully to ${params.IP_ADDRESS}!"
-        }
-        failure {
-            echo "❌ GNS3 Project Deployment Failed!"
-        }
-    }
-}
