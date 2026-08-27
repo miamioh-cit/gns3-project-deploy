@@ -21,8 +21,9 @@ COPY 480-2-build.py /app/
 COPY requirements.txt /app/
 COPY project-id /app/
 COPY datastore /app/
-COPY course-config/course_it_ot_convergence/gns3_water_treatment/deploy-gns3-course.py /app/course/
+COPY course-config/course_it_ot_convergence/gns3_water_treatment/deploy_gns3_course.py /app/course/
 COPY course-config/course_it_ot_convergence/gns3_water_treatment/configs /app/course/configs
+COPY course-config/course_it_ot_convergence/gns3_water_treatment/plc_sim /app/course/plc_sim
 
 # Optional: install system utilities
 RUN apt-get update && \
