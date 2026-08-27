@@ -50,7 +50,6 @@ pipeline {
             }
             steps {
                 script {
-                    // Exact match to your original baseline
                     sh "docker builder prune -f || true"
                     sh "docker build --no-cache -t ${IMAGE_NAME} ."
                 }
@@ -63,14 +62,13 @@ pipeline {
             }
             steps {
                 script {
-                    // Exact match to your original baseline
                     sh "docker run --rm ${IMAGE_NAME}"
                     sh "docker run --rm -e GNS3_URL=http://${params.IP_ADDRESS}:80 ${IMAGE_NAME}"
                 }
             }
         }
 
-       // ==========================================
+        // ==========================================
         // ROUTE 2: CUSTOM 480-2 DEPLOYMENT
         // Runs ONLY for 480-2
         // ==========================================
@@ -106,3 +104,14 @@ pipeline {
                 }
             }
         }
+    }
+
+    post {
+        success {
+            echo "✅ GNS3 Project ${params.PROJECT_ID} Deployed Successfully to ${params.IP_ADDRESS}!"
+        }
+        failure {
+            echo "❌ GNS3 Project Deployment Failed!"
+        }
+    }
+}
