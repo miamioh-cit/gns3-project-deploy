@@ -28,7 +28,7 @@ pipeline {
                         $class: 'GitSCM',
                         branches: [[name: '*/main']],
                         userRemoteConfigs: [[
-                            url: 'https://github.com/miamioh-roseaw/it-ot-security-course.git',
+                            url: 'https://github.com/kunkelec-stack/it-ot-security-course.git',
                             credentialsId: 'it-ot-security-course'
                         ]],
                         extensions: [[
