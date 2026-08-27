@@ -15,6 +15,7 @@ import json
 import logging
 import os
 import requests
+from pathlib import Path
 from gns3fy import Gns3Connector, Project
 
 
