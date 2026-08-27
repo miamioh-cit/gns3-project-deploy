@@ -101,7 +101,7 @@ pipeline {
                           -e GNS3_URL=http://${params.IP_ADDRESS}:80 \\
                           -e GNS3_USER=gns3 \\
                           -e GNS3_PASSWORD=gns3 \\
-                          ${IMAGE_NAME}-480 python YOUR_SCRIPT_NAME.py
+                          ${IMAGE_NAME}-480 python 480-2-build.py
                     """
                 }
             }
