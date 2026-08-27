@@ -8,6 +8,23 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git url: "${GITHUB_URL}", branch: 'main', credentialsId: 'Backstage-GNS3-Project-Deploy'
+                sh '''
+                    rm -rf course-config
+
+                    git clone --depth 1 \
+                        https://github.com/miamioh-roseaw/it-ot-security-course.git \
+                          course-config
+
+                        test -f course-config/course_it_ot_convergence/gns3_water_treatment/deploy-gns3-course.py
+
+                        test -f course-config/course_it_ot_convergence/gns3_water_treatment/configs/module_1_wastewater_flat.json
+                        test -f course-config/course_it_ot_convergence/gns3_water_treatment/configs/module_2_freshwater_baseline.json
+                        test -f course-config/course_it_ot_convergence/gns3_water_treatment/configs/module_3_traffic_modbus.json
+                        test -f course-config/course_it_ot_convergence/gns3_water_treatment/configs/module_4_manufacturing_risk.json
+                        test -f course-config/course_it_ot_convergence/gns3_water_treatment/configs/module_5_grid_purdue_segmented.json
+                        test -f course-config/course_it_ot_convergence/gns3_water_treatment/configs/module_6_rail_purdue_monitoring.json
+                        test -f course-config/course_it_ot_convergence/gns3_water_treatment/configs/module_7_capstone_purdue_template.json
+                    '''
             }
         }
         stage('Update Deployment Files') {
