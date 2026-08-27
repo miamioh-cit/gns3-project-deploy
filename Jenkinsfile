@@ -68,7 +68,7 @@ pipeline {
             }
         }
 
-        // ==========================================
+       // ==========================================
         // ROUTE 2: CUSTOM 480-2 DEPLOYMENT
         // Runs ONLY for 480-2
         // ==========================================
@@ -89,17 +89,16 @@ pipeline {
                         rm -rf course-config
                         git clone --depth 1 --no-tags --branch main https://${COURSE_USER}:${COURSE_PAT}@github.com/kunkelec-stack/it-ot-security-course.git course-config
                         
-                        echo "🐳 Building Docker image for 480-2..."
-                        cd course-config/course_it_ot_convergence/gns3_water_treatment
+                        echo "🐳 Building Docker image for 480-2 using root Dockerfile..."
                         docker builder prune -f || true
-                        docker build --no-cache -t ${IMAGE_NAME}-480 .
+                        docker build --no-cache -t ${IMAGE_NAME}-480 -f Dockerfile .
                         
                         echo "🚀 Running GNS3 deployment for 480-2..."
                         docker run --rm \\
                           -e GNS3_URL=http://${params.IP_ADDRESS}:80 \\
                           -e GNS3_USER=gns3 \\
                           -e GNS3_PASSWORD=gns3 \\
-                          ${IMAGE_NAME}-480 python 480-2-build.py
+                          ${IMAGE_NAME}-480 python3 480-2-build.py
                     """
                 }
             }
