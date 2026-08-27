@@ -25,22 +25,23 @@ pipeline {
             steps {
                 echo "📚 Project 480-2 detected. Checking out private course repository..."
 
-                dir('course-config') {
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: '*/main']],
-                        userRemoteConfigs: [[
-                            url: 'https://github.com/kunkelec-stack/it-ot-security-course.git',
-                            credentialsId: 'it-ot-security-course'
-                        ]],
-                        extensions: [[
-                            $class: 'CloneOption',
-                            depth: 1,
-                            noTags: true,
-                            shallow: true
-                        ]]
-                    ])
+                // ⬇️ THIS IS THE NEW FIX ⬇️
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'it-ot-security-course', 
+                        usernameVariable: 'COURSE_USER', 
+                        passwordVariable: 'COURSE_PAT'
+                    )
+                ]) {
+                    sh '''
+                        # Remove old folder to ensure a clean pull
+                        rm -rf course-config
+                        
+                        # Force Git to use the right token by embedding it in the HTTPS URL
+                        git clone --depth 1 --no-tags --branch main https://${COURSE_USER}:${COURSE_PAT}@github.com/kunkelec-stack/it-ot-security-course.git course-config
+                    '''
                 }
+                // ⬆️ END OF THE FIX ⬆️
 
                 sh '''
                     echo "🔎 Verifying course deployment files..."
