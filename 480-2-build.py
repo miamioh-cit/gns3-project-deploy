@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -71,35 +72,21 @@ def session_from_env() -> Any:
     return session
 
 def ensure_templates(session: Any, base_url: str, all_required: set[str]) -> dict[str, dict[str, Any]]:
+    """Validates required GNS3 templates exist without auto-creating invalid Docker placeholders."""
     existing = api(session, "GET", base_url, "/v2/templates") or []
     tmap = {item.get("name", ""): item for item in existing}
 
-    base_image = "ubuntu:latest"
-    if "ics-node" in tmap and tmap["ics-node"].get("image"):
-        base_image = tmap["ics-node"]["image"]
-    else:
-        for t_data in tmap.values():
-            if t_data.get("image"):
-                base_image = t_data["image"]
-                break
+    missing = [req for req in all_required if req not in tmap]
+    if missing:
+        print("\n❌ Missing required GNS3 templates on server:")
+        for name in missing:
+            print(f"   - '{name}'")
+        raise RuntimeError(
+            f"Missing required GNS3 template(s): {', '.join(missing)}. "
+            "Please configure these exact templates in the GNS3 UI before deploying."
+        )
 
-    for req in all_required:
-        if req not in tmap:
-            print(f"🛠️ Auto-creating missing GNS3 template: '{req}'")
-            payload = {
-                "name": req,
-                "template_type": "docker",
-                "image": base_image,
-                "compute_id": "local",
-                "adapters": 4,
-            }
-            try:
-                created = api(session, "POST", base_url, "/v2/templates", json=payload)
-                tmap[req] = created
-                print(f"  └─ Created template '{req}' (ID: {created.get('template_id')})")
-            except Exception as exc:
-                print(f"  └─ Warning: Failed to auto-create template '{req}': {exc}")
-
+    print("✓ All required GNS3 templates validated successfully.")
     return tmap
 
 def icon_for(node: dict[str, Any]) -> str:
@@ -141,8 +128,12 @@ def create_project(session: Any, base_url: str, template_map: dict[str, dict[str
     project = api(session, "POST", base_url, "/v2/projects", json={"name": name})
     project_id = project["project_id"]
 
-    # Explicitly open project to prevent 409 Conflict errors
-    api(session, "POST", base_url, f"/v2/projects/{project_id}/open")
+    # Explicitly open project safely
+    try:
+        api(session, "POST", base_url, f"/v2/projects/{project_id}/open")
+        time.sleep(0.5)
+    except Exception:
+        pass
 
     node_ids = {}
     records = []
@@ -156,8 +147,8 @@ def create_project(session: Any, base_url: str, template_map: dict[str, dict[str
             raise RuntimeError(f"Template '{template_name}' not found on GNS3 server.")
 
         instantiate_payload = {
-            "x": 100 + 180 * (idx % 4),
-            "y": 100 + 120 * (idx // 4),
+            "x": int(100 + 180 * (idx % 4)),
+            "y": int(100 + 120 * (idx // 4)),
             "compute_id": "local"
         }
         created = api(session, "POST", base_url, f"/v2/projects/{project_id}/templates/{template_id}", json=instantiate_payload)
