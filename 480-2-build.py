@@ -40,7 +40,7 @@ def ensure_templates_exist(gns3_url: str) -> None:
         print("🛠️ Creating missing 'Ethernet switch' template...")
         payload = {
             "name": "Ethernet switch",
-            "template_type": "ethernet_switch",
+            "template_type": "ethernet switch",
             "category": "switch",
             "builtin": True
         }
