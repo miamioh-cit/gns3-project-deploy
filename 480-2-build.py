@@ -109,5 +109,14 @@ def main() -> None:
     print("=" * 70)
 
 
+for copy in range(1, args.copies + 1):
+    name = project_name(config, args, copy)
+    print(f"Creating {name}")
+    try:
+        records.append(create_project(session, args.gns3_url, templates, config, topology, name, args.symbol_prefix))
+    except Exception as exc:
+        print(f"Failed to create {name}: {exc}")
+        skipped.append(f"Module {number} ({name}): Failed with error: {exc}")
+
 if __name__ == "__main__":
     main()
