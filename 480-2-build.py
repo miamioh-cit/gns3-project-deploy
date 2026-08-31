@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -11,7 +12,6 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent
 DEFAULT_MODULES = "1,2,3,4,5,6,7"
 
-# Path adjustment if running inside docker container structure
 COURSE_DIR = ROOT / "course" if (ROOT / "course").exists() else ROOT
 
 @dataclass(frozen=True)
@@ -85,7 +85,7 @@ def ensure_templates(session: Any, base_url: str, all_required: set[str]) -> dic
 
     for req in all_required:
         if req not in tmap:
-            print(f"🛠️  Auto-creating missing GNS3 template: '{req}'")
+            print(f"🛠️ Auto-creating missing GNS3 template: '{req}'")
             payload = {
                 "name": req,
                 "template_type": "docker",
@@ -140,6 +140,10 @@ def create_project(session: Any, base_url: str, template_map: dict[str, dict[str
 
     project = api(session, "POST", base_url, "/v2/projects", json={"name": name})
     project_id = project["project_id"]
+
+    # Explicitly open project to prevent 409 Conflict errors
+    api(session, "POST", base_url, f"/v2/projects/{project_id}/open")
+
     node_ids = {}
     records = []
 
@@ -151,7 +155,6 @@ def create_project(session: Any, base_url: str, template_map: dict[str, dict[str
         if not template_id:
             raise RuntimeError(f"Template '{template_name}' not found on GNS3 server.")
 
-        # Step 1: Instantiate node from template endpoint (x, y, compute_id strictly allowed)
         instantiate_payload = {
             "x": 100 + 180 * (idx % 4),
             "y": 100 + 120 * (idx // 4),
@@ -160,7 +163,6 @@ def create_project(session: Any, base_url: str, template_map: dict[str, dict[str
         created = api(session, "POST", base_url, f"/v2/projects/{project_id}/templates/{template_id}", json=instantiate_payload)
         node_id = created["node_id"]
 
-        # Step 2: Update node properties via PUT
         update_payload: dict[str, Any] = {"name": node["name"]}
         if symbol_prefix:
             update_payload["symbol"] = f"{symbol_prefix.rstrip('/')}/{icon_for(node)}"
@@ -271,6 +273,8 @@ def main() -> None:
 
     records = []
     skipped = []
+    failed_count = 0
+
     for number in modules:
         config = MODULES[number]
         topology = load_topology(config)
@@ -287,11 +291,18 @@ def main() -> None:
             except Exception as exc:
                 print(f"❌ Failed to deploy {name}: {exc}")
                 skipped.append(f"Module {number} ({name}): Failed with error: {exc}")
+                failed_count += 1
 
     manifest_path = COURSE_DIR / args.manifest if (COURSE_DIR / "configs").exists() else Path(args.manifest)
     manifest_path.write_text(manifest(records, skipped, args), encoding="utf-8")
     print(f"Deployment complete. Manifest written to {manifest_path.resolve()}")
     print("=" * 70)
+
+    if failed_count > 0:
+        print(f"❌ IT/OT Security Course deployment failed ({failed_count} project(s) failed).")
+        print("=" * 70)
+        sys.exit(1)
+
     print("IT/OT Security Course deployment completed successfully.")
     print("=" * 70)
 
