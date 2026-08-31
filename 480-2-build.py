@@ -59,6 +59,7 @@ def ensure_templates_exist(gns3_url: str) -> None:
             "image": "ics-node:latest",  # Update tag/repo if pulling from a registry
             "category": "guest",
             "adapters": 2
+            "compute_id": "local"
         }
         res = requests.post(api_url, json=payload, auth=auth)
         if res.status_code in (200, 201):
