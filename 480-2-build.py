@@ -72,7 +72,6 @@ def session_from_env() -> Any:
     return session
 
 def ensure_templates(session: Any, base_url: str, all_required: set[str]) -> dict[str, dict[str, Any]]:
-    """Validates required GNS3 templates exist without auto-creating invalid Docker placeholders."""
     existing = api(session, "GET", base_url, "/v2/templates") or []
     tmap = {item.get("name", ""): item for item in existing}
 
@@ -119,8 +118,14 @@ def create_project(session: Any, base_url: str, template_map: dict[str, dict[str
         existing_projects = api(session, "GET", base_url, "/v2/projects") or []
         for proj in existing_projects:
             if proj.get("name") == name:
-                print(f"  └─ Removing pre-existing project instance: {name}")
-                api(session, "DELETE", base_url, f"/v2/projects/{proj['project_id']}")
+                p_id = proj["project_id"]
+                print(f"  └─ Gracefully closing and removing pre-existing project: {name}")
+                try:
+                    api(session, "POST", base_url, f"/v2/projects/{p_id}/close")
+                except Exception:
+                    pass
+                api(session, "DELETE", base_url, f"/v2/projects/{p_id}")
+                time.sleep(2.0)
                 break
     except Exception as err:
         print(f"  └─ Warning during project cleanup check: {err}")
@@ -128,7 +133,6 @@ def create_project(session: Any, base_url: str, template_map: dict[str, dict[str
     project = api(session, "POST", base_url, "/v2/projects", json={"name": name})
     project_id = project["project_id"]
 
-    # Explicitly open project safely
     try:
         api(session, "POST", base_url, f"/v2/projects/{project_id}/open")
         time.sleep(0.5)
@@ -151,7 +155,17 @@ def create_project(session: Any, base_url: str, template_map: dict[str, dict[str
             "y": int(100 + 120 * (idx // 4)),
             "compute_id": "local"
         }
-        created = api(session, "POST", base_url, f"/v2/projects/{project_id}/templates/{template_id}", json=instantiate_payload)
+        
+        created = None
+        for attempt in range(1, 4):
+            try:
+                created = api(session, "POST", base_url, f"/v2/projects/{project_id}/templates/{template_id}", json=instantiate_payload)
+                break
+            except Exception as err:
+                if attempt == 3:
+                    raise err
+                time.sleep(2.0)
+
         node_id = created["node_id"]
 
         update_payload: dict[str, Any] = {"name": node["name"]}
