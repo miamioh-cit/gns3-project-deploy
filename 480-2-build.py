@@ -58,7 +58,7 @@ def ensure_templates_exist(gns3_url: str) -> None:
             "template_type": "docker",
             "image": "ics-node:latest",  # Update tag/repo if pulling from a registry
             "category": "guest",
-            "adapters": 2
+            "adapters": 2,
             "compute_id": "local"
         }
         res = requests.post(api_url, json=payload, auth=auth)
