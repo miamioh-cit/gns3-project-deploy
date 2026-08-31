@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+import requests
 
 
 COURSE_DIR = Path("/app/course")
@@ -15,6 +16,52 @@ GNS3_URL = os.getenv(
     "GNS3_URL",
     "http://127.0.0.1:3080"
 )
+
+
+def ensure_templates_exist(gns3_url: str) -> None:
+    """Check for required GNS3 templates and create them dynamically if missing."""
+    base_url = gns3_url.rstrip("/")
+    api_url = f"{base_url}/v2/templates"
+    
+    try:
+        response = requests.get(api_url, timeout=10)
+        response.raise_for_status()
+        existing_templates = [t.get("name") for t in response.json()]
+    except Exception as err:
+        print(f"⚠️ Warning: Failed to query GNS3 templates API: {err}")
+        return
+
+    # 1. Provision Ethernet switch template if missing
+    switch_names = ["Ethernet switch", "GNS3 Ethernet switch"]
+    if not any(name in existing_templates for name in switch_names):
+        print("🛠️ Creating missing 'Ethernet switch' template...")
+        payload = {
+            "name": "Ethernet switch",
+            "template_type": "ethernet_switch",
+            "category": "switch",
+            "builtin": True
+        }
+        res = requests.post(api_url, json=payload)
+        if res.status_code in (200, 201):
+            print("  └─ Created 'Ethernet switch'")
+        else:
+            print(f"  └─ Failed to create 'Ethernet switch': {res.text}")
+
+    # 2. Provision ics-node Docker template if missing
+    if "ics-node" not in existing_templates:
+        print("🛠️ Creating missing 'ics-node' template...")
+        payload = {
+            "name": "ics-node",
+            "template_type": "docker",
+            "image": "ics-node:latest",  # Change to your remote image URI if pulled from a registry
+            "category": "guest",
+            "adapters": 2
+        }
+        res = requests.post(api_url, json=payload)
+        if res.status_code in (200, 201):
+            print("  └─ Created 'ics-node'")
+        else:
+            print(f"  └─ Failed to create 'ics-node': {res.text}")
 
 
 def main() -> None:
@@ -30,6 +77,9 @@ def main() -> None:
     print(f"GNS3 server: {GNS3_URL}")
     print("Modules: 1,2,3,4,5,6,7")
     print("=" * 70)
+
+    # Auto-provision templates before running the build step
+    ensure_templates_exist(GNS3_URL)
 
     result = subprocess.run(
         [
