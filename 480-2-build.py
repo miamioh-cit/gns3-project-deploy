@@ -7,15 +7,15 @@ import subprocess
 import sys
 from pathlib import Path
 import requests
+from requests.auth import HTTPBasicAuth
 
 
 COURSE_DIR = Path("/app/course")
 DEPLOY_SCRIPT = COURSE_DIR / "deploy-gns3-course.py"
 
-GNS3_URL = os.getenv(
-    "GNS3_URL",
-    "http://127.0.0.1:3080"
-)
+GNS3_URL = os.getenv("GNS3_URL", "http://127.0.0.1:3080")
+GNS3_USER = os.getenv("GNS3_USER")
+GNS3_PASSWORD = os.getenv("GNS3_PASSWORD")
 
 
 def ensure_templates_exist(gns3_url: str) -> None:
@@ -23,8 +23,11 @@ def ensure_templates_exist(gns3_url: str) -> None:
     base_url = gns3_url.rstrip("/")
     api_url = f"{base_url}/v2/templates"
     
+    # Configure auth if environment variables are present
+    auth = HTTPBasicAuth(GNS3_USER, GNS3_PASSWORD) if GNS3_USER and GNS3_PASSWORD else None
+    
     try:
-        response = requests.get(api_url, timeout=10)
+        response = requests.get(api_url, auth=auth, timeout=10)
         response.raise_for_status()
         existing_templates = [t.get("name") for t in response.json()]
     except Exception as err:
@@ -41,7 +44,7 @@ def ensure_templates_exist(gns3_url: str) -> None:
             "category": "switch",
             "builtin": True
         }
-        res = requests.post(api_url, json=payload)
+        res = requests.post(api_url, json=payload, auth=auth)
         if res.status_code in (200, 201):
             print("  └─ Created 'Ethernet switch'")
         else:
@@ -53,11 +56,11 @@ def ensure_templates_exist(gns3_url: str) -> None:
         payload = {
             "name": "ics-node",
             "template_type": "docker",
-            "image": "ics-node:latest",  # Change to your remote image URI if pulled from a registry
+            "image": "ics-node:latest",  # Update tag/repo if pulling from a registry
             "category": "guest",
             "adapters": 2
         }
-        res = requests.post(api_url, json=payload)
+        res = requests.post(api_url, json=payload, auth=auth)
         if res.status_code in (200, 201):
             print("  └─ Created 'ics-node'")
         else:
@@ -78,7 +81,7 @@ def main() -> None:
     print("Modules: 1,2,3,4,5,6,7")
     print("=" * 70)
 
-    # Auto-provision templates before running the build step
+    # Auto-provision templates before running module build
     ensure_templates_exist(GNS3_URL)
 
     result = subprocess.run(
