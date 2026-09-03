@@ -222,12 +222,10 @@ def ensure_required_templates(server, server_url):
 
     templates_by_name = {template["name"]: template for template in available_templates}I have received the file **image_2d4562.jpg**. It appears to be an architectural and operational overview document for the **Little Miami Water Authority (LMWA)**. 
 
-Here is a brief summary of the key sections provided in the image:
+# Here is a brief summary of the key sections provided in the image:
 
-*   **Water Treatment Process Flow:** A 10-step visual guide detailing the physical treatment process, starting from Raw Water Intake and ending at the Distribution System.
-*   **LMWA OT/IT Network Architecture:** A detailed diagram illustrating the network topology, showing how the Business/Enterprise Network connects through firewalls and a DMZ to the SCADA/OT Network and individual Programmable Logic Controllers (PLCs).
-*   **Asset Inventory:** A table listing specific network assets (such as Servers, Workstations, and PLCs), alongside their corresponding IP addresses and locations.
-*   **Modbus Information:** Technical details regarding the communication protocol, including specific holding registers (4xxxx) mapped to various PLCs and sensor descriptions.
-*   **Overview & Notes:** General capacity metrics (e.g., Average Daily Production of 3.2 MGD) and critical security notes emphasizing not to connect the OT environment to the internet.
-
-What specific information would you like to extract or analyze from **image_2d4562.jpg**?
+# *   **Water Treatment Process Flow:** A 10-step visual guide detailing the physical treatment process, starting from Raw Water Intake and ending at the Distribution System.
+# *   **LMWA OT/IT Network Architecture:** A detailed diagram illustrating the network topology, showing how the Business/Enterprise Network connects through firewalls and a DMZ to the SCADA/OT Network and individual Programmable Logic Controllers (PLCs).
+# *   **Asset Inventory:** A table listing specific network assets (such as Servers, Workstations, and PLCs), alongside their corresponding IP addresses and locations.
+# *   **Modbus Information:** Technical details regarding the communication protocol, including specific holding registers (4xxxx) mapped to various PLCs and sensor descriptions.
+# *   **Overview & Notes:** General capacity metrics (e.g., Average Daily Production of 3.2 MGD) and critical security notes emphasizing not to connect the OT environment to the internet.
