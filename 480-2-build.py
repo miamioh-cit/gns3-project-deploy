@@ -1,315 +1,233 @@
 #!/usr/bin/env python3
-from __future__ import annotations
+"""
+Build the CIT 480-2 Little Miami Water Authority (LMWA) GNS3 project.
 
-import argparse
-import json
-import os
+Based on the LMWA-DOC-002 v1.0 architecture:
+Four distinct PLC zones (Intake, Filtration, Dosing, Storage) communicate
+with field sensors over simulated Modbus TCP. The PLCs uplink to a central
+OT/SCADA network (10.10.200.0/24) where the central HMI, Historian, and
+Engineering Workstation reside.
+"""
+
+import logging
 import sys
 import time
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
 
-ROOT = Path(__file__).resolve().parent
-DEFAULT_MODULES = "1,2,3,4,5,6,7"
+import requests
+from gns3fy import Gns3Connector, Project
 
-COURSE_DIR = ROOT / "course" if (ROOT / "course").exists() else ROOT
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-@dataclass(frozen=True)
-class ModuleConfig:
-    number: int
-    short_name: str
-    filename: str
-    automated: bool = True
-    note: str = ""
+LAB_NAME = "CIT480 Little Miami Water Authority"
+BASE_IP = "http://10.48.229."
+DATASTORE_FILE = "datastore"
 
-MODULES = {
-    1: ModuleConfig(1, "Wastewater", "module_1_wastewater_flat.json"),
-    2: ModuleConfig(2, "Freshwater", "module_2_freshwater_baseline.json"),
-    3: ModuleConfig(3, "Traffic", "module_3_traffic_modbus.json"),
-    4: ModuleConfig(4, "Manufacturing", "module_4_manufacturing_risk.json"),
-    5: ModuleConfig(5, "Grid", "module_5_grid_purdue_segmented.json"),
-    6: ModuleConfig(6, "Rail", "module_6_rail_purdue_monitoring.json"),
-    7: ModuleConfig(7, "Capstone", "module_7_capstone_purdue_template.json"),
-}
+GNS3_USER = "gns3"
+GNS3_PW = "gns3"
 
-def api(session: Any, method: str, base_url: str, path: str, **kwargs: Any) -> Any:
-    response = session.request(method, f"{base_url.rstrip('/')}{path}", timeout=30, **kwargs)
-    response.raise_for_status()
-    return response.json() if response.text else None
+SCENARIO = "water"
+CORE_SWITCH_TEMPLATE = "Ethernet-Switch-10P"
+EDGE_SWITCH_TEMPLATE = "Ethernet switch"
+OPERATIONS_SUBNET = "10.10.200.0/24"
 
-def parse_modules(raw: str) -> list[int]:
-    if raw.lower().strip() == "all":
-        return [1, 2, 3, 4, 5, 6, 7]
-    result = []
-    for part in raw.split(","):
-        if part.strip():
-            number = int(part)
-            if number not in MODULES:
-                raise SystemExit(f"Unknown module: {number}")
-            result.append(number)
-    return result
+REQUIRED_TEMPLATES = [
+    {
+        "name": "generic-sensor",
+        "template_type": "docker",
+        "category": "guest",
+        "image": "wtaylor8/generic-sensor:latest",
+        "adapters": 5,
+        "console_type": "telnet",
+        "environment": f"SCENARIO={SCENARIO}",
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg",
+    },
+    {
+        "name": "generic-plc",
+        "template_type": "docker",
+        "category": "guest",
+        "image": "wtaylor8/generic-plc:latest",
+        "adapters": 5,
+        "console_type": "telnet",
+        "environment": f"SCENARIO={SCENARIO}",
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg",
+    },
+    {
+        "name": "generic-hmi",
+        "template_type": "docker",
+        "category": "guest",
+        "image": "wtaylor8/generic-hmi:latest",
+        "adapters": 5,
+        "console_type": "telnet",
+        "environment": f"SCENARIO={SCENARIO}",
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg",
+    },
+    {
+        "name": "generic-scada",
+        "template_type": "docker",
+        "category": "guest",
+        "image": "wtaylor8/generic-scada:latest",
+        "adapters": 11,
+        "console_type": "http",
+        "environment": f"SCENARIO={SCENARIO}",
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg",
+    },
+]
 
-def load_topology(config: ModuleConfig) -> dict[str, Any]:
-    config_path = COURSE_DIR / "configs" / config.filename
-    if not config_path.exists():
-        config_path = ROOT / "configs" / config.filename
-    return json.loads(config_path.read_text(encoding="utf-8"))
+# Field IPs are simulated local networks behind the PLCs
+WATER_ZONES = [
+    {
+        "name": "INTAKE",
+        "label": "Raw Water Intake",
+        "field_vlan": "Vlan-01",
+        "subnet": "192.168.1.0/24",
+        "plc": "PLC-1",
+        "plc_field_ip": "192.168.1.5",
+        "plc_ops_ip": "10.10.200.11",
+        "core_port": "Ethernet0",
+        "x": -540,
+        "sensors": [
+            ("FLOW-40001", "192.168.1.1"),
+            ("PUMP-40002", "192.168.1.2"),
+        ],
+    },
+    {
+        "name": "FILTRATION",
+        "label": "Filtration",
+        "field_vlan": "Vlan-02",
+        "subnet": "192.168.2.0/24",
+        "plc": "PLC-2",
+        "plc_field_ip": "192.168.2.5",
+        "plc_ops_ip": "10.10.200.12",
+        "core_port": "Ethernet1",
+        "x": -180,
+        "sensors": [
+            ("DP-40003", "192.168.2.1"),
+            ("TURBIDITY-40004", "192.168.2.2"),
+        ],
+    },
+    {
+        "name": "DOSING",
+        "label": "Chemical Dosing",
+        "field_vlan": "Vlan-03",
+        "subnet": "192.168.3.0/24",
+        "plc": "PLC-3",
+        "plc_field_ip": "192.168.3.5",
+        "plc_ops_ip": "10.10.200.13",
+        "core_port": "Ethernet2",
+        "x": 180,
+        "sensors": [
+            ("RATE-40005", "192.168.3.1"),
+            ("CHLORINE-40006", "192.168.3.2"),
+        ],
+    },
+    {
+        "name": "STORAGE",
+        "label": "Storage and Distribution",
+        "field_vlan": "Vlan-04",
+        "subnet": "192.168.4.0/24",
+        "plc": "PLC-4",
+        "plc_field_ip": "192.168.4.5",
+        "plc_ops_ip": "10.10.200.14",
+        "core_port": "Ethernet3",
+        "x": 540,
+        "sensors": [
+            ("LEVEL-40007", "192.168.4.1"),
+            ("DPUMP-40008", "192.168.4.2"),
+            ("PRESS-40009", "192.168.4.3"),
+            ("ALARM-40010", "192.168.4.4"),
+        ],
+    },
+]
 
-def required_templates(topology: dict[str, Any]) -> set[str]:
-    return {node.get("template", "ics-node") for node in topology.get("nodes", [])}
-
-def session_from_env() -> Any:
+def read_server_urls():
+    """Read GNS3 server last octets from the datastore file."""
     try:
-        import requests
-    except ModuleNotFoundError as exc:
-        raise SystemExit("The requests package is required. Install via requirements.txt") from exc
-    session = requests.Session()
-    user = os.getenv("GNS3_USER")
-    password = os.getenv("GNS3_PASSWORD")
-    if user and password:
-        session.auth = (user, password)
-    return session
+        with open(DATASTORE_FILE, "r", encoding="utf-8") as file_obj:
+            content = file_obj.read().strip()
+    except FileNotFoundError as exc:
+        raise RuntimeError(f"Required file '{DATASTORE_FILE}' was not found.") from exc
+    except OSError as exc:
+        raise RuntimeError(f"Could not read '{DATASTORE_FILE}': {exc}") from exc
 
-def ensure_templates(session: Any, base_url: str, all_required: set[str]) -> dict[str, dict[str, Any]]:
-    existing = api(session, "GET", base_url, "/v2/templates") or []
-    tmap = {item.get("name", ""): item for item in existing}
-
-    missing = [req for req in all_required if req not in tmap]
-    if missing:
-        print("\n❌ Missing required GNS3 templates on server:")
-        for name in missing:
-            print(f"   - '{name}'")
-        raise RuntimeError(
-            f"Missing required GNS3 template(s): {', '.join(missing)}. "
-            "Please configure these exact templates in the GNS3 UI before deploying."
-        )
-
-    print("✓ All required GNS3 templates validated successfully.")
-    return tmap
-
-def icon_for(node: dict[str, Any]) -> str:
-    name = node.get("name", "").lower()
-    template = node.get("template", "").lower()
-    mode = (node.get("env") or {}).get("NODE_MODE", "").lower()
-    if "switch" in name or "switch" in template:
-        return "switch.svg"
-    if name.startswith("plc") or mode == "plc":
-        return "plc.svg"
-    if "hmi" in name or mode == "hmi":
-        return "hmi.svg"
-    if "historian" in name or "collector" in name or mode == "historian":
-        return "historian.svg"
-    if "router" in name or "fw" in name or "firewall" in name:
-        return "firewall.svg"
-    if "zeek" in name or "suricata" in name or "monitoring" in template:
-        return "monitoring.svg"
-    return "ot_node.svg"
-
-def project_name(config: ModuleConfig, args: argparse.Namespace, copy_number: int) -> str:
-    if args.copies == 1 and not args.student_prefix:
-        return f"{args.project_prefix}-M{config.number:02d}-{config.short_name}-Master"
-    index = args.start_index + copy_number - 1
-    label = f"{args.student_prefix}{index:02d}" if args.student_prefix else f"Copy{index:02d}"
-    return f"{args.project_prefix}-M{config.number:02d}-{config.short_name}-{label}"
-
-def create_project(session: Any, base_url: str, template_map: dict[str, dict[str, Any]], config: ModuleConfig, topology: dict[str, Any], name: str, symbol_prefix: str | None) -> dict[str, Any]:
-    try:
-        existing_projects = api(session, "GET", base_url, "/v2/projects") or []
-        for proj in existing_projects:
-            if proj.get("name") == name:
-                p_id = proj["project_id"]
-                print(f"  └─ Gracefully closing and removing pre-existing project: {name}")
-                try:
-                    api(session, "POST", base_url, f"/v2/projects/{p_id}/close")
-                except Exception:
-                    pass
-                api(session, "DELETE", base_url, f"/v2/projects/{p_id}")
-                time.sleep(2.0)
-                break
-    except Exception as err:
-        print(f"  └─ Warning during project cleanup check: {err}")
-
-    project = api(session, "POST", base_url, "/v2/projects", json={"name": name})
-    project_id = project["project_id"]
-
-    try:
-        api(session, "POST", base_url, f"/v2/projects/{project_id}/open")
-        time.sleep(0.5)
-    except Exception:
-        pass
-
-    node_ids = {}
-    records = []
-
-    for idx, node in enumerate(topology.get("nodes", [])):
-        template_name = node.get("template", "ics-node")
-        t_info = template_map.get(template_name, {})
-        template_id = t_info.get("template_id")
-        
-        if not template_id:
-            raise RuntimeError(f"Template '{template_name}' not found on GNS3 server.")
-
-        instantiate_payload = {
-            "x": int(100 + 180 * (idx % 4)),
-            "y": int(100 + 120 * (idx // 4)),
-            "compute_id": "local"
-        }
-        
-        created = None
-        for attempt in range(1, 4):
-            try:
-                created = api(session, "POST", base_url, f"/v2/projects/{project_id}/templates/{template_id}", json=instantiate_payload)
-                break
-            except Exception as err:
-                if attempt == 3:
-                    raise err
-                time.sleep(2.0)
-
-        node_id = created["node_id"]
-
-        update_payload: dict[str, Any] = {"name": node["name"]}
-        if symbol_prefix:
-            update_payload["symbol"] = f"{symbol_prefix.rstrip('/')}/{icon_for(node)}"
-        
-        if node.get("env"):
-            env_str = "\n".join(f"{k}={v}" for k, v in node["env"].items())
-            update_payload["properties"] = {"environment": env_str}
-
-        api(session, "PUT", base_url, f"/v2/projects/{project_id}/nodes/{node_id}", json=update_payload)
-
-        node_ids[node["name"]] = node_id
-        records.append({"name": node["name"], "ip": node.get("ip", ""), "env": node.get("env", {})})
-        
-    links = 0
-    next_port: dict[str, int] = {name: 0 for name in node_ids}
-    for left, right in topology.get("links", []):
-        if left not in node_ids or right not in node_ids:
-            print(f"Skipping missing link: {left} -- {right}")
+    last_octets = []
+    for item in content.split(","):
+        item = item.strip()
+        if not item:
             continue
-        left_port = next_port[left]
-        right_port = next_port[right]
-        next_port[left] += 1
-        next_port[right] += 1
-        payload = {
-            "nodes": [
-                {"node_id": node_ids[left], "adapter_number": 0, "port_number": left_port},
-                {"node_id": node_ids[right], "adapter_number": 0, "port_number": right_port},
-            ]
-        }
-        api(session, "POST", base_url, f"/v2/projects/{project_id}/links", json=payload)
-        links += 1
-        
-    return {
-        "module": config.number,
-        "name": name,
-        "project_id": project_id,
-        "links": links,
-        "nodes": records,
-        "vlans": topology.get("vlans", []),
-        "allowed_modbus_conduits": topology.get("allowed_modbus_conduits", []),
-        "routing_notes": topology.get("routing_notes", []),
-    }
+        if not item.isdigit():
+            raise RuntimeError(
+                f"Invalid datastore entry '{item}'. Expected comma-separated last octets."
+            )
+        last_octets.append(int(item))
 
-def manifest(records: list[dict[str, Any]], skipped: list[str], args: argparse.Namespace) -> str:
-    lines = ["# GNS3 Course Deployment Manifest", "", f"GNS3 server: `{args.gns3_url}`", f"Modules: `{args.modules}`", f"Copies per module: `{args.copies}`", ""]
-    if skipped:
-        lines += ["## Manual or Skipped Items", "", *[f"- {item}" for item in skipped], ""]
-    for record in records:
-        lines += [f"## Module {record['module']}: {record['name']}", "", f"Project ID: `{record['project_id']}`", f"Links created: `{record['links']}`", ""]
-        if record.get("vlans"):
-            lines += ["### VLANs and Zones", "", "| VLAN | Zone | Subnet | Gateway |", "|---:|---|---|---|"]
-            for vlan in record["vlans"]:
-                lines.append(f"| `{vlan.get('vlan', '')}` | `{vlan.get('name', '')}` | `{vlan.get('subnet', '')}` | `{vlan.get('gateway', '')}` |")
-            lines.append("")
-        if record.get("allowed_modbus_conduits"):
-            lines += ["### Allowed Modbus Conduits", "", "| Source | Destination | Port | Purpose |", "|---|---|---:|---|"]
-            for conduit in record["allowed_modbus_conduits"]:
-                lines.append(f"| `{conduit.get('source', '')}` | `{conduit.get('destination', '')}` | `{conduit.get('port', '')}` | {conduit.get('purpose', '')} |")
-            lines.append("")
-        if record.get("routing_notes"):
-            lines += ["### Routing Notes", ""]
-            lines.extend(f"- {note}" for note in record["routing_notes"])
-            lines.append("")
-        lines += ["### Nodes", "", "| Node | IP | Environment |", "|---|---|---|"]
-        for node in record["nodes"]:
-            env = "<br>".join(f"`{k}={v}`" for k, v in node["env"].items())
-            lines.append(f"| `{node['name']}` | `{node['ip']}` | {env} |")
-        lines.append("")
-    lines += ["## Lab Manager Follow-Up", "", "- Confirm each node IP address in GNS3.", "- Confirm environment variables from the table above.", "- Start PLCs before HMI/historian nodes.", "- Verify Modbus/TCP traffic on TCP/502 with a GNS3 packet capture.", "- Stop master projects before cloning for students."]
-    return "\n".join(lines)
+    if not last_octets:
+        raise RuntimeError(f"No valid GNS3 server last octets found in '{DATASTORE_FILE}'.")
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Create multiple IT/OT course GNS3 projects and write a deployment manifest.")
-    parser.add_argument("--gns3-url", default=os.getenv("GNS3_URL", "http://127.0.0.1:3080"))
-    parser.add_argument("--modules", default=DEFAULT_MODULES, help="Comma list, or all.")
-    parser.add_argument("--copies", type=int, default=1)
-    parser.add_argument("--project-prefix", default="ITOT")
-    parser.add_argument("--student-prefix", default="")
-    parser.add_argument("--start-index", type=int, default=1)
-    parser.add_argument("--symbol-prefix", default=None)
-    parser.add_argument("--manifest", default="deployment_manifest.md")
-    parser.add_argument("--dry-run", action="store_true")
-    args = parser.parse_args()
-    modules = parse_modules(args.modules)
-    
-    print("=" * 70)
-    print("Running IT/OT Security Course deployment")
-    print("=" * 70)
-    print(f"GNS3 server: {args.gns3_url}")
-    print(f"Modules: {args.modules}")
-    print("=" * 70)
+    return [f"{BASE_IP}{octet}:80" for octet in last_octets]
 
-    if args.dry_run:
-        print("Dry run only. No GNS3 projects will be created.\n")
+def require_http_success(response, action):
+    """Raise an error that includes the exact HTTP failure."""
+    if response.status_code not in (200, 201):
+        raise RuntimeError(f"{action} failed: HTTP {response.status_code}: {response.text}")
+
+def ensure_10_port_switch(server_url):
+    """Ensure the GNS3 server has a reusable local Ethernet switch with 10 ports."""
+    template_name = CORE_SWITCH_TEMPLATE
+
+    try:
+        response = requests.get(f"{server_url}/v2/templates", auth=(GNS3_USER, GNS3_PW))
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        raise RuntimeError(f"Could not list templates on {server_url}: {exc}") from exc
+
+    existing = next((t for t in response.json() if t.get("name") == template_name), None)
+    if existing:
         return
 
-    session = session_from_env()
-    api(session, "GET", args.gns3_url, "/v2/version")
+    ports = [
+        {"name": f"Ethernet{p}", "port_number": p, "type": "access", "vlan": 1}
+        for p in range(10)
+    ]
+    switch_template = {
+        "name": template_name,
+        "template_type": "ethernet_switch",
+        "category": "switch",
+        "compute_id": "local",
+        "default_name_format": "{name}-{0}",
+        "symbol": ":/symbols/ethernet_switch.svg",
+        "builtin": False,
+        "ports_mapping": ports,
+    }
 
-    all_required = set()
-    for number in modules:
-        config = MODULES[number]
-        if config.automated:
-            topology = load_topology(config)
-            all_required.update(required_templates(topology))
+    try:
+        response = requests.post(f"{server_url}/v2/templates", json=switch_template, auth=(GNS3_USER, GNS3_PW))
+        require_http_success(response, f"Create template '{template_name}' on {server_url}")
+    except requests.RequestException as exc:
+        raise RuntimeError(f"Network error creating '{template_name}' on {server_url}: {exc}") from exc
 
-    template_map = ensure_templates(session, args.gns3_url, all_required)
+def ensure_required_templates(server, server_url):
+    """Register or update the Docker templates required by this scenario."""
+    try:
+        available_templates = server.get_templates()
+    except Exception as exc:
+        raise RuntimeError(f"Could not list GNS3 templates on {server_url}: {exc}") from exc
 
-    records = []
-    skipped = []
-    failed_count = 0
+    templates_by_name = {template["name"]: template for template in available_templates}I have received the file **image_2d4562.jpg**. It appears to be an architectural and operational overview document for the **Little Miami Water Authority (LMWA)**. 
 
-    for number in modules:
-        config = MODULES[number]
-        topology = load_topology(config)
-        if not config.automated:
-            skipped.append(f"Module {number}: {config.note}")
-            print(f"Skipping Module {number}: {config.note}")
-            continue
+Here is a brief summary of the key sections provided in the image:
 
-        for copy in range(1, args.copies + 1):
-            name = project_name(config, args, copy)
-            print(f"Creating {name}")
-            try:
-                records.append(create_project(session, args.gns3_url, template_map, config, topology, name, args.symbol_prefix))
-            except Exception as exc:
-                print(f"❌ Failed to deploy {name}: {exc}")
-                skipped.append(f"Module {number} ({name}): Failed with error: {exc}")
-                failed_count += 1
+*   **Water Treatment Process Flow:** A 10-step visual guide detailing the physical treatment process, starting from Raw Water Intake and ending at the Distribution System.
+*   **LMWA OT/IT Network Architecture:** A detailed diagram illustrating the network topology, showing how the Business/Enterprise Network connects through firewalls and a DMZ to the SCADA/OT Network and individual Programmable Logic Controllers (PLCs).
+*   **Asset Inventory:** A table listing specific network assets (such as Servers, Workstations, and PLCs), alongside their corresponding IP addresses and locations.
+*   **Modbus Information:** Technical details regarding the communication protocol, including specific holding registers (4xxxx) mapped to various PLCs and sensor descriptions.
+*   **Overview & Notes:** General capacity metrics (e.g., Average Daily Production of 3.2 MGD) and critical security notes emphasizing not to connect the OT environment to the internet.
 
-    manifest_path = COURSE_DIR / args.manifest if (COURSE_DIR / "configs").exists() else Path(args.manifest)
-    manifest_path.write_text(manifest(records, skipped, args), encoding="utf-8")
-    print(f"Deployment complete. Manifest written to {manifest_path.resolve()}")
-    print("=" * 70)
-
-    if failed_count > 0:
-        print(f"❌ IT/OT Security Course deployment failed ({failed_count} project(s) failed).")
-        print("=" * 70)
-        sys.exit(1)
-
-    print("IT/OT Security Course deployment completed successfully.")
-    print("=" * 70)
-
-if __name__ == "__main__":
-    main()
+What specific information would you like to extract or analyze from **image_2d4562.jpg**?
