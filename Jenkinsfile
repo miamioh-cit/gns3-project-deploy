@@ -64,7 +64,6 @@ pipeline {
                 expression { return params.PROJECT_ID != '480-2' }
             }
             steps {
-                script 
                 script {
                     sh "docker run --rm -e GNS3_URL=http://${params.IP_ADDRESS}:80 ${IMAGE_NAME}"
                 }
