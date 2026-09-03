@@ -35,6 +35,7 @@ GNS3_PW = "gns3"
 SCENARIO = "traffic"
 CORE_SWITCH_TEMPLATE = "Ethernet-Switch-10P"
 EDGE_SWITCH_TEMPLATE = "Ethernet switch"
+OPERATIONS_SUBNET = "172.16.0.0/24"
 
 
 REQUIRED_TEMPLATES = [
@@ -255,16 +256,27 @@ def ensure_10_port_switch(server_url):
 
 
 def ensure_required_templates(server, server_url):
-    """Register any missing Docker templates required by this scenario."""
+    """Register or update the Docker templates required by this scenario."""
     try:
-        available_templates = [template["name"] for template in server.get_templates()]
+        available_templates = server.get_templates()
     except Exception as exc:
         raise RuntimeError(f"Could not list GNS3 templates on {server_url}: {exc}") from exc
 
+    templates_by_name = {
+        template["name"]: template
+        for template in available_templates
+    }
+
     for template in REQUIRED_TEMPLATES:
         template_name = template["name"]
-        if template_name in available_templates:
-            logging.info("Template '%s' already exists on %s.", template_name, server_url)
+        existing_template = templates_by_name.get(template_name)
+
+        if existing_template:
+            update_existing_template_environment(
+                server_url,
+                existing_template,
+                template["environment"],
+            )
             continue
 
         logging.info("Registering missing template '%s' on %s.", template_name, server_url)
@@ -279,6 +291,43 @@ def ensure_required_templates(server, server_url):
             raise RuntimeError(
                 f"Network error registering template '{template_name}' on {server_url}: {exc}"
             ) from exc
+
+
+def update_existing_template_environment(server_url, template, expected_environment):
+    """Update a reused Docker template if it still points at another scenario."""
+    template_name = template["name"]
+    template_id = template.get("template_id")
+    actual_environment = template.get("environment")
+
+    if actual_environment == expected_environment:
+        logging.info("Template '%s' already has %s on %s.", template_name, expected_environment, server_url)
+        return
+
+    if not template_id:
+        raise RuntimeError(f"Template '{template_name}' on {server_url} has no template_id; cannot update it.")
+
+    updated_template = dict(template)
+    updated_template["environment"] = expected_environment
+
+    logging.info(
+        "Updating template '%s' environment on %s from %r to %r.",
+        template_name,
+        server_url,
+        actual_environment,
+        expected_environment,
+    )
+
+    try:
+        response = requests.put(
+            f"{server_url}/v2/templates/{template_id}",
+            json=updated_template,
+            auth=(GNS3_USER, GNS3_PW),
+        )
+        require_http_success(response, f"Update template '{template_name}' environment on {server_url}")
+    except requests.RequestException as exc:
+        raise RuntimeError(
+            f"Network error updating template '{template_name}' environment on {server_url}: {exc}"
+        ) from exc
 
 
 def open_or_create_project(server, server_url):
@@ -314,6 +363,11 @@ def create_node(lab, name, template, x, y, errors):
         logging.info("Created node '%s' with template '%s'.", name, template)
     except Exception as exc:
         errors.append(f"Create node '{name}' using template '{template}' failed: {exc}")
+
+
+def build_environment(**values):
+    """Return Docker environment variables in the format GNS3 expects."""
+    return "\n".join(f"{key}={value}" for key, value in values.items())
 
 
 def build_interface_config(ip_address):
@@ -361,6 +415,62 @@ def configure_interfaces(lab, node_name, config, errors):
         logging.info("Configured network for '%s'.", node_name)
     except Exception as exc:
         errors.append(f"Configure network for node '{node_name}' failed: {exc}")
+
+
+def set_docker_node_environment(server_url, lab, node_name, environment, errors):
+    """Set Docker environment variables on a project node."""
+    try:
+        node = lab.get_node(node_name)
+        node.get()
+
+        response = requests.get(
+            f"{server_url}/v2/projects/{lab.project_id}/nodes/{node.node_id}",
+            auth=(GNS3_USER, GNS3_PW),
+        )
+        response.raise_for_status()
+        node_data = response.json()
+
+        properties = dict(node_data.get("properties") or {})
+        actual_environment = properties.get("environment")
+
+        if actual_environment == environment:
+            logging.info("Node '%s' already has %s.", node_name, environment)
+            return
+
+        properties["environment"] = environment
+
+        response = requests.put(
+            f"{server_url}/v2/projects/{lab.project_id}/nodes/{node.node_id}",
+            json={"properties": properties},
+            auth=(GNS3_USER, GNS3_PW),
+        )
+        require_http_success(response, f"Update node '{node_name}' environment")
+
+        logging.info(
+            "Updated node '%s' environment from %r to %r.",
+            node_name,
+            actual_environment,
+            environment,
+        )
+    except Exception as exc:
+        errors.append(f"Set environment for node '{node_name}' to '{environment}' failed: {exc}")
+
+
+def start_node(lab, node_name, errors):
+    """Start a node if it is not already running."""
+    try:
+        node = lab.get_node(node_name)
+        node.get()
+
+        status = getattr(node.status, "value", str(node.status)).lower()
+        if status == "started":
+            logging.info("Node '%s' is already started.", node_name)
+            return
+
+        node.start()
+        logging.info("Started node '%s'.", node_name)
+    except Exception as exc:
+        errors.append(f"Start node '{node_name}' failed: {exc}")
 
 
 def configure_kali(lab, node_name, errors):
@@ -454,6 +564,61 @@ def configure_scenario_nodes(lab, errors):
     configure_interfaces(lab, "scada-server", build_interface_config("172.16.0.200"), errors)
 
 
+def plc_environment(zone):
+    """Return the traffic PLC environment for one operations zone."""
+    return build_environment(
+        SCENARIO=SCENARIO,
+        PLC_LOGIC_FILE=f"traffic/plc-{zone['name'].lower()}-logic.yaml",
+        PLC_SCAN_SUBNETS=zone["subnet"],
+    )
+
+
+def hmi_environment():
+    """Return the traffic HMI environment."""
+    return build_environment(
+        SCENARIO=SCENARIO,
+        HMI_SCAN_SUBNETS=OPERATIONS_SUBNET,
+    )
+
+
+def sensor_environment():
+    """Return the traffic field sensor environment."""
+    return build_environment(SCENARIO=SCENARIO)
+
+
+def scada_environment():
+    """Return the traffic SCADA environment used for PLC auto-discovery."""
+    return build_environment(
+        SCENARIO=SCENARIO,
+        SCADA_SUBNETS=OPERATIONS_SUBNET,
+    )
+
+
+def set_scenario_environment(server_url, lab, errors):
+    """Force all reusable Docker nodes to use traffic instead of wastewater."""
+
+    for zone in TRAFFIC_ZONES:
+        set_docker_node_environment(server_url, lab, zone["plc"], plc_environment(zone), errors)
+        set_docker_node_environment(server_url, lab, zone["hmi"], hmi_environment(), errors)
+
+        for sensor_name, _sensor_ip in zone["sensors"]:
+            set_docker_node_environment(server_url, lab, sensor_name, sensor_environment(), errors)
+
+    set_docker_node_environment(server_url, lab, "scada-server", scada_environment(), errors)
+
+
+def start_scenario_nodes(lab, errors):
+    """Start all traffic Docker nodes so discovery can run immediately."""
+    for zone in TRAFFIC_ZONES:
+        start_node(lab, zone["plc"], errors)
+        start_node(lab, zone["hmi"], errors)
+
+        for sensor_name, _sensor_ip in zone["sensors"]:
+            start_node(lab, sensor_name, errors)
+
+    start_node(lab, "scada-server", errors)
+
+
 def create_scenario_links(lab, errors):
     """Connect the field and operations networks."""
     for zone in TRAFFIC_ZONES:
@@ -500,6 +665,9 @@ def build_project_on_server(server_url):
     except Exception as exc:
         errors.append(f"Refresh project inventory after node creation failed: {exc}")
 
+    logging.info("Setting Docker node environments to SCENARIO=%s on %s.", SCENARIO, server_url)
+    set_scenario_environment(server_url, lab, errors)
+
     logging.info("Applying network configurations for '%s' on %s.", LAB_NAME, server_url)
     configure_scenario_nodes(lab, errors)
 
@@ -510,6 +678,10 @@ def build_project_on_server(server_url):
 
     logging.info("Creating links for '%s' on %s.", LAB_NAME, server_url)
     create_scenario_links(lab, errors)
+
+    logging.info("Starting traffic PLC, HMI, sensor, and SCADA nodes on %s.", server_url)
+    start_scenario_nodes(lab, errors)
+
     configure_kali(lab, "KaliLinux-1", errors)
 
     if errors:
