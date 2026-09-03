@@ -37,35 +37,8 @@ pipeline {
             }
         }
 
-        // ROUTE 1: STANDARD DEPLOYMENTS
-        stage('Build Docker Image (Standard)') {
-            when {
-                expression { return params.PROJECT_ID != '480-2' }
-            }
-            steps {
-                script {
-                    sh "docker builder prune -f || true"
-                    sh "docker build --no-cache -t ${IMAGE_NAME} ."
-                }
-            }
-        }
-
-        stage('Run GNS3 Deployment (Standard)') {
-            when {
-                expression { return params.PROJECT_ID != '480-2' }
-            }
-            steps {
-                script {
-                    sh "docker run --rm -e GNS3_URL=http://${params.IP_ADDRESS}:80 ${IMAGE_NAME}"
-                }
-            }
-        }
-
-        // ROUTE 2: CUSTOM 480-2 DEPLOYMENT
+        // EXCLUSIVE ROUTE: CUSTOM 480-2 DEPLOYMENT
         stage('Deploy Custom Course (480-2)') {
-            when {
-                expression { return params.PROJECT_ID == '480-2' }
-            }
             steps {
                 withCredentials([
                     usernamePassword(
@@ -98,7 +71,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ GNS3 Project ${params.PROJECT_ID} Deployed Successfully to ${params.IP_ADDRESS}!"
+            echo "✅ GNS3 Project ${params.PROJECT_ID} (480-2) Deployed Successfully to ${params.IP_ADDRESS}!"
         }
         failure {
             echo "❌ GNS3 Project Deployment Failed!"
