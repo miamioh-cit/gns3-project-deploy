@@ -222,3 +222,5 @@ def ensure_required_templates(server, server_url):
 
     templates_by_name = {template["name"]: template for template in available_templates}
     
+if __name__ == "__main__":
+    main()  # or whatever your main deployment function is called
