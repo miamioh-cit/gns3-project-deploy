@@ -54,6 +54,18 @@ KALI_IP = "10.10.20.250"
 
 REQUIRED_TEMPLATES = [
     {
+        "name": "generic-sensor",
+        "template_type": "docker",
+        "category": "guest",
+        "image": "wtaylor8/generic-sensor:latest",
+        "adapters": 5,
+        "console_type": "telnet",
+        "environment": f"SCENARIO={SCENARIO}",
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg",
+    },
+    {
         "name": ICS_TEMPLATE,
         "template_type": "docker",
         "category": "guest",
@@ -84,10 +96,14 @@ FRESHWATER_STAGES = [
     {
         "name": "intake",
         "label": "Raw Water Intake",
+        "field_vlan": "vlan-intake",
+        "field_subnet": "192.168.10.0/24",
         "plc": "plc-intake",
-        "plc_ip": "10.10.20.11",
+        "plc_field_ip": "192.168.10.5",
+        "plc_ops_ip": "10.10.20.11",
         "field_switch": "field-switch-intake",
         "plc_env": {
+            "SCENARIO": SCENARIO,
             "NODE_MODE": "plc",
             "PLC_ROLE": "intake",
             "DEVICE_AGE_YEARS": "7",
@@ -97,15 +113,25 @@ FRESHWATER_STAGES = [
             "AGE_FAILURE_DURATION_SECONDS": "20",
             "AGE_FAILURE_MODE": "zero",
         },
+        "sensors": [
+            {"name": "sensor-intake-flow", "ip": "192.168.10.1", "tag": "intake_flow", "units": "gpm"},
+            {"name": "sensor-intake-level", "ip": "192.168.10.2", "tag": "intake_level", "units": "ft"},
+            {"name": "sensor-intake-pressure", "ip": "192.168.10.3", "tag": "intake_pressure", "units": "psi"},
+            {"name": "sensor-intake-turbidity", "ip": "192.168.10.4", "tag": "intake_turbidity", "units": "ntu"},
+        ],
         "x": -540,
     },
     {
         "name": "filtration",
         "label": "Filtration",
+        "field_vlan": "vlan-filtration",
+        "field_subnet": "192.168.20.0/24",
         "plc": "plc-filtration",
-        "plc_ip": "10.10.20.12",
+        "plc_field_ip": "192.168.20.5",
+        "plc_ops_ip": "10.10.20.12",
         "field_switch": "field-switch-filtration",
         "plc_env": {
+            "SCENARIO": SCENARIO,
             "NODE_MODE": "plc",
             "PLC_ROLE": "filtration",
             "DEVICE_AGE_YEARS": "16",
@@ -115,15 +141,25 @@ FRESHWATER_STAGES = [
             "AGE_FAILURE_DURATION_SECONDS": "20",
             "AGE_FAILURE_MODE": "zero",
         },
+        "sensors": [
+            {"name": "sensor-filtration-turbidity", "ip": "192.168.20.1", "tag": "filtration_turbidity", "units": "ntu"},
+            {"name": "sensor-filtration-pressure", "ip": "192.168.20.2", "tag": "filtration_pressure", "units": "psi"},
+            {"name": "sensor-filtration-flow", "ip": "192.168.20.3", "tag": "filtration_flow", "units": "gpm"},
+            {"name": "sensor-filtration-level", "ip": "192.168.20.4", "tag": "filtration_level", "units": "ft"},
+        ],
         "x": -180,
     },
     {
         "name": "dosing",
         "label": "Chemical Dosing",
+        "field_vlan": "vlan-dosing",
+        "field_subnet": "192.168.30.0/24",
         "plc": "plc-dosing",
-        "plc_ip": "10.10.20.13",
+        "plc_field_ip": "192.168.30.5",
+        "plc_ops_ip": "10.10.20.13",
         "field_switch": "field-switch-dosing",
         "plc_env": {
+            "SCENARIO": SCENARIO,
             "NODE_MODE": "plc",
             "PLC_ROLE": "dosing",
             "DEVICE_AGE_YEARS": "13",
@@ -133,15 +169,25 @@ FRESHWATER_STAGES = [
             "AGE_FAILURE_DURATION_SECONDS": "20",
             "AGE_FAILURE_MODE": "zero",
         },
+        "sensors": [
+            {"name": "sensor-dosing-chlorine", "ip": "192.168.30.1", "tag": "dosing_chlorine", "units": "mg_l"},
+            {"name": "sensor-dosing-ph", "ip": "192.168.30.2", "tag": "dosing_ph", "units": "ph"},
+            {"name": "sensor-dosing-flow", "ip": "192.168.30.3", "tag": "dosing_flow", "units": "gpm"},
+            {"name": "sensor-dosing-rate", "ip": "192.168.30.4", "tag": "dosing_rate", "units": "lpm"},
+        ],
         "x": 180,
     },
     {
         "name": "storage",
         "label": "Treated Water Storage",
+        "field_vlan": "vlan-storage",
+        "field_subnet": "192.168.40.0/24",
         "plc": "plc-storage",
-        "plc_ip": "10.10.20.14",
+        "plc_field_ip": "192.168.40.5",
+        "plc_ops_ip": "10.10.20.14",
         "field_switch": "field-switch-storage",
         "plc_env": {
+            "SCENARIO": SCENARIO,
             "NODE_MODE": "plc",
             "PLC_ROLE": "storage",
             "DEVICE_AGE_YEARS": "5",
@@ -151,6 +197,12 @@ FRESHWATER_STAGES = [
             "AGE_FAILURE_DURATION_SECONDS": "20",
             "AGE_FAILURE_MODE": "zero",
         },
+        "sensors": [
+            {"name": "sensor-storage-level", "ip": "192.168.40.1", "tag": "storage_level", "units": "ft"},
+            {"name": "sensor-storage-turbidity", "ip": "192.168.40.2", "tag": "storage_turbidity", "units": "ntu"},
+            {"name": "sensor-storage-chlorine", "ip": "192.168.40.3", "tag": "storage_chlorine", "units": "mg_l"},
+            {"name": "sensor-storage-temperature", "ip": "192.168.40.4", "tag": "storage_temperature", "units": "c"},
+        ],
         "x": 540,
     },
 ]
@@ -425,6 +477,34 @@ iface eth0 inet static
 """
 
 
+def build_plc_config(field_ip, operations_ip):
+    """Return a dual-interface PLC configuration: field VLAN plus operations LAN."""
+    return f"""
+auto eth0
+iface eth0 inet static
+    address {field_ip}
+    netmask 255.255.255.0
+
+auto eth1
+iface eth1 inet static
+    address {operations_ip}
+    netmask 255.255.255.0
+"""
+
+
+def sensor_environment(sensor):
+    """Return the freshwater field sensor environment."""
+    return build_environment(
+        {
+            "SCENARIO": SCENARIO,
+            "TAG": sensor["tag"],
+            "SIMULATION": "true",
+            "UNITS": sensor["units"],
+            "DATA_TYPE": "float",
+        }
+    )
+
+
 def configure_interfaces(lab, node_name, config, errors):
     """Write /etc/network/interfaces to a Docker node."""
     try:
@@ -522,19 +602,28 @@ def create_link(lab, node_a, port_a, node_b, port_b, errors):
 
 
 def create_scenario_nodes(lab, errors):
-    """Create the freshwater process areas plus operations infrastructure."""
-    # Central operations switch: visually fills the role of the core in the
-    # larger topology while retaining the freshwater 'ops-switch' concept.
+    """Create four freshwater field VLANs with four sensors each, PLCs, and operations services."""
     create_node(lab, "ops-switch", CORE_SWITCH_TEMPLATE, 0, 120, errors)
 
     for stage in FRESHWATER_STAGES:
         x = stage["x"]
+
+        for index, sensor in enumerate(stage["sensors"]):
+            create_node(
+                lab,
+                sensor["name"],
+                "generic-sensor",
+                x - 120 + (index * 80),
+                -600,
+                errors,
+            )
+
         create_node(
             lab,
-            stage["field_switch"],
+            stage["field_vlan"],
             EDGE_SWITCH_TEMPLATE,
             x + 60,
-            -390,
+            -430,
             errors,
         )
         create_node(
@@ -542,7 +631,7 @@ def create_scenario_nodes(lab, errors):
             stage["plc"],
             ICS_TEMPLATE,
             x + 60,
-            -220,
+            -250,
             errors,
         )
 
@@ -553,14 +642,22 @@ def create_scenario_nodes(lab, errors):
 
 
 def configure_scenario_nodes(lab, errors):
-    """Apply static IPv4 addresses to all freshwater Docker nodes."""
+    """Apply field and operations addresses to all freshwater Docker nodes."""
     for stage in FRESHWATER_STAGES:
         configure_interfaces(
             lab,
             stage["plc"],
-            build_interface_config(stage["plc_ip"]),
+            build_plc_config(stage["plc_field_ip"], stage["plc_ops_ip"]),
             errors,
         )
+
+        for sensor in stage["sensors"]:
+            configure_interfaces(
+                lab,
+                sensor["name"],
+                build_interface_config(sensor["ip"]),
+                errors,
+            )
 
     for node_name, ip_address in NODE_IPS.items():
         configure_interfaces(
@@ -572,7 +669,7 @@ def configure_scenario_nodes(lab, errors):
 
 
 def set_scenario_environment(server_url, lab, errors):
-    """Apply the freshwater environments to every Docker node."""
+    """Apply freshwater PLC, sensor, HMI, historian, and SCADA environments."""
     for stage in FRESHWATER_STAGES:
         set_docker_node_environment(
             server_url,
@@ -582,71 +679,82 @@ def set_scenario_environment(server_url, lab, errors):
             errors,
         )
 
+        for sensor in stage["sensors"]:
+            set_docker_node_environment(
+                server_url,
+                lab,
+                sensor["name"],
+                sensor_environment(sensor),
+                errors,
+            )
+
     set_docker_node_environment(
-        server_url,
-        lab,
-        "hmi-poller",
-        build_environment(HMI_ENV),
-        errors,
+        server_url, lab, "hmi-poller", build_environment(HMI_ENV), errors
     )
     set_docker_node_environment(
-        server_url,
-        lab,
-        "historian",
-        build_environment(HISTORIAN_ENV),
-        errors,
+        server_url, lab, "historian", build_environment(HISTORIAN_ENV), errors
     )
     set_docker_node_environment(
-        server_url,
-        lab,
-        "scada-server",
-        build_environment(SCADA_ENV),
-        errors,
+        server_url, lab, "scada-server", build_environment(SCADA_ENV), errors
     )
 
 
 def start_scenario_nodes(lab, errors):
-    """Start every freshwater node and the central operations switch."""
+    """Start every freshwater field and operations node."""
     start_node(lab, "ops-switch", errors)
+
     for stage in FRESHWATER_STAGES:
-        start_node(lab, stage["field_switch"], errors)
+        for sensor in stage["sensors"]:
+            start_node(lab, sensor["name"], errors)
+        start_node(lab, stage["field_vlan"], errors)
         start_node(lab, stage["plc"], errors)
+
     start_node(lab, "hmi-poller", errors)
     start_node(lab, "historian", errors)
     start_node(lab, "scada-server", errors)
 
 
 def create_scenario_links(lab, errors):
-    """Build the freshwater process-to-operations topology."""
-    core_ports = ["Ethernet0", "Ethernet1", "Ethernet2", "Ethernet3"]
+    """Connect four isolated freshwater field VLANs to the operations network."""
+    ops_ports = ["Ethernet0", "Ethernet1", "Ethernet2", "Ethernet3"]
 
-    for index, stage in enumerate(FRESHWATER_STAGES):
-        # PLC sits behind its freshwater process/field switch.
+    for stage_index, stage in enumerate(FRESHWATER_STAGES):
+        field_switch = stage["field_vlan"]
+
+        # Four sensors plus the PLC share this stage's field VLAN.
+        for sensor_index, sensor in enumerate(stage["sensors"], start=1):
+            create_link(
+                lab,
+                sensor["name"],
+                "eth0",
+                field_switch,
+                f"Ethernet{sensor_index}",
+                errors,
+            )
+
         create_link(
             lab,
             stage["plc"],
             "eth0",
-            stage["field_switch"],
+            field_switch,
             "Ethernet0",
             errors,
         )
 
-        # Each process switch uplinks into the central operations switch.
+        # PLC eth1 is the operations-network interface.
         create_link(
             lab,
-            stage["field_switch"],
-            "Ethernet1",
+            stage["plc"],
+            "eth1",
             "ops-switch",
-            core_ports[index],
+            ops_ports[stage_index],
             errors,
         )
 
-    # Central HMI, historian, and SCADA services attach to operations.
     create_link(lab, "hmi-poller", "eth0", "ops-switch", "Ethernet4", errors)
     create_link(lab, "historian", "eth0", "ops-switch", "Ethernet5", errors)
     create_link(lab, "scada-server", "eth0", "ops-switch", "Ethernet6", errors)
     create_link(lab, "KaliLinux-1", "Ethernet0", "ops-switch", "Ethernet7", errors)
-
 
 def configure_kali(lab, node_name, errors):
     """Configure Kali with a persistent static IPv4 address."""
@@ -712,7 +820,7 @@ def verify_kali_to_scada(lab, errors):
 
 
 def build_project_on_server(server_url):
-    """Build the complete freshwater treatment project on one GNS3 server."""
+    """Build the complete freshwater treatment project with four sensors per field VLAN on one GNS3 server."""
     errors = []
 
     logging.info("Connecting to GNS3 server at %s.", server_url)
