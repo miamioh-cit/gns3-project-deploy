@@ -104,6 +104,9 @@ FRESHWATER_STAGES = [
         "field_switch": "field-switch-intake",
         "plc_env": {
             "SCENARIO": SCENARIO,
+            "IP_ADDRESS": "10.10.20.11",
+            "FIELD_IP_ADDRESS": "192.168.10.5",
+            "FIELD_SUBNET": "192.168.10.0/24",
             "NODE_MODE": "plc",
             "PLC_ROLE": "intake",
             "DEVICE_AGE_YEARS": "7",
@@ -132,6 +135,9 @@ FRESHWATER_STAGES = [
         "field_switch": "field-switch-filtration",
         "plc_env": {
             "SCENARIO": SCENARIO,
+            "IP_ADDRESS": "10.10.20.12",
+            "FIELD_IP_ADDRESS": "192.168.20.5",
+            "FIELD_SUBNET": "192.168.20.0/24",
             "NODE_MODE": "plc",
             "PLC_ROLE": "filtration",
             "DEVICE_AGE_YEARS": "16",
@@ -160,6 +166,9 @@ FRESHWATER_STAGES = [
         "field_switch": "field-switch-dosing",
         "plc_env": {
             "SCENARIO": SCENARIO,
+            "IP_ADDRESS": "10.10.20.13",
+            "FIELD_IP_ADDRESS": "192.168.30.5",
+            "FIELD_SUBNET": "192.168.30.0/24",
             "NODE_MODE": "plc",
             "PLC_ROLE": "dosing",
             "DEVICE_AGE_YEARS": "13",
@@ -188,6 +197,9 @@ FRESHWATER_STAGES = [
         "field_switch": "field-switch-storage",
         "plc_env": {
             "SCENARIO": SCENARIO,
+            "IP_ADDRESS": "10.10.20.14",
+            "FIELD_IP_ADDRESS": "192.168.40.5",
+            "FIELD_SUBNET": "192.168.40.0/24",
             "NODE_MODE": "plc",
             "PLC_ROLE": "storage",
             "DEVICE_AGE_YEARS": "5",
@@ -208,6 +220,9 @@ FRESHWATER_STAGES = [
 ]
 
 HMI_ENV = {
+    "SCENARIO": SCENARIO,
+    "IP_ADDRESS": "10.10.20.20",
+    "SUBNET": FRESHWATER_SUBNET,
     "NODE_MODE": "hmi",
     "PLC_TARGETS": (
         "--plc intake=10.10.20.11:502 "
@@ -218,6 +233,9 @@ HMI_ENV = {
 }
 
 HISTORIAN_ENV = {
+    "SCENARIO": SCENARIO,
+    "IP_ADDRESS": "10.10.20.30",
+    "SUBNET": FRESHWATER_SUBNET,
     "NODE_MODE": "historian",
     "PLC_TARGETS": (
         "--plc intake=10.10.20.11:502 "
@@ -229,6 +247,8 @@ HISTORIAN_ENV = {
 
 SCADA_ENV = {
     "SCENARIO": SCENARIO,
+    "IP_ADDRESS": SCADA_IP,
+    "SUBNET": FRESHWATER_SUBNET,
     "SCADA_SUBNETS": FRESHWATER_SUBNET,
 }
 
@@ -237,6 +257,11 @@ NODE_IPS = {
     "hmi-poller": "10.10.20.20",
     "historian": "10.10.20.30",
     "scada-server": SCADA_IP,
+}
+
+KALI_ENV = {
+    "IP_ADDRESS": KALI_IP,
+    "SUBNET": FRESHWATER_SUBNET,
 }
 
 
@@ -492,11 +517,13 @@ iface eth1 inet static
 """
 
 
-def sensor_environment(sensor):
+def sensor_environment(sensor, stage_subnet):
     """Return the freshwater field sensor environment."""
     return build_environment(
         {
             "SCENARIO": SCENARIO,
+            "IP_ADDRESS": sensor["ip"],
+            "SUBNET": stage_subnet,
             "TAG": sensor["tag"],
             "SIMULATION": "true",
             "UNITS": sensor["units"],
@@ -684,7 +711,7 @@ def set_scenario_environment(server_url, lab, errors):
                 server_url,
                 lab,
                 sensor["name"],
-                sensor_environment(sensor),
+                sensor_environment(sensor, stage["field_subnet"]),
                 errors,
             )
 
