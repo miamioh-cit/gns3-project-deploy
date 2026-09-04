@@ -2,13 +2,19 @@
 """
 Build the CIT 480-2 Freshwater Treatment GNS3 project.
 
-The topology keeps the larger, process-oriented layout of the original
-long deployment script, but all scenario content is freshwater treatment.
-
-Freshwater process areas:
+Freshwater topology:
     intake -> filtration -> dosing -> storage
 
-Core freshwater devices:
+Field networks:
+    Intake      192.168.10.0/24
+    Filtration  192.168.20.0/24
+    Dosing      192.168.30.0/24
+    Storage     192.168.40.0/24
+
+Operations / SCADA network:
+    10.10.20.0/24
+
+Operations addresses:
     plc-intake       10.10.20.11
     plc-filtration   10.10.20.12
     plc-dosing       10.10.20.13
@@ -18,12 +24,16 @@ Core freshwater devices:
     scada-server     10.10.20.200
     KaliLinux-1      10.10.20.250
 
-The four PLC environment blocks match the Freshwater Treatment baseline
-configuration supplied for Module 2. Every IP-capable node also carries its
-IP address, subnet, and netmask in its Docker environment variables.
+The freshwater course provides its own PLC/HMI/historian Python runtime under
+course/plc_sim. The GNS3 ics-node image used on the server is only a shell
+container, so this deployment provisions the course runtime into a persistent
+GNS3 Docker volume, installs Python + pymodbus, and sets the Docker start
+command to run plc_sim.node_entrypoint. This makes NODE_MODE=plc actually
+launch the Modbus/TCP server on port 502.
 """
 
 import logging
+import os
 import sys
 import time
 
@@ -49,14 +59,34 @@ EDGE_SWITCH_TEMPLATE = "GNS3 Ethernet switch"
 KALI_TEMPLATE = "Kali Linux"
 SCADA_TEMPLATE = "generic-scada"
 ICS_TEMPLATE = "ics-node"
+SENSOR_TEMPLATE = "generic-sensor"
 
 SCADA_IP = "10.10.20.200"
 KALI_IP = "10.10.20.250"
 
+# The Jenkins deployment image copies the course's plc_sim directory here.
+COURSE_PLC_SIM_DIR = os.getenv("COURSE_PLC_SIM_DIR", "/app/course/plc_sim")
+RUNTIME_DIR = "/opt/freshwater_runtime"
+RUNTIME_PACKAGE_DIR = f"{RUNTIME_DIR}/plc_sim"
+RUNTIME_LAUNCHER = f"{RUNTIME_DIR}/start.sh"
+
+# These are the Python files used by node_entrypoint.py and its imports.
+COURSE_RUNTIME_FILES = (
+    "__init__.py",
+    "node_entrypoint.py",
+    "plc_server.py",
+    "plant_model.py",
+    "hmi_poller.py",
+    "historian.py",
+    "modbus_write.py",
+)
+
+RUNTIME_START_COMMAND = f"/bin/bash {RUNTIME_LAUNCHER}"
+
 
 REQUIRED_TEMPLATES = [
     {
-        "name": "generic-sensor",
+        "name": SENSOR_TEMPLATE,
         "template_type": "docker",
         "category": "guest",
         "image": "wtaylor8/generic-sensor:latest",
@@ -109,9 +139,11 @@ FRESHWATER_STAGES = [
             "IP_ADDRESS": "10.10.20.11",
             "FIELD_IP_ADDRESS": "192.168.10.5",
             "FIELD_SUBNET": "192.168.10.0/24",
+            "SUBNET": FRESHWATER_SUBNET,
             "NETMASK": NETMASK,
             "NODE_MODE": "plc",
             "PLC_ROLE": "intake",
+            "PLC_PORT": "502",
             "DEVICE_AGE_YEARS": "7",
             "AGE_FAILURE_THRESHOLD_YEARS": "12",
             "AGE_FAILURE_WINDOW_SECONDS": "10",
@@ -141,9 +173,11 @@ FRESHWATER_STAGES = [
             "IP_ADDRESS": "10.10.20.12",
             "FIELD_IP_ADDRESS": "192.168.20.5",
             "FIELD_SUBNET": "192.168.20.0/24",
+            "SUBNET": FRESHWATER_SUBNET,
             "NETMASK": NETMASK,
             "NODE_MODE": "plc",
             "PLC_ROLE": "filtration",
+            "PLC_PORT": "502",
             "DEVICE_AGE_YEARS": "16",
             "AGE_FAILURE_THRESHOLD_YEARS": "12",
             "AGE_FAILURE_WINDOW_SECONDS": "10",
@@ -173,9 +207,11 @@ FRESHWATER_STAGES = [
             "IP_ADDRESS": "10.10.20.13",
             "FIELD_IP_ADDRESS": "192.168.30.5",
             "FIELD_SUBNET": "192.168.30.0/24",
+            "SUBNET": FRESHWATER_SUBNET,
             "NETMASK": NETMASK,
             "NODE_MODE": "plc",
             "PLC_ROLE": "dosing",
+            "PLC_PORT": "502",
             "DEVICE_AGE_YEARS": "13",
             "AGE_FAILURE_THRESHOLD_YEARS": "12",
             "AGE_FAILURE_WINDOW_SECONDS": "10",
@@ -205,9 +241,11 @@ FRESHWATER_STAGES = [
             "IP_ADDRESS": "10.10.20.14",
             "FIELD_IP_ADDRESS": "192.168.40.5",
             "FIELD_SUBNET": "192.168.40.0/24",
+            "SUBNET": FRESHWATER_SUBNET,
             "NETMASK": NETMASK,
             "NODE_MODE": "plc",
             "PLC_ROLE": "storage",
+            "PLC_PORT": "502",
             "DEVICE_AGE_YEARS": "5",
             "AGE_FAILURE_THRESHOLD_YEARS": "12",
             "AGE_FAILURE_WINDOW_SECONDS": "10",
@@ -261,16 +299,10 @@ SCADA_ENV = {
     "SCADA_SUBNETS": FRESHWATER_SUBNET,
 }
 
-
 NODE_IPS = {
     "hmi-poller": "10.10.20.20",
     "historian": "10.10.20.30",
     "scada-server": SCADA_IP,
-}
-
-KALI_ENV = {
-    "IP_ADDRESS": KALI_IP,
-    "SUBNET": FRESHWATER_SUBNET,
 }
 
 
@@ -383,10 +415,10 @@ def ensure_required_templates(server, server_url):
         existing_template = templates_by_name.get(template_name)
 
         if existing_template:
-            update_existing_template_environment(
+            update_existing_template_properties(
                 server_url,
                 existing_template,
-                template["environment"],
+                {"environment": template["environment"]},
             )
             continue
 
@@ -407,36 +439,23 @@ def ensure_required_templates(server, server_url):
             ) from exc
 
 
-def update_existing_template_environment(server_url, template, expected_environment):
-    """Update a reused Docker template if it points at a different scenario."""
-    template_name = template["name"]
+def update_existing_template_properties(server_url, template, updates):
+    """Update selected properties of a reused Docker template."""
     template_id = template.get("template_id")
-    actual_environment = template.get("environment")
-
-    if actual_environment == expected_environment:
-        logging.info(
-            "Template '%s' already has %s on %s.",
-            template_name,
-            expected_environment,
-            server_url,
-        )
-        return
-
     if not template_id:
         raise RuntimeError(
-            f"Template '{template_name}' on {server_url} has no template_id; cannot update it."
+            f"Template '{template.get('name')}' on {server_url} has no template_id; cannot update it."
         )
 
+    changed = False
     updated_template = dict(template)
-    updated_template["environment"] = expected_environment
+    for key, value in updates.items():
+        if updated_template.get(key) != value:
+            updated_template[key] = value
+            changed = True
 
-    logging.info(
-        "Updating template '%s' environment on %s from %r to %r.",
-        template_name,
-        server_url,
-        actual_environment,
-        expected_environment,
-    )
+    if not changed:
+        return
 
     try:
         response = requests.put(
@@ -446,11 +465,11 @@ def update_existing_template_environment(server_url, template, expected_environm
         )
         require_http_success(
             response,
-            f"Update template '{template_name}' environment on {server_url}",
+            f"Update template '{template.get('name')}' on {server_url}",
         )
     except requests.RequestException as exc:
         raise RuntimeError(
-            f"Network error updating '{template_name}' environment on {server_url}: {exc}"
+            f"Network error updating template '{template.get('name')}' on {server_url}: {exc}"
         ) from exc
 
 
@@ -512,7 +531,7 @@ iface eth0 inet static
 
 
 def build_plc_config(field_ip, operations_ip):
-    """Return a dual-interface PLC configuration: field VLAN plus operations LAN."""
+    """Return a dual-interface PLC configuration."""
     return f"""
 auto eth0
 iface eth0 inet static
@@ -542,6 +561,49 @@ def sensor_environment(sensor, stage_subnet):
     )
 
 
+def get_node_data(server_url, lab, node_name):
+    """Return the current GNS3 node JSON for a project node."""
+    node = lab.get_node(node_name)
+    node.get()
+    response = requests.get(
+        f"{server_url}/v2/projects/{lab.project_id}/nodes/{node.node_id}",
+        auth=(GNS3_USER, GNS3_PW),
+    )
+    response.raise_for_status()
+    return node, response.json()
+
+
+def update_docker_node_properties(server_url, lab, node_name, updates, errors):
+    """Update Docker node properties while preserving the other properties."""
+    try:
+        node, node_data = get_node_data(server_url, lab, node_name)
+        properties = dict(node_data.get("properties") or {})
+        changed = False
+
+        for key, value in updates.items():
+            if properties.get(key) != value:
+                properties[key] = value
+                changed = True
+
+        if not changed:
+            return
+
+        response = requests.put(
+            f"{server_url}/v2/projects/{lab.project_id}/nodes/{node.node_id}",
+            json={"properties": properties},
+            auth=(GNS3_USER, GNS3_PW),
+        )
+        require_http_success(
+            response,
+            f"Update node '{node_name}' properties",
+        )
+        logging.info("Updated Docker properties for '%s'.", node_name)
+    except Exception as exc:
+        errors.append(
+            f"Update Docker properties for node '{node_name}' failed: {exc}"
+        )
+
+
 def configure_interfaces(lab, node_name, config, errors):
     """Write /etc/network/interfaces to a Docker node."""
     try:
@@ -569,16 +631,7 @@ def configure_interfaces(lab, node_name, config, errors):
 def set_docker_node_environment(server_url, lab, node_name, environment, errors):
     """Set Docker environment variables on a project node."""
     try:
-        node = lab.get_node(node_name)
-        node.get()
-
-        response = requests.get(
-            f"{server_url}/v2/projects/{lab.project_id}/nodes/{node.node_id}",
-            auth=(GNS3_USER, GNS3_PW),
-        )
-        response.raise_for_status()
-        node_data = response.json()
-
+        node, node_data = get_node_data(server_url, lab, node_name)
         properties = dict(node_data.get("properties") or {})
         actual_environment = properties.get("environment")
 
@@ -635,11 +688,129 @@ def create_link(lab, node_a, port_a, node_b, port_b, errors):
         )
 
 
+# ---------- Freshwater runtime provisioning ----------
+
+
+def verify_course_runtime_source():
+    """Verify the Jenkins image contains the freshwater PLC simulator source."""
+    if not os.path.isdir(COURSE_PLC_SIM_DIR):
+        raise RuntimeError(
+            f"Freshwater course runtime directory '{COURSE_PLC_SIM_DIR}' was not found. "
+            "The Jenkins Docker build must copy course_it_ot_convergence/gns3_water_treatment/plc_sim there."
+        )
+
+    missing = [
+        name
+        for name in COURSE_RUNTIME_FILES
+        if not os.path.isfile(os.path.join(COURSE_PLC_SIM_DIR, name))
+    ]
+    if missing:
+        raise RuntimeError(
+            "Freshwater PLC runtime is incomplete; missing files: " + ", ".join(missing)
+        )
+
+
+def provision_ics_node_runtime(server_url, lab, node_name, errors):
+    """Install Python/pymodbus, copy the course runtime, and configure its launcher."""
+    try:
+        verify_course_runtime_source()
+        node, _node_data = get_node_data(server_url, lab, node_name)
+
+        # The extra volume makes the course runtime survive normal Docker
+        # stop/start cycles and GNS3 topology shutdown/restart.
+        update_docker_node_properties(
+            server_url,
+            lab,
+            node_name,
+            {
+                "extra_volumes": [RUNTIME_DIR],
+            },
+            errors,
+        )
+
+        # This image currently starts as /bin/bash. Start it first so the
+        # deployment can install the missing Python runtime and copy in the
+        # course code.
+        start_node(lab, node_name, errors)
+        time.sleep(2)
+
+        install_cmd = (
+            "command -v python3 >/dev/null 2>&1 || "
+            "(apt-get update && apt-get install -y --no-install-recommends python3 python3-pip)"
+        )
+        node.execute(install_cmd)
+
+        install_pymodbus = (
+            "python3 -m pip install --no-cache-dir pymodbus==3.5.4 "
+            "|| python3 -m pip install --break-system-packages --no-cache-dir pymodbus==3.5.4"
+        )
+        node.execute(install_pymodbus)
+
+        # Create the persistent package directory.
+        node.execute(f"mkdir -p {RUNTIME_PACKAGE_DIR}")
+
+        for filename in COURSE_RUNTIME_FILES:
+            source_path = os.path.join(COURSE_PLC_SIM_DIR, filename)
+            with open(source_path, "r", encoding="utf-8") as source_file:
+                data = source_file.read()
+            node.write_file(
+                path=f"{RUNTIME_PACKAGE_DIR}/{filename}",
+                data=data,
+            )
+
+        launcher = f"""#!/bin/bash
+set -e
+export PYTHONPATH={RUNTIME_DIR}
+exec python3 -m plc_sim.node_entrypoint
+"""
+        node.write_file(path=RUNTIME_LAUNCHER, data=launcher)
+        node.execute(f"chmod +x {RUNTIME_LAUNCHER}")
+
+        update_docker_node_properties(
+            server_url,
+            lab,
+            node_name,
+            {
+                "extra_volumes": [RUNTIME_DIR],
+                "start_command": RUNTIME_START_COMMAND,
+            },
+            errors,
+        )
+
+        # Restart so the new Docker start command becomes PID 1.
+        node.get()
+        status = getattr(node.status, "value", str(node.status)).lower()
+        if status == "started":
+            node.stop()
+            time.sleep(1)
+        node.start()
+
+        logging.info(
+            "Provisioned freshwater PLC/HMI runtime on '%s' using %s.",
+            node_name,
+            RUNTIME_START_COMMAND,
+        )
+    except Exception as exc:
+        errors.append(
+            f"Provision freshwater runtime on node '{node_name}' failed: {exc}"
+        )
+
+
+def provision_all_ics_nodes(server_url, lab, errors):
+    """Provision the actual freshwater Python runtime on all six ics-node containers."""
+    runtime_nodes = [
+        stage["plc"] for stage in FRESHWATER_STAGES
+    ] + ["hmi-poller", "historian"]
+
+    for node_name in runtime_nodes:
+        provision_ics_node_runtime(server_url, lab, node_name, errors)
+
+
 # ---------- Freshwater topology ----------
 
 
 def create_scenario_nodes(lab, errors):
-    """Create four freshwater field VLANs with four sensors each, PLCs, and operations services."""
+    """Create four freshwater field networks with four sensors each and operations services."""
     create_node(lab, "ops-switch", CORE_SWITCH_TEMPLATE, 0, 120, errors)
 
     for stage in FRESHWATER_STAGES:
@@ -649,7 +820,7 @@ def create_scenario_nodes(lab, errors):
             create_node(
                 lab,
                 sensor["name"],
-                "generic-sensor",
+                SENSOR_TEMPLATE,
                 x - 120 + (index * 80),
                 -600,
                 errors,
@@ -657,7 +828,7 @@ def create_scenario_nodes(lab, errors):
 
         create_node(
             lab,
-            stage["field_vlan"],
+            stage["field_switch"],
             EDGE_SWITCH_TEMPLATE,
             x + 60,
             -430,
@@ -696,13 +867,9 @@ def configure_scenario_nodes(lab, errors):
                 errors,
             )
 
-    for node_name, ip_address in NODE_IPS.items():
-        configure_interfaces(
-            lab,
-            node_name,
-            build_interface_config(ip_address),
-            errors,
-        )
+    configure_interfaces(lab, "hmi-poller", build_interface_config("10.10.20.20"), errors)
+    configure_interfaces(lab, "historian", build_interface_config("10.10.20.30"), errors)
+    configure_interfaces(lab, "scada-server", build_interface_config(SCADA_IP), errors)
 
 
 def set_scenario_environment(server_url, lab, errors):
@@ -726,39 +893,49 @@ def set_scenario_environment(server_url, lab, errors):
             )
 
     set_docker_node_environment(
-        server_url, lab, "hmi-poller", build_environment(HMI_ENV), errors
+        server_url,
+        lab,
+        "hmi-poller",
+        build_environment(HMI_ENV),
+        errors,
     )
     set_docker_node_environment(
-        server_url, lab, "historian", build_environment(HISTORIAN_ENV), errors
+        server_url,
+        lab,
+        "historian",
+        build_environment(HISTORIAN_ENV),
+        errors,
     )
     set_docker_node_environment(
-        server_url, lab, "scada-server", build_environment(SCADA_ENV), errors
+        server_url,
+        lab,
+        "scada-server",
+        build_environment(SCADA_ENV),
+        errors,
     )
 
 
 def start_scenario_nodes(lab, errors):
-    """Start every freshwater field and operations node."""
+    """Start all freshwater field sensors/switches and the non-ics operation nodes."""
     start_node(lab, "ops-switch", errors)
 
     for stage in FRESHWATER_STAGES:
         for sensor in stage["sensors"]:
             start_node(lab, sensor["name"], errors)
-        start_node(lab, stage["field_vlan"], errors)
-        start_node(lab, stage["plc"], errors)
+        start_node(lab, stage["field_switch"], errors)
+        # PLC/HMI/historian nodes are started by runtime provisioning below.
 
-    start_node(lab, "hmi-poller", errors)
-    start_node(lab, "historian", errors)
     start_node(lab, "scada-server", errors)
 
 
 def create_scenario_links(lab, errors):
-    """Connect four isolated freshwater field VLANs to the operations network."""
+    """Connect the freshwater field networks to their PLCs and the operations LAN."""
     ops_ports = ["Ethernet0", "Ethernet1", "Ethernet2", "Ethernet3"]
 
     for stage_index, stage in enumerate(FRESHWATER_STAGES):
-        field_switch = stage["field_vlan"]
+        field_switch = stage["field_switch"]
 
-        # Four sensors plus the PLC share this stage's field VLAN.
+        # Four sensors plus the PLC share this field network.
         for sensor_index, sensor in enumerate(stage["sensors"], start=1):
             create_link(
                 lab,
@@ -778,7 +955,7 @@ def create_scenario_links(lab, errors):
             errors,
         )
 
-        # PLC eth1 is the operations-network interface.
+        # PLC eth1 is the SCADA/operations interface.
         create_link(
             lab,
             stage["plc"],
@@ -793,71 +970,12 @@ def create_scenario_links(lab, errors):
     create_link(lab, "scada-server", "eth0", "ops-switch", "Ethernet6", errors)
     create_link(lab, "KaliLinux-1", "Ethernet0", "ops-switch", "Ethernet7", errors)
 
-def configure_kali(lab, node_name, errors):
-    """Configure Kali with a persistent static IPv4 address."""
-    try:
-        node = lab.get_node(node_name)
-        node.get()
-
-        status = getattr(node.status, "value", str(node.status)).lower()
-        if status != "started":
-            node.start()
-
-        time.sleep(8)
-
-        for attempt in range(30):
-            try:
-                result = node.execute("nmcli device status")
-                if "eth0" in str(result):
-                    logging.info(
-                        "Kali eth0 detected after %s attempt(s).",
-                        attempt + 1,
-                    )
-                    break
-            except Exception:
-                pass
-            time.sleep(2)
-        else:
-            raise RuntimeError("Kali eth0 did not become available after 60 seconds.")
-
-        node.execute("nmcli connection delete kali-eth0 || true")
-        node.execute(
-            "nmcli connection add "
-            "type ethernet "
-            "ifname eth0 "
-            "con-name kali-eth0 "
-            "ipv4.method manual "
-            f"ipv4.addresses {KALI_IP}/24"
-        )
-        time.sleep(2)
-        node.execute("nmcli connection up kali-eth0")
-        logging.info("Configured Kali '%s' as %s/24.", node_name, KALI_IP)
-    except Exception as exc:
-        errors.append(f"Configure Kali node '{node_name}' failed: {exc}")
-
-
-def verify_kali_to_scada(lab, errors):
-    """Verify the final student-access path from Kali to the SCADA server."""
-    try:
-        node = lab.get_node("KaliLinux-1")
-        node.get()
-        time.sleep(2)
-        result = node.execute(f"ping -c 3 -W 2 {SCADA_IP}")
-        result_text = str(result)
-        if "0% packet loss" not in result_text and ", 0.0% packet loss" not in result_text:
-            raise RuntimeError(
-                f"Kali could not successfully ping SCADA at {SCADA_IP}. Result: {result_text}"
-            )
-        logging.info("Kali successfully reached SCADA at %s.", SCADA_IP)
-    except Exception as exc:
-        errors.append(f"Kali-to-SCADA connectivity test failed: {exc}")
-
 
 # ---------- Main deployment ----------
 
 
 def build_project_on_server(server_url):
-    """Build the complete freshwater treatment project with four sensors per field VLAN on one GNS3 server."""
+    """Build the complete freshwater treatment project on one GNS3 server."""
     errors = []
 
     logging.info("Connecting to GNS3 server at %s.", server_url)
@@ -870,6 +988,8 @@ def build_project_on_server(server_url):
         lab = open_or_create_project(server, server_url)
     except Exception as exc:
         raise RuntimeError(f"Project setup failed on {server_url}: {exc}") from exc
+
+    verify_course_runtime_source()
 
     logging.info("Creating freshwater nodes for '%s' on %s.", LAB_NAME, server_url)
     create_scenario_nodes(lab, errors)
@@ -886,10 +1006,7 @@ def build_project_on_server(server_url):
     )
     set_scenario_environment(server_url, lab, errors)
 
-    logging.info(
-        "Applying freshwater network configuration on %s.",
-        server_url,
-    )
+    logging.info("Applying freshwater network configuration on %s.", server_url)
     configure_scenario_nodes(lab, errors)
 
     try:
@@ -902,22 +1019,22 @@ def build_project_on_server(server_url):
     logging.info("Creating freshwater topology links on %s.", server_url)
     create_scenario_links(lab, errors)
 
-    logging.info("Starting freshwater treatment nodes on %s.", server_url)
+    logging.info("Starting freshwater field and operations nodes on %s.", server_url)
     start_scenario_nodes(lab, errors)
 
-    configure_kali(lab, "KaliLinux-1", errors)
+    # This is the critical step missing from the earlier deployment: the
+    # server's ics-node image is only a shell, so provision the actual course
+    # plc_sim runtime and restart the six ics-node containers with it.
+    logging.info("Provisioning freshwater Python runtime on PLC/HMI/historian nodes.")
+    provision_all_ics_nodes(server_url, lab, errors)
 
-    # Do not hide this failure. A completed deployment must have a working
-    # student-access path to the freshwater SCADA server.
-    if not errors:
-        verify_kali_to_scada(lab, errors)
-
+    # Do not fail the build over the QEMU guest-console issue we saw earlier.
+    # Kali remains connected to the operations switch at 10.10.20.250 but is
+    # not configured automatically here.
     if errors:
-        raise RuntimeError(
-            "\n".join(f"{server_url}: {error}" for error in errors)
-        )
+        raise RuntimeError("\n".join(f"{server_url}: {error}" for error in errors))
 
-    logging.info("Nodes created, configured, and linked. Link summary follows.")
+    logging.info("Nodes created, configured, provisioned, and linked. Link summary follows.")
     lab.links_summary()
     logging.info(
         "%s build is complete on %s. It is safe to open the project in GNS3.",
