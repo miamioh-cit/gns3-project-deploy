@@ -19,7 +19,8 @@ Core freshwater devices:
     KaliLinux-1      10.10.20.250
 
 The four PLC environment blocks match the Freshwater Treatment baseline
-configuration supplied for Module 2.
+configuration supplied for Module 2. Every IP-capable node also carries its
+IP address, subnet, and netmask in its Docker environment variables.
 """
 
 import logging
@@ -41,6 +42,7 @@ GNS3_PW = "gns3"
 
 SCENARIO = "freshwater_treatment"
 FRESHWATER_SUBNET = "10.10.20.0/24"
+NETMASK = "255.255.255.0"
 
 CORE_SWITCH_TEMPLATE = "Ethernet-Switch-10P"
 EDGE_SWITCH_TEMPLATE = "GNS3 Ethernet switch"
@@ -107,6 +109,7 @@ FRESHWATER_STAGES = [
             "IP_ADDRESS": "10.10.20.11",
             "FIELD_IP_ADDRESS": "192.168.10.5",
             "FIELD_SUBNET": "192.168.10.0/24",
+            "NETMASK": NETMASK,
             "NODE_MODE": "plc",
             "PLC_ROLE": "intake",
             "DEVICE_AGE_YEARS": "7",
@@ -138,6 +141,7 @@ FRESHWATER_STAGES = [
             "IP_ADDRESS": "10.10.20.12",
             "FIELD_IP_ADDRESS": "192.168.20.5",
             "FIELD_SUBNET": "192.168.20.0/24",
+            "NETMASK": NETMASK,
             "NODE_MODE": "plc",
             "PLC_ROLE": "filtration",
             "DEVICE_AGE_YEARS": "16",
@@ -169,6 +173,7 @@ FRESHWATER_STAGES = [
             "IP_ADDRESS": "10.10.20.13",
             "FIELD_IP_ADDRESS": "192.168.30.5",
             "FIELD_SUBNET": "192.168.30.0/24",
+            "NETMASK": NETMASK,
             "NODE_MODE": "plc",
             "PLC_ROLE": "dosing",
             "DEVICE_AGE_YEARS": "13",
@@ -200,6 +205,7 @@ FRESHWATER_STAGES = [
             "IP_ADDRESS": "10.10.20.14",
             "FIELD_IP_ADDRESS": "192.168.40.5",
             "FIELD_SUBNET": "192.168.40.0/24",
+            "NETMASK": NETMASK,
             "NODE_MODE": "plc",
             "PLC_ROLE": "storage",
             "DEVICE_AGE_YEARS": "5",
@@ -223,6 +229,7 @@ HMI_ENV = {
     "SCENARIO": SCENARIO,
     "IP_ADDRESS": "10.10.20.20",
     "SUBNET": FRESHWATER_SUBNET,
+    "NETMASK": NETMASK,
     "NODE_MODE": "hmi",
     "PLC_TARGETS": (
         "--plc intake=10.10.20.11:502 "
@@ -236,6 +243,7 @@ HISTORIAN_ENV = {
     "SCENARIO": SCENARIO,
     "IP_ADDRESS": "10.10.20.30",
     "SUBNET": FRESHWATER_SUBNET,
+    "NETMASK": NETMASK,
     "NODE_MODE": "historian",
     "PLC_TARGETS": (
         "--plc intake=10.10.20.11:502 "
@@ -249,6 +257,7 @@ SCADA_ENV = {
     "SCENARIO": SCENARIO,
     "IP_ADDRESS": SCADA_IP,
     "SUBNET": FRESHWATER_SUBNET,
+    "NETMASK": NETMASK,
     "SCADA_SUBNETS": FRESHWATER_SUBNET,
 }
 
@@ -498,7 +507,7 @@ def build_interface_config(ip_address):
 auto eth0
 iface eth0 inet static
     address {ip_address}
-    netmask 255.255.255.0
+    netmask {NETMASK}
 """
 
 
@@ -508,12 +517,12 @@ def build_plc_config(field_ip, operations_ip):
 auto eth0
 iface eth0 inet static
     address {field_ip}
-    netmask 255.255.255.0
+    netmask {NETMASK}
 
 auto eth1
 iface eth1 inet static
     address {operations_ip}
-    netmask 255.255.255.0
+    netmask {NETMASK}
 """
 
 
@@ -524,6 +533,7 @@ def sensor_environment(sensor, stage_subnet):
             "SCENARIO": SCENARIO,
             "IP_ADDRESS": sensor["ip"],
             "SUBNET": stage_subnet,
+            "NETMASK": NETMASK,
             "TAG": sensor["tag"],
             "SIMULATION": "true",
             "UNITS": sensor["units"],
