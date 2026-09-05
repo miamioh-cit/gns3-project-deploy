@@ -136,7 +136,7 @@ REQUIRED_TEMPLATES = [
         "name": "generic-scada",
         "template_type": "docker",
         "category": "guest",
-        "image": "wtaylor8/generic-scada-freshwater:latest",
+        "image": "evankunkel/generic-scada-freshwater:latest",
         "adapters": 11,
         "console_type": "http",
         "environment": f"SCENARIO={SCENARIO}",
