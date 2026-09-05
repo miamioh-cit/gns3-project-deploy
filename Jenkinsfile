@@ -4,7 +4,7 @@ pipeline {
     environment {
         GITHUB_URL = 'https://github.com/miamioh-cit/gns3-project-deploy.git'
         IMAGE_NAME = 'gns3-deploy'
-        FRESHWATER_SCADA_IMAGE = 'wtaylor8/generic-scada-freshwater:latest'
+        FRESHWATER_SCADA_IMAGE = 'evankunkel/generic-scada-freshwater:latest'
     }
 
     stages {
