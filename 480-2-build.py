@@ -1394,45 +1394,31 @@ def create_scenario_links(
         errors,
     )
 
-
 def install_freshwater_scada_files(
     lab: Project,
     errors: list[str],
 ) -> None:
-    """
-    Install the 480-2-specific SCADA diagram files into the SCADA node.
+    """Install the 480-2 freshwater SCADA files into the SCADA node."""
 
-    Repository:
-        scada/freshwater_treatment/diagrams.yaml
-        scada/templates/diagrams/freshwater_overview.html
-
-    Container:
-        /app/scenarios/freshwater_treatment/diagrams.yaml
-        /app/scada/templates/diagrams/freshwater_overview.html
-    """
     try:
         if not FRESHWATER_DIAGRAM_CONFIG.is_file():
             raise RuntimeError(
-                "Freshwater diagram config not found: "
+                f"Freshwater diagram config not found: "
                 f"{FRESHWATER_DIAGRAM_CONFIG}"
             )
 
         if not FRESHWATER_DIAGRAM_TEMPLATE.is_file():
             raise RuntimeError(
-                "Freshwater diagram template not found: "
+                f"Freshwater diagram template not found: "
                 f"{FRESHWATER_DIAGRAM_TEMPLATE}"
             )
 
-        diagram_config = (
-            FRESHWATER_DIAGRAM_CONFIG.read_text(
-                encoding="utf-8"
-            )
+        diagram_config = FRESHWATER_DIAGRAM_CONFIG.read_text(
+            encoding="utf-8"
         )
 
-        diagram_template = (
-            FRESHWATER_DIAGRAM_TEMPLATE.read_text(
-                encoding="utf-8"
-            )
+        diagram_template = FRESHWATER_DIAGRAM_TEMPLATE.read_text(
+            encoding="utf-8"
         )
 
         node = lab.get_node("scada-server")
@@ -1447,26 +1433,25 @@ def install_freshwater_scada_files(
         if status == "started":
             node.stop()
 
+        # Write the files into the GNS3 Docker node filesystem.
         node.write_file(
-            path=SCADA_DIAGRAM_CONFIG_PATH,
+            path="/app/scenarios/freshwater_treatment/diagrams.yaml",
             data=diagram_config,
         )
 
         node.write_file(
-            path=SCADA_DIAGRAM_TEMPLATE_PATH,
+            path="/app/scada/templates/diagrams/freshwater_overview.html",
             data=diagram_template,
         )
 
         logging.info(
-            "Installed freshwater SCADA diagram config and template."
+            "Installed freshwater SCADA diagram files."
         )
 
     except Exception as exc:
         errors.append(
-            "Install freshwater SCADA diagram files failed: "
-            f"{exc}"
+            f"Install freshwater SCADA diagram files failed: {exc}"
         )
-
 
 def build_project_on_server(
     server_url: str,
@@ -1599,10 +1584,6 @@ def build_project_on_server(
         "Installing freshwater SCADA diagram files."
     )
 
-    install_freshwater_scada_files(
-        lab,
-        errors,
-    )
 
     if errors:
         raise RuntimeError(
