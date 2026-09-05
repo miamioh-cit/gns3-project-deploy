@@ -1,672 +1,146 @@
 {% extends "diagram_base.html" %}
-
-{% block title %}
-Freshwater Treatment Plant
-{% endblock %}
-
 {% block diagram %}
-
-<style>
-    .freshwater-pid {
-        width: 100%;
-        min-height: 560px;
-        padding: 20px;
-        overflow-x: auto;
-        font-family: Arial, Helvetica, sans-serif;
-    }
-
-    .freshwater-pid * {
-        box-sizing: border-box;
-    }
-
-    .freshwater-header {
-        margin-bottom: 18px;
-    }
-
-    .freshwater-header h2 {
-        margin: 0;
-        font-size: 22px;
-        letter-spacing: 1px;
-        color: #e8eef5;
-    }
-
-    .freshwater-header p {
-        margin: 5px 0 0;
-        color: #9eacb9;
-        font-size: 12px;
-    }
-
-    .freshwater-plant {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 1450px;
-    }
-
-    .freshwater-stage {
-        flex: 0 0 250px;
-        min-height: 520px;
-        background: #1a2631;
-        border: 1px solid #344555;
-        border-radius: 10px;
-        padding: 18px;
-        position: relative;
-    }
-
-    .freshwater-stage-title {
-        margin: 0 0 4px;
-        font-size: 18px;
-        color: #e8eef5;
-    }
-
-    .freshwater-stage-subtitle {
-        color: #8999a8;
-        font-size: 12px;
-        margin-bottom: 18px;
-    }
-
-    .freshwater-process-icon {
-        width: 100%;
-        height: 90px;
-        border: 2px solid #53697d;
-        border-radius: 8px;
-        background: #202f3c;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 18px;
-        font-size: 34px;
-    }
-
-    .freshwater-sensor-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .freshwater-sensor {
-        background: #111a22;
-        border: 1px solid #344555;
-        border-radius: 7px;
-        padding: 10px;
-        transition: border-color 0.2s ease;
-    }
-
-    .freshwater-sensor-name {
-        font-size: 11px;
-        color: #9eacb9;
-        margin-bottom: 5px;
-    }
-
-    .freshwater-sensor-value {
-        font-size: 20px;
-        font-weight: bold;
-        color: #e8eef5;
-    }
-
-    .freshwater-sensor-status {
-        margin-top: 4px;
-        font-size: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .freshwater-online {
-        border-color: #50705a;
-    }
-
-    .freshwater-online .freshwater-sensor-status {
-        color: #83c995;
-    }
-
-    .freshwater-offline {
-        border-color: #704f4f;
-    }
-
-    .freshwater-offline .freshwater-sensor-status {
-        color: #df8c8c;
-    }
-
-    .freshwater-arrow {
-        flex: 0 0 48px;
-        text-align: center;
-        font-size: 34px;
-        color: #687b8e;
-    }
-
-    .freshwater-flow {
-        margin-top: 18px;
-        padding: 10px;
-        border-radius: 6px;
-        background: #172631;
-        border: 1px solid #354e5e;
-        text-align: center;
-        font-size: 12px;
-        color: #9fb7c7;
-    }
-
-    .freshwater-output {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-    }
-
-    .freshwater-output-box {
-        width: 170px;
-        height: 150px;
-        border: 2px solid #53697d;
-        border-radius: 10px;
-        background: #202f3c;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-    }
-
-    .freshwater-output-icon {
-        font-size: 42px;
-        margin-bottom: 8px;
-    }
-
-    .freshwater-output-box strong {
-        font-size: 16px;
-        color: #e8eef5;
-    }
-
-    .freshwater-output-subtitle {
-        font-size: 11px;
-        color: #9eacb9;
-        margin-top: 6px;
-    }
-
-    .freshwater-legend {
-        margin-top: 16px;
-        background: #17222d;
-        border: 1px solid #344555;
-        border-radius: 7px;
-        padding: 10px 14px;
-        font-size: 11px;
-        color: #9eacb9;
-        display: inline-block;
-    }
-
-    @media (max-width: 1100px) {
-        .freshwater-plant {
-            align-items: flex-start;
-        }
-
-        .freshwater-stage {
-            min-height: 480px;
-        }
-    }
-</style>
-
-<div class="freshwater-pid">
-
-    <div class="freshwater-header">
-        <h2>FRESHWATER TREATMENT PLANT</h2>
-        <p>SCADA Process Overview</p>
-    </div>
-
-    <div class="freshwater-plant">
-
-        <!-- INTAKE -->
-        <section class="freshwater-stage">
-            <h3 class="freshwater-stage-title">Raw Water Intake</h3>
-            <div class="freshwater-stage-subtitle">
-                Intake process monitoring
-            </div>
-
-            <div class="freshwater-process-icon">💧</div>
-
-            <div class="freshwater-sensor-grid">
-
-                <div class="freshwater-sensor" id="sensor-FT-INTAKE">
-                    <div class="freshwater-sensor-name">
-                        FT-INTAKE · FLOW
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-FT-INTAKE">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-FT-INTAKE">
-                        Waiting
-                    </div>
-                </div>
-
-                <div class="freshwater-sensor" id="sensor-LT-INTAKE">
-                    <div class="freshwater-sensor-name">
-                        LT-INTAKE · LEVEL
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-LT-INTAKE">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-LT-INTAKE">
-                        Waiting
-                    </div>
-                </div>
-
-                <div class="freshwater-sensor" id="sensor-DP-INTAKE">
-                    <div class="freshwater-sensor-name">
-                        DP-INTAKE · PRESSURE
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-DP-INTAKE">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-DP-INTAKE">
-                        Waiting
-                    </div>
-                </div>
-
-                <div class="freshwater-sensor" id="sensor-TU-INTAKE">
-                    <div class="freshwater-sensor-name">
-                        TU-INTAKE · TURBIDITY
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-TU-INTAKE">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-TU-INTAKE">
-                        Waiting
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="freshwater-flow">RAW WATER →</div>
-        </section>
-
-        <div class="freshwater-arrow">→</div>
-
-        <!-- FILTRATION -->
-        <section class="freshwater-stage">
-            <h3 class="freshwater-stage-title">Filtration</h3>
-            <div class="freshwater-stage-subtitle">
-                Filter process monitoring
-            </div>
-
-            <div class="freshwater-process-icon">▦</div>
-
-            <div class="freshwater-sensor-grid">
-
-                <div class="freshwater-sensor" id="sensor-DP-FILTRATION">
-                    <div class="freshwater-sensor-name">
-                        DP-FILTRATION · PRESSURE
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-DP-FILTRATION">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-DP-FILTRATION">
-                        Waiting
-                    </div>
-                </div>
-
-                <div class="freshwater-sensor" id="sensor-FT-FILTRATION">
-                    <div class="freshwater-sensor-name">
-                        FT-FILTRATION · FLOW
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-FT-FILTRATION">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-FT-FILTRATION">
-                        Waiting
-                    </div>
-                </div>
-
-                <div class="freshwater-sensor" id="sensor-LT-FILTRATION">
-                    <div class="freshwater-sensor-name">
-                        LT-FILTRATION · LEVEL
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-LT-FILTRATION">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-LT-FILTRATION">
-                        Waiting
-                    </div>
-                </div>
-
-                <div class="freshwater-sensor" id="sensor-TU-FILTRATION">
-                    <div class="freshwater-sensor-name">
-                        TU-FILTRATION · TURBIDITY
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-TU-FILTRATION">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-TU-FILTRATION">
-                        Waiting
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="freshwater-flow">FILTERED WATER →</div>
-        </section>
-
-        <div class="freshwater-arrow">→</div>
-
-        <!-- DOSING -->
-        <section class="freshwater-stage">
-            <h3 class="freshwater-stage-title">Chemical Dosing</h3>
-            <div class="freshwater-stage-subtitle">
-                Water chemistry monitoring
-            </div>
-
-            <div class="freshwater-process-icon">⚗</div>
-
-            <div class="freshwater-sensor-grid">
-
-                <div class="freshwater-sensor" id="sensor-CL-DOSING">
-                    <div class="freshwater-sensor-name">
-                        CL-DOSING · CHLORINE
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-CL-DOSING">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-CL-DOSING">
-                        Waiting
-                    </div>
-                </div>
-
-                <div class="freshwater-sensor" id="sensor-PH-DOSING">
-                    <div class="freshwater-sensor-name">
-                        PH-DOSING · PH
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-PH-DOSING">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-PH-DOSING">
-                        Waiting
-                    </div>
-                </div>
-
-                <div class="freshwater-sensor" id="sensor-FT-DOSING">
-                    <div class="freshwater-sensor-name">
-                        FT-DOSING · FLOW
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-FT-DOSING">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-FT-DOSING">
-                        Waiting
-                    </div>
-                </div>
-
-                <div class="freshwater-sensor" id="sensor-FT-DOSE">
-                    <div class="freshwater-sensor-name">
-                        FT-DOSE · DOSING FLOW
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-FT-DOSE">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-FT-DOSE">
-                        Waiting
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="freshwater-flow">TREATED WATER →</div>
-        </section>
-
-        <div class="freshwater-arrow">→</div>
-
-        <!-- STORAGE -->
-        <section class="freshwater-stage">
-            <h3 class="freshwater-stage-title">Finished Water Storage</h3>
-            <div class="freshwater-stage-subtitle">
-                Finished water monitoring
-            </div>
-
-            <div class="freshwater-process-icon">▱</div>
-
-            <div class="freshwater-sensor-grid">
-
-                <div class="freshwater-sensor" id="sensor-CL-STORAGE">
-                    <div class="freshwater-sensor-name">
-                        CL-STORAGE · CHLORINE
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-CL-STORAGE">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-CL-STORAGE">
-                        Waiting
-                    </div>
-                </div>
-
-                <div class="freshwater-sensor" id="sensor-LT-STORAGE">
-                    <div class="freshwater-sensor-name">
-                        LT-STORAGE · LEVEL
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-LT-STORAGE">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-LT-STORAGE">
-                        Waiting
-                    </div>
-                </div>
-
-                <div class="freshwater-sensor" id="sensor-TT-STORAGE">
-                    <div class="freshwater-sensor-name">
-                        TT-STORAGE · TEMPERATURE
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-TT-STORAGE">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-TT-STORAGE">
-                        Waiting
-                    </div>
-                </div>
-
-                <div class="freshwater-sensor" id="sensor-TU-STORAGE">
-                    <div class="freshwater-sensor-name">
-                        TU-STORAGE · TURBIDITY
-                    </div>
-                    <div class="freshwater-sensor-value" id="val-TU-STORAGE">
-                        --
-                    </div>
-                    <div class="freshwater-sensor-status" id="status-TU-STORAGE">
-                        Waiting
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="freshwater-flow">FINISHED WATER →</div>
-        </section>
-
-        <div class="freshwater-arrow">→</div>
-
-        <!-- OUTPUT -->
-        <section class="freshwater-stage freshwater-output">
-            <div class="freshwater-output-box">
-                <div class="freshwater-output-icon">💧</div>
-                <strong>Clean Water</strong>
-                <div class="freshwater-output-subtitle">
-                    Distribution
-                </div>
-            </div>
-        </section>
-
-    </div>
-
-    <div class="freshwater-legend">
-        Live data from SCADA
-    </div>
-
-</div>
-
-{% endblock %}
-
-
-{% block scripts %}
-
-<script>
-    const FRESHWATER_TAGS = [
-        "FT-INTAKE",
-        "LT-INTAKE",
-        "DP-INTAKE",
-        "TU-INTAKE",
-
-        "DP-FILTRATION",
-        "FT-FILTRATION",
-        "LT-FILTRATION",
-        "TU-FILTRATION",
-
-        "CL-DOSING",
-        "PH-DOSING",
-        "FT-DOSING",
-        "FT-DOSE",
-
-        "CL-STORAGE",
-        "LT-STORAGE",
-        "TT-STORAGE",
-        "TU-STORAGE"
-    ];
-
-    function setFreshwaterSensor(tag, value, online) {
-        const sensor = document.getElementById("sensor-" + tag);
-        const valueElement = document.getElementById("val-" + tag);
-        const statusElement = document.getElementById("status-" + tag);
-
-        if (!sensor || !valueElement || !statusElement) {
-            return;
-        }
-
-        if (value === null || value === undefined || value === "") {
-            valueElement.textContent = "--";
-        } else {
-            valueElement.textContent = value;
-        }
-
-        sensor.classList.remove(
-            "freshwater-online",
-            "freshwater-offline"
-        );
-
-        if (online) {
-            sensor.classList.add("freshwater-online");
-            statusElement.textContent = "Online";
-        } else {
-            sensor.classList.add("freshwater-offline");
-            statusElement.textContent = "Offline";
-        }
-    }
-
-    function getFreshwaterValue(device) {
-        if (device === null || device === undefined) {
-            return null;
-        }
-
-        if (typeof device !== "object") {
-            return device;
-        }
-
-        if (device.value !== undefined) {
-            return device.value;
-        }
-
-        if (device.reading !== undefined) {
-            return device.reading;
-        }
-
-        if (device.data !== undefined) {
-            return device.data;
-        }
-
-        if (device.current_value !== undefined) {
-            return device.current_value;
-        }
-
-        return null;
-    }
-
-    function getFreshwaterOnline(device) {
-        if (device === null || device === undefined) {
-            return false;
-        }
-
-        if (typeof device !== "object") {
-            return true;
-        }
-
-        if (device.online !== undefined) {
-            return Boolean(device.online);
-        }
-
-        if (device.connected !== undefined) {
-            return Boolean(device.connected);
-        }
-
-        if (device.status !== undefined) {
-            return (
-                device.status === "online" ||
-                device.status === "Online"
-            );
-        }
-
-        return true;
-    }
-
-    async function updateFreshwaterSensors() {
-        try {
-            const response = await fetch("/api/sensors", {
-                cache: "no-store"
-            });
-
-            if (!response.ok) {
-                throw new Error("HTTP " + response.status);
-            }
-
-            const data = await response.json();
-
-            const devices = {};
-
-            if (Array.isArray(data)) {
-                for (const device of data) {
-                    const tag =
-                        device.tag ||
-                        device.name ||
-                        device.device_tag;
-
-                    if (tag) {
-                        devices[tag] = device;
-                    }
-                }
-            } else if (data && typeof data === "object") {
-                Object.assign(devices, data);
-            }
-
-            for (const tag of FRESHWATER_TAGS) {
-                const device = devices[tag];
-
-                if (!device) {
-                    setFreshwaterSensor(tag, null, false);
-                    continue;
-                }
-
-                setFreshwaterSensor(
-                    tag,
-                    getFreshwaterValue(device),
-                    getFreshwaterOnline(device)
-                );
-            }
-
-        } catch (error) {
-            console.error(
-                "Unable to update freshwater SCADA sensors:",
-                error
-            );
-
-            for (const tag of FRESHWATER_TAGS) {
-                setFreshwaterSensor(tag, null, false);
-            }
-        }
-    }
-
-    updateFreshwaterSensors();
-
-    // Refresh live freshwater values every 2 seconds.
-    setInterval(updateFreshwaterSensors, 2000);
-</script>
-
+{% macro sensor(tag, desc, unit, x, y, w, lead, cls='leader-blue') -%}
+<g class="sensor-box" id="box-{{ tag }}">
+  <rect x="{{ x }}" y="{{ y }}" width="{{ w }}" height="56"/>
+  <text class="sensor-tag" x="{{ x + 12 }}" y="{{ y + 17 }}">{{ tag }}</text>
+  <text class="sensor-desc" x="{{ x + 12 }}" y="{{ y + 31 }}">{{ desc }}</text>
+  <text class="sensor-value" x="{{ x + 12 }}" y="{{ y + 51 }}" id="val-{{ tag }}">—</text>
+  {% if unit %}<text class="sensor-unit" x="{{ x + w - 34 }}" y="{{ y + 51 }}">{{ unit }}</text>{% endif %}
+</g>
+<path class="leader {{ cls }}" d="{{ lead }}"/>
+{%- endmacro %}
+
+<svg viewBox="0 0 1600 760" class="pid-svg" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#172233"/><stop offset="50%" stop-color="#223650"/><stop offset="100%" stop-color="#172233"/></linearGradient>
+    <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2385d0" stop-opacity="0.82"/><stop offset="100%" stop-color="#0e3c64" stop-opacity="0.62"/></linearGradient>
+    <filter id="gl"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <!-- main freshwater process -->
+  <path class="eq-pipe" d="M 20 304 H 80 M 170 304 H 250 M 330 304 H 390 M 470 304 H 540 M 650 304 H 720 M 870 304 H 940 M 1060 304 H 1120 M 1420 304 H 1550"/>
+  <path class="eq-pipe-flow" d="M 20 304 H 80 M 170 304 H 250 M 330 304 H 390 M 470 304 H 540 M 650 304 H 720 M 870 304 H 940 M 1060 304 H 1120 M 1420 304 H 1550"/>
+  <polygon points="16,297 31,304 16,311" fill="#58a6ff"/><text x="18" y="286" fill="#58a6ff" font-size="11" font-weight="800">RAW WATER</text>
+  <polygon points="1547,297 1562,304 1547,311" fill="#7ee787"/><text x="1468" y="286" fill="#7ee787" font-size="11" font-weight="800">FINISHED WATER</text>
+
+  <!-- intake reservoir -->
+  <rect class="eq-tank" x="80" y="230" width="90" height="150" rx="5"/>
+  <rect class="eq-tank-fill" id="fill-LT-INTAKE" x="83" y="285" width="84" height="92" data-tankh="144" data-tanky="233"/>
+  <line x1="92" y1="238" x2="92" y2="370" stroke="#8fa8c4" opacity=".35"/><line x1="158" y1="238" x2="158" y2="370" stroke="#8fa8c4" opacity=".35"/>
+  <text x="125" y="405" class="eq-label">Intake</text>
+
+  <!-- intake treatment screen -->
+  <rect x="250" y="264" width="80" height="80" rx="4" fill="url(#tg)" stroke="#9fb1c7" stroke-width="2"/>
+  {% for i in range(7) %}<line x1="{{ 261+i*9 }}" y1="272" x2="{{ 261+i*9 }}" y2="336" stroke="#75869a" opacity=".45"/>{% endfor %}
+  <text x="290" y="371" class="eq-label">Screen</text>
+
+  <!-- intake pump -->
+  <g id="pump-P-INTAKE">
+    <circle class="eq-pump-body" cx="425" cy="304" r="30"/>
+    <g class="eq-pump-blade" style="transform-origin:425px 304px;"><line x1="425" y1="278" x2="425" y2="330"/><line x1="399" y1="304" x2="451" y2="304"/></g>
+  </g>
+  <text x="425" y="352" class="eq-label">P-INTAKE</text>
+
+  <!-- filtration -->
+  <rect class="eq-tank" x="540" y="246" width="110" height="116" rx="5"/>
+  <rect class="eq-tank-fill" id="fill-LT-FILTRATION" x="543" y="291" width="104" height="68" data-tankh="110" data-tanky="249"/>
+  {% for y in [270,288,306,324,342] %}<line x1="550" y1="{{ y }}" x2="640" y2="{{ y }}" stroke="#8fa8c4" opacity=".28"/>{% endfor %}
+  <text x="595" y="392" class="eq-label">Filtration</text>
+  <circle class="leader-dot" cx="595" cy="318" r="10" fill="none" stroke="#8ac7ff" stroke-width="3"/>
+
+  <!-- backwash / turbidity train -->
+  <path class="eq-pipe" d="M 650 270 H 690 V 235 H 730 M 650 338 H 690 V 375 H 730"/>
+  <g id="valve-SV-FILTRATION" class="eq-valve-closed"><polygon class="eq-valve-body" points="680,235 696,225 696,245"/><polygon class="eq-valve-body" points="728,235 696,225 696,245"/></g>
+
+  <!-- dosing -->
+  <rect x="720" y="250" width="150" height="108" rx="5" fill="url(#tg)" stroke="#aab8ca" stroke-width="2"/>
+  <circle cx="760" cy="304" r="27" fill="none" stroke="#9aacc2" stroke-width="2"/>
+  <circle cx="760" cy="304" r="7" fill="#2385d0" opacity=".75"/>
+  <rect x="805" y="270" width="40" height="68" rx="4" fill="#1a2534" stroke="#73869b" stroke-width="2"/>
+  <path d="M 825 288 V 320" stroke="#58a6ff" stroke-width="5" stroke-linecap="round"/>
+  <text x="795" y="392" class="eq-label">Chemical Dosing</text>
+
+  <!-- pH / chlorine contact -->
+  <rect class="eq-tank" x="940" y="260" width="120" height="92" rx="5"/>
+  <rect class="eq-tank-fill" id="fill-LT-DOSING" x="943" y="294" width="114" height="55" data-tankh="86" data-tanky="263"/>
+  {% for x in [965,995,1025,1050] %}<line x1="{{ x }}" y1="264" x2="{{ x }}" y2="340" stroke="#505f70" stroke-width="2"/>{% endfor %}
+  <text x="1000" y="392" class="eq-label">Contact / Conditioning</text>
+
+  <!-- storage tank -->
+  <ellipse class="eq-tank" cx="1270" cy="245" rx="150" ry="22"/>
+  <rect class="eq-tank" x="1120" y="245" width="300" height="110"/>
+  <rect class="eq-tank-fill" id="fill-LT-STORAGE" x="1123" y="292" width="294" height="60" data-tankh="104" data-tanky="248"/>
+  <ellipse class="eq-tank" cx="1270" cy="355" rx="150" ry="20"/>
+  {% for x in [1170,1220,1270,1320,1370] %}<line x1="{{ x }}" y1="251" x2="{{ x }}" y2="348" stroke="#8fa8c4" opacity=".22"/>{% endfor %}
+  <text x="1270" y="392" class="eq-label">Finished Water Storage</text>
+
+  <!-- storage outlet / distribution -->
+  <path class="eq-pipe" d="M 1420 304 H 1480 V 245 H 1540 M 1480 304 V 365 H 1540"/>
+  <g id="valve-SV-DIST" class="eq-valve-closed"><polygon class="eq-valve-body" points="1470,304 1482,292 1482,316"/><polygon class="eq-valve-body" points="1494,304 1482,292 1482,316"/></g>
+
+  <!-- lower auxiliary / backwash return -->
+  <path class="eq-pipe" d="M 300 344 V 500 H 540 M 870 358 V 520 H 1040"/>
+  <path class="eq-pipe-flow chem-flow" d="M 300 344 V 500 H 540 M 870 358 V 520 H 1040"/>
+  <text x="350" y="492" fill="#f28b28" font-size="12" font-weight="800">BACKWASH</text><text x="875" y="542" fill="#bc8cff" font-size="12" font-weight="800">CHEMICAL</text>
+
+  <!-- auxiliary equipment -->
+  <rect x="540" y="470" width="140" height="70" rx="5" fill="url(#tg)" stroke="#aab8ca" stroke-width="2"/>
+  {% for x in [575,610,645] %}<circle cx="{{ x }}" cy="505" r="18" fill="none" stroke="#9aacc2" stroke-width="2"/>{% endfor %}
+  <text x="610" y="572" class="eq-label">Backwash Unit</text>
+
+  <g id="pump-P-BW"><circle class="eq-pump-body" cx="800" cy="520" r="28"/><g class="eq-pump-blade" style="transform-origin:800px 520px;"><line x1="800" y1="496" x2="800" y2="544"/><line x1="776" y1="520" x2="824" y2="520"/></g></g>
+  <text x="800" y="564" class="eq-label">P-BW</text>
+
+  <rect x="900" y="470" width="140" height="70" rx="5" fill="url(#tg)" stroke="#aab8ca" stroke-width="2"/>
+  <path d="M 925 505 H 1015" class="eq-pipe"/>
+  {% for x in [935,965,995] %}<circle cx="{{ x }}" cy="505" r="7" fill="none" stroke="#58a6ff" stroke-width="2"/>{% endfor %}
+  <text x="970" y="572" class="eq-label">Chemical Feed Skid</text>
+
+  <!-- instrument dots -->
+  <circle class="leader-dot" cx="125" cy="235" fill="#58a6ff"/>
+  <circle class="leader-dot" cx="125" cy="300" fill="#7ee787"/>
+  <circle class="leader-dot" cx="250" cy="288" fill="#ffbd2e"/>
+  <circle class="leader-dot" cx="330" cy="288" fill="#ffbd2e"/>
+  <circle class="leader-dot" cx="425" cy="304" fill="#7ee787"/>
+  <circle class="leader-dot" cx="595" cy="318" fill="#58a6ff"/>
+  <circle class="leader-dot" cx="650" cy="304" fill="#ffbd2e"/>
+  <circle class="leader-dot" cx="760" cy="304" fill="#bc8cff"/>
+  <circle class="leader-dot" cx="825" cy="304" fill="#58a6ff"/>
+  <circle class="leader-dot" cx="1000" cy="318" fill="#7ee787"/>
+  <circle class="leader-dot" cx="1270" cy="304" fill="#58a6ff"/>
+  <circle class="leader-dot" cx="1390" cy="304" fill="#7ee787"/>
+  <circle class="leader-dot" cx="610" cy="505" fill="#f28b28"/>
+  <circle class="leader-dot" cx="800" cy="520" fill="#f28b28"/>
+  <circle class="leader-dot" cx="970" cy="505" fill="#bc8cff"/>
+
+  <!-- VLAN / section bands -->
+  <g class="section-pill"><rect x="75" y="420" width="170" height="25" rx="4"/><text class="vlan" x="88" y="437">VLAN 10</text><text x="150" y="437">Intake</text></g>
+  <g class="section-pill"><rect x="270" y="420" width="180" height="25" rx="4"/><text class="vlan" x="283" y="437">VLAN 20</text><text x="346" y="437">Pre-Treatment</text></g>
+  <g class="section-pill"><rect x="505" y="420" width="170" height="25" rx="4"/><text class="vlan" x="518" y="437">VLAN 30</text><text x="580" y="437">Filtration</text></g>
+  <g class="section-pill"><rect x="720" y="420" width="170" height="25" rx="4"/><text class="vlan" x="733" y="437">VLAN 40</text><text x="795" y="437">Dosing</text></g>
+  <g class="section-pill"><rect x="930" y="420" width="190" height="25" rx="4"/><text class="vlan" x="943" y="437" fill="#bc8cff">VLAN 50</text><text x="1003" y="437">Conditioning</text></g>
+  <g class="section-pill"><rect x="1140" y="420" width="220" height="25" rx="4"/><text class="vlan" x="1153" y="437" fill="#7ee787">VLAN 60</text><text x="1210" y="437">Storage / Distribution</text></g>
+
+  <!-- top sensor row: all sixteen real freshwater instruments, unique IDs so the existing SCADA polling updates each value -->
+  {{ sensor('FT-INTAKE','FLOW','gpm', 20, 22, 126, 'M 83 78 V 205 H 55 V 304', 'leader-blue') }}
+  {{ sensor('LT-INTAKE','LEVEL','%', 160, 22, 122, 'M 221 78 V 205 H 125 V 235', 'leader-blue') }}
+  {{ sensor('DP-INTAKE','DIFF PRESS','psi', 295, 22, 126, 'M 358 78 V 214 H 290 V 288', 'leader-yellow') }}
+  {{ sensor('TU-INTAKE','TURBIDITY','NTU', 432, 22, 126, 'M 495 78 V 190 H 330 V 288', 'leader-yellow') }}
+  {{ sensor('FT-FILTRATION','FLOW','gpm', 570, 22, 126, 'M 633 78 V 196 H 650 V 304', 'leader-blue') }}
+  {{ sensor('LT-FILTRATION','LEVEL','%', 708, 22, 118, 'M 767 78 V 196 H 595 V 318', 'leader-blue') }}
+  {{ sensor('DP-FILTRATION','DIFF PRESS','psi', 842, 22, 128, 'M 906 78 V 190 H 650 V 304', 'leader-yellow') }}
+  {{ sensor('TU-FILTRATION','TURBIDITY','NTU', 984, 22, 130, 'M 1049 78 V 190 H 720 V 304', 'leader-yellow') }}
+  {{ sensor('CL-DOSING','CHLORINE','mg/L', 1126, 22, 128, 'M 1190 78 V 188 H 1000 V 318', 'leader-green') }}
+  {{ sensor('PH-DOSING','pH','pH', 1266, 22, 112, 'M 1322 78 V 188 H 1000 V 318', 'leader-purple') }}
+  {{ sensor('FT-DOSING','FLOW','gpm', 1390, 22, 118, 'M 1449 78 V 194 H 1120 V 304', 'leader-blue') }}
+  {{ sensor('FT-DOSE','DOSE RATE','L/min', 1518, 22, 80, 'M 1558 78 V 230 H 825 V 304', 'leader-purple') }}
+
+  <!-- lower sensor row: storage instruments, kept isolated from the plant-wide leaders -->
+  <path class="leader leader-orange" d="M 145 704 H 1415" opacity=".42"/>
+  {{ sensor('LT-STORAGE','LEVEL','%', 115, 655, 128, 'M 179 655 V 704 H 1270 V 304', 'leader-blue') }}
+  {{ sensor('TT-STORAGE','TEMP','°C', 285, 655, 126, 'M 348 655 V 704 H 1170 V 240', 'leader-green') }}
+  {{ sensor('TU-STORAGE','TURBIDITY','NTU', 455, 655, 130, 'M 520 655 V 704 H 1220 V 304', 'leader-yellow') }}
+  {{ sensor('CL-STORAGE','CHLORINE','mg/L', 630, 655, 132, 'M 696 655 V 704 H 1370 V 304', 'leader-green') }}
+</svg>
 {% endblock %}
