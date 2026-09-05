@@ -1695,19 +1695,15 @@ def install_freshwater_scada_files(
 
         # This command runs INSIDE the SCADA container.
         start_command = (
-            "mkdir -p "
-            "/app/scenarios/freshwater_treatment "
-            "&& printf '%s' "
-            "\"$FRESHWATER_DIAGRAM_CONFIG_B64\" "
+            "sh -c "
+            "\"mkdir -p /app/scenarios/freshwater_treatment "
+            "&& printf '%s' \\\"$FRESHWATER_DIAGRAM_CONFIG_B64\\\" "
             "| base64 -d > "
-            "/app/scenarios/freshwater_treatment/"
-            "diagrams.yaml "
-            "&& printf '%s' "
-            "\"$FRESHWATER_DIAGRAM_TEMPLATE_B64\" "
+            "/app/scenarios/freshwater_treatment/diagrams.yaml "
+            "&& printf '%s' \\\"$FRESHWATER_DIAGRAM_TEMPLATE_B64\\\" "
             "| base64 -d > "
-            "/app/scada/templates/diagrams/"
-            "freshwater_overview.html "
-            "&& exec python3 -m scada"
+            "/app/scada/templates/diagrams/freshwater_overview.html "
+            "&& exec python3 -m scada\""
         )
 
         # ---------------------------------------------------------------
