@@ -9,7 +9,6 @@ Each stage has:
     - 4 field sensors
     - 1 field switch
     - 1 dual-homed PLC
-    - 1 HMI
 
 Central operations network:
     - Core-Switch
@@ -18,16 +17,18 @@ Central operations network:
     - SCADA
     - Kali Linux
 
-PLC nodes use the existing:
+PLC nodes use:
     wtaylor8/generic-plc:latest
 
-This script configures GNS3 node properties and network files only.
-It does not use Node.execute(); all verification is performed through the GNS3 REST API.
+The shared generic-scada image is not modified. The 480-2-specific
+freshwater SCADA diagram files are copied into the SCADA node during
+deployment.
 
-Important PLC discovery fix:
-    PLC_SCAN_SUBNETS is explicitly restricted to each PLC's own field LAN.
-    This prevents a PLC from importing the other PLCs from the operations LAN
-    into its aggregate child table.
+Important PLC discovery behavior:
+    Sensors are started before their PLC so the PLC's initial field scan
+    can discover the sensors immediately. PLC_SCAN_SUBNETS is restricted
+    to each PLC's own field LAN so PLCs do not import other PLCs from the
+    operations LAN into their aggregate child tables.
 """
 
 from __future__ import annotations
@@ -60,6 +61,34 @@ SCADA_IP = "10.10.20.200"
 HMI_IP = "10.10.20.20"
 HISTORIAN_IP = "10.10.20.30"
 KALI_IP = "10.10.20.250"
+
+# Repository files used only by the 480-2 deployment.
+REPO_ROOT = Path(__file__).resolve().parent
+
+FRESHWATER_DIAGRAM_CONFIG = (
+    REPO_ROOT
+    / "scada"
+    / "freshwater_treatment"
+    / "diagrams.yaml"
+)
+
+FRESHWATER_DIAGRAM_TEMPLATE = (
+    REPO_ROOT
+    / "scada"
+    / "templates"
+    / "diagrams"
+    / "freshwater_overview.html"
+)
+
+# Destination paths inside the generic-scada container.
+SCADA_DIAGRAM_CONFIG_PATH = (
+    "/app/scenarios/freshwater_treatment/diagrams.yaml"
+)
+
+SCADA_DIAGRAM_TEMPLATE_PATH = (
+    "/app/scada/templates/diagrams/freshwater_overview.html"
+)
+
 
 REQUIRED_TEMPLATES = [
     {
@@ -112,6 +141,7 @@ REQUIRED_TEMPLATES = [
     },
 ]
 
+
 STAGES = [
     {
         "name": "intake",
@@ -124,10 +154,34 @@ STAGES = [
         "core_port": "Ethernet0",
         "x": -600,
         "sensors": [
-            ("sensor-intake-flow", "192.168.10.1", "FT-INTAKE", "gpm", "float"),
-            ("sensor-intake-level", "192.168.10.2", "LT-INTAKE", "%", "float"),
-            ("sensor-intake-pressure", "192.168.10.3", "DP-INTAKE", "psi", "float"),
-            ("sensor-intake-turbidity", "192.168.10.4", "TU-INTAKE", "NTU", "float"),
+            (
+                "sensor-intake-flow",
+                "192.168.10.1",
+                "FT-INTAKE",
+                "gpm",
+                "float",
+            ),
+            (
+                "sensor-intake-level",
+                "192.168.10.2",
+                "LT-INTAKE",
+                "%",
+                "float",
+            ),
+            (
+                "sensor-intake-pressure",
+                "192.168.10.3",
+                "DP-INTAKE",
+                "psi",
+                "float",
+            ),
+            (
+                "sensor-intake-turbidity",
+                "192.168.10.4",
+                "TU-INTAKE",
+                "NTU",
+                "float",
+            ),
         ],
     },
     {
@@ -141,10 +195,34 @@ STAGES = [
         "core_port": "Ethernet1",
         "x": -200,
         "sensors": [
-            ("sensor-filtration-turbidity", "192.168.20.1", "TU-FILTRATION", "NTU", "float"),
-            ("sensor-filtration-pressure", "192.168.20.2", "DP-FILTRATION", "psi", "float"),
-            ("sensor-filtration-flow", "192.168.20.3", "FT-FILTRATION", "gpm", "float"),
-            ("sensor-filtration-level", "192.168.20.4", "LT-FILTRATION", "%", "float"),
+            (
+                "sensor-filtration-turbidity",
+                "192.168.20.1",
+                "TU-FILTRATION",
+                "NTU",
+                "float",
+            ),
+            (
+                "sensor-filtration-pressure",
+                "192.168.20.2",
+                "DP-FILTRATION",
+                "psi",
+                "float",
+            ),
+            (
+                "sensor-filtration-flow",
+                "192.168.20.3",
+                "FT-FILTRATION",
+                "gpm",
+                "float",
+            ),
+            (
+                "sensor-filtration-level",
+                "192.168.20.4",
+                "LT-FILTRATION",
+                "%",
+                "float",
+            ),
         ],
     },
     {
@@ -158,10 +236,34 @@ STAGES = [
         "core_port": "Ethernet2",
         "x": 200,
         "sensors": [
-            ("sensor-dosing-chlorine", "192.168.30.1", "CL-DOSING", "mg/L", "float"),
-            ("sensor-dosing-ph", "192.168.30.2", "PH-DOSING", "pH", "float"),
-            ("sensor-dosing-flow", "192.168.30.3", "FT-DOSING", "gpm", "float"),
-            ("sensor-dosing-rate", "192.168.30.4", "FT-DOSE", "L/h", "float"),
+            (
+                "sensor-dosing-chlorine",
+                "192.168.30.1",
+                "CL-DOSING",
+                "mg/L",
+                "float",
+            ),
+            (
+                "sensor-dosing-ph",
+                "192.168.30.2",
+                "PH-DOSING",
+                "pH",
+                "float",
+            ),
+            (
+                "sensor-dosing-flow",
+                "192.168.30.3",
+                "FT-DOSING",
+                "gpm",
+                "float",
+            ),
+            (
+                "sensor-dosing-rate",
+                "192.168.30.4",
+                "FT-DOSE",
+                "L/h",
+                "float",
+            ),
         ],
     },
     {
@@ -175,10 +277,34 @@ STAGES = [
         "core_port": "Ethernet3",
         "x": 600,
         "sensors": [
-            ("sensor-storage-level", "192.168.40.1", "LT-STORAGE", "%", "float"),
-            ("sensor-storage-turbidity", "192.168.40.2", "TU-STORAGE", "NTU", "float"),
-            ("sensor-storage-chlorine", "192.168.40.3", "CL-STORAGE", "mg/L", "float"),
-            ("sensor-storage-temperature", "192.168.40.4", "TT-STORAGE", "C", "float"),
+            (
+                "sensor-storage-level",
+                "192.168.40.1",
+                "LT-STORAGE",
+                "%",
+                "float",
+            ),
+            (
+                "sensor-storage-turbidity",
+                "192.168.40.2",
+                "TU-STORAGE",
+                "NTU",
+                "float",
+            ),
+            (
+                "sensor-storage-chlorine",
+                "192.168.40.3",
+                "CL-STORAGE",
+                "mg/L",
+                "float",
+            ),
+            (
+                "sensor-storage-temperature",
+                "192.168.40.4",
+                "TT-STORAGE",
+                "C",
+                "float",
+            ),
         ],
     },
 ]
@@ -192,32 +318,51 @@ def read_server_urls() -> list[str]:
     path = Path(DATASTORE_FILE)
 
     if not path.exists():
-        raise RuntimeError(f"Required file '{DATASTORE_FILE}' was not found.")
+        raise RuntimeError(
+            f"Required file '{DATASTORE_FILE}' was not found."
+        )
 
     content = path.read_text(encoding="utf-8").strip()
+
     if not content:
-        raise RuntimeError(f"Required file '{DATASTORE_FILE}' is empty.")
+        raise RuntimeError(
+            f"Required file '{DATASTORE_FILE}' is empty."
+        )
 
     urls: list[str] = []
+
     for item in content.split(","):
         item = item.strip()
+
         if not item:
             continue
+
         if not item.isdigit():
             raise RuntimeError(
-                f"Invalid datastore entry '{item}'. Expected comma-separated last octets."
+                f"Invalid datastore entry '{item}'. "
+                "Expected comma-separated last octets."
             )
+
         urls.append(f"{BASE_IP}{int(item)}:80")
 
     if not urls:
-        raise RuntimeError(f"No valid GNS3 server last octets found in '{DATASTORE_FILE}'.")
+        raise RuntimeError(
+            f"No valid GNS3 server last octets found in "
+            f"'{DATASTORE_FILE}'."
+        )
 
     return urls
 
 
-def require_http_success(response: requests.Response, action: str) -> None:
+def require_http_success(
+    response: requests.Response,
+    action: str,
+) -> None:
     if response.status_code not in (200, 201, 204):
-        raise RuntimeError(f"{action} failed: HTTP {response.status_code}: {response.text}")
+        raise RuntimeError(
+            f"{action} failed: "
+            f"HTTP {response.status_code}: {response.text}"
+        )
 
 
 def ensure_10_port_switch(server_url: str) -> None:
@@ -228,13 +373,21 @@ def ensure_10_port_switch(server_url: str) -> None:
             timeout=30,
         )
         response.raise_for_status()
+
     except requests.RequestException as exc:
-        raise RuntimeError(f"Could not list templates on {server_url}: {exc}") from exc
+        raise RuntimeError(
+            f"Could not list templates on {server_url}: {exc}"
+        ) from exc
 
     existing = next(
-        (template for template in response.json() if template.get("name") == CORE_SWITCH_TEMPLATE),
+        (
+            template
+            for template in response.json()
+            if template.get("name") == CORE_SWITCH_TEMPLATE
+        ),
         None,
     )
+
     if existing:
         logging.info(
             "Template '%s' already exists on %s.",
@@ -271,13 +424,16 @@ def ensure_10_port_switch(server_url: str) -> None:
             auth=(GNS3_USER, GNS3_PW),
             timeout=30,
         )
+
         require_http_success(
             response,
             f"Create template '{CORE_SWITCH_TEMPLATE}' on {server_url}",
         )
+
     except requests.RequestException as exc:
         raise RuntimeError(
-            f"Network error creating '{CORE_SWITCH_TEMPLATE}' on {server_url}: {exc}"
+            f"Network error creating '{CORE_SWITCH_TEMPLATE}' "
+            f"on {server_url}: {exc}"
         ) from exc
 
     logging.info(
@@ -302,7 +458,8 @@ def update_template_environment(
 
     if not template_id:
         raise RuntimeError(
-            f"Template '{template_name}' on {server_url} has no template_id."
+            f"Template '{template_name}' on {server_url} "
+            "has no template_id."
         )
 
     updated = dict(template)
@@ -315,13 +472,17 @@ def update_template_environment(
             auth=(GNS3_USER, GNS3_PW),
             timeout=30,
         )
+
         require_http_success(
             response,
-            f"Update template '{template_name}' environment on {server_url}",
+            f"Update template '{template_name}' environment "
+            f"on {server_url}",
         )
+
     except requests.RequestException as exc:
         raise RuntimeError(
-            f"Network error updating template '{template_name}' on {server_url}: {exc}"
+            f"Network error updating template '{template_name}' "
+            f"on {server_url}: {exc}"
         ) from exc
 
     logging.info(
@@ -332,9 +493,13 @@ def update_template_environment(
     )
 
 
-def ensure_required_templates(server: Gns3Connector, server_url: str) -> None:
+def ensure_required_templates(
+    server: Gns3Connector,
+    server_url: str,
+) -> None:
     try:
         available = server.get_templates()
+
     except Exception as exc:
         raise RuntimeError(
             f"Could not list GNS3 templates on {server_url}: {exc}"
@@ -363,13 +528,17 @@ def ensure_required_templates(server: Gns3Connector, server_url: str) -> None:
                 auth=(GNS3_USER, GNS3_PW),
                 timeout=30,
             )
+
             require_http_success(
                 response,
-                f"Register template '{template['name']}' on {server_url}",
+                f"Register template '{template['name']}' "
+                f"on {server_url}",
             )
+
         except requests.RequestException as exc:
             raise RuntimeError(
-                f"Network error registering template '{template['name']}' on {server_url}: {exc}"
+                f"Network error registering "
+                f"template '{template['name']}' on {server_url}: {exc}"
             ) from exc
 
         logging.info(
@@ -385,13 +554,18 @@ def open_or_create_project(
 ) -> Project:
     try:
         projects = server.get_projects()
+
     except Exception as exc:
         raise RuntimeError(
             f"Could not list projects on {server_url}: {exc}"
         ) from exc
 
     existing = next(
-        (project for project in projects if project["name"] == LAB_NAME),
+        (
+            project
+            for project in projects
+            if project["name"] == LAB_NAME
+        ),
         None,
     )
 
@@ -401,28 +575,35 @@ def open_or_create_project(
                 project_id=existing["project_id"],
                 connector=server,
             )
+
             lab.get()
             lab.open()
+
             logging.info(
                 "Opened existing project '%s' on %s.",
                 LAB_NAME,
                 server_url,
             )
+
         else:
             lab = Project(
                 name=LAB_NAME,
                 connector=server,
             )
+
             lab.create()
             lab.open()
+
             logging.info(
                 "Created project '%s' on %s.",
                 LAB_NAME,
                 server_url,
             )
+
     except Exception as exc:
         raise RuntimeError(
-            f"Could not open/create project '{LAB_NAME}' on {server_url}: {exc}"
+            f"Could not open/create project '{LAB_NAME}' "
+            f"on {server_url}: {exc}"
         ) from exc
 
     return lab
@@ -443,14 +624,17 @@ def create_node(
             x=x,
             y=y,
         )
+
         logging.info(
             "Created node '%s' with template '%s'.",
             name,
             template,
         )
+
     except Exception as exc:
         errors.append(
-            f"Create node '{name}' using template '{template}' failed: {exc}"
+            f"Create node '{name}' using template '{template}' "
+            f"failed: {exc}"
         )
 
 
@@ -466,7 +650,8 @@ def set_docker_node_environment(
         node.get()
 
         response = requests.get(
-            f"{server_url}/v2/projects/{lab.project_id}/nodes/{node.node_id}",
+            f"{server_url}/v2/projects/{lab.project_id}/nodes/"
+            f"{node.node_id}",
             auth=(GNS3_USER, GNS3_PW),
             timeout=30,
         )
@@ -486,11 +671,13 @@ def set_docker_node_environment(
         properties["environment"] = environment
 
         response = requests.put(
-            f"{server_url}/v2/projects/{lab.project_id}/nodes/{node.node_id}",
+            f"{server_url}/v2/projects/{lab.project_id}/nodes/"
+            f"{node.node_id}",
             json={"properties": properties},
             auth=(GNS3_USER, GNS3_PW),
             timeout=30,
         )
+
         require_http_success(
             response,
             f"Update node '{node_name}' environment",
@@ -501,6 +688,7 @@ def set_docker_node_environment(
             node_name,
             environment,
         )
+
     except Exception as exc:
         errors.append(
             f"Set environment for node '{node_name}' failed: {exc}"
@@ -517,7 +705,12 @@ def configure_interfaces(
         node = lab.get_node(node_name)
         node.get()
 
-        status = getattr(node.status, "value", str(node.status)).lower()
+        status = getattr(
+            node.status,
+            "value",
+            str(node.status),
+        ).lower()
+
         was_running = status == "started"
 
         if was_running:
@@ -531,14 +724,20 @@ def configure_interfaces(
         if was_running:
             node.start()
 
-        logging.info("Configured network for '%s'.", node_name)
+        logging.info(
+            "Configured network for '%s'.",
+            node_name,
+        )
+
     except Exception as exc:
         errors.append(
             f"Configure network for node '{node_name}' failed: {exc}"
         )
 
 
-def build_single_interface_config(ip_address: str) -> str:
+def build_single_interface_config(
+    ip_address: str,
+) -> str:
     return f"""
 auto eth0
 iface eth0 inet static
@@ -585,7 +784,6 @@ def plc_environment(stage: dict) -> str:
         AGE_FAILURE_DURATION_SECONDS=20,
         AGE_FAILURE_MODE="zero",
         PLC_SCAN_SUBNETS=stage["field_subnet"],
-        # Explicit interface/IP naming used by the course PLC runtime.
         PLC_FIELD_INTERFACE="eth0",
         PLC_FIELD_IP=stage["field_ip"],
         PLC_FIELD_SUBNET=stage["field_subnet"],
@@ -630,6 +828,9 @@ def scada_environment() -> str:
     return build_environment(
         SCENARIO=SCENARIO,
         SCADA_SUBNETS=OPERATIONS_SUBNET,
+        SCADA_DIAGRAM_CONFIG=(
+            "freshwater_treatment/diagrams.yaml"
+        ),
         IP_ADDRESS=SCADA_IP,
         NETMASK=OPERATIONS_NETMASK,
     )
@@ -661,9 +862,14 @@ def create_scenario_nodes(
     for stage in STAGES:
         x = stage["x"]
 
-        for index, (sensor_name, _ip, _tag, _units, _type) in enumerate(
-            stage["sensors"]
-        ):
+        for index, (
+            sensor_name,
+            _ip,
+            _tag,
+            _units,
+            _type,
+        ) in enumerate(stage["sensors"]):
+
             create_node(
                 lab,
                 sensor_name,
@@ -691,11 +897,50 @@ def create_scenario_nodes(
             errors,
         )
 
-    create_node(lab, "ops-switch", CORE_SWITCH_TEMPLATE, 0, 40, errors)
-    create_node(lab, "hmi-poller", "generic-hmi", -260, 40, errors)
-    create_node(lab, "historian", "generic-hmi", 0, 220, errors)
-    create_node(lab, "scada-server", "generic-scada", 260, 40, errors)
-    create_node(lab, "KaliLinux-1", "Kali Linux", 520, 40, errors)
+    create_node(
+        lab,
+        "ops-switch",
+        CORE_SWITCH_TEMPLATE,
+        0,
+        40,
+        errors,
+    )
+
+    create_node(
+        lab,
+        "hmi-poller",
+        "generic-hmi",
+        -260,
+        40,
+        errors,
+    )
+
+    create_node(
+        lab,
+        "historian",
+        "generic-hmi",
+        0,
+        220,
+        errors,
+    )
+
+    create_node(
+        lab,
+        "scada-server",
+        "generic-scada",
+        260,
+        40,
+        errors,
+    )
+
+    create_node(
+        lab,
+        "KaliLinux-1",
+        "Kali Linux",
+        520,
+        40,
+        errors,
+    )
 
 
 def verify_scenario_environments(
@@ -703,41 +948,75 @@ def verify_scenario_environments(
     lab: Project,
     errors: list[str],
 ) -> None:
-    """Fail loudly if GNS3 did not retain the requested Docker environments."""
     expected_nodes = []
-    for stage in STAGES:
-        expected_nodes.append((stage["plc"], plc_environment(stage)))
-        for sensor_name, sensor_ip, tag, units, data_type in stage["sensors"]:
-            expected_nodes.append((
-                sensor_name,
-                sensor_environment(stage, sensor_ip, tag, units, data_type),
-            ))
 
-    expected_nodes.extend([
-        ("hmi-poller", hmi_environment()),
-        ("historian", historian_environment()),
-        ("scada-server", scada_environment()),
-    ])
+    for stage in STAGES:
+        expected_nodes.append(
+            (
+                stage["plc"],
+                plc_environment(stage),
+            )
+        )
+
+        for (
+            sensor_name,
+            sensor_ip,
+            tag,
+            units,
+            data_type,
+        ) in stage["sensors"]:
+
+            expected_nodes.append(
+                (
+                    sensor_name,
+                    sensor_environment(
+                        stage,
+                        sensor_ip,
+                        tag,
+                        units,
+                        data_type,
+                    ),
+                )
+            )
+
+    expected_nodes.extend(
+        [
+            ("hmi-poller", hmi_environment()),
+            ("historian", historian_environment()),
+            ("scada-server", scada_environment()),
+        ]
+    )
 
     for node_name, expected in expected_nodes:
         try:
             node = lab.get_node(node_name)
             node.get()
+
             response = requests.get(
-                f"{server_url}/v2/projects/{lab.project_id}/nodes/{node.node_id}",
+                f"{server_url}/v2/projects/{lab.project_id}/nodes/"
+                f"{node.node_id}",
                 auth=(GNS3_USER, GNS3_PW),
                 timeout=30,
             )
             response.raise_for_status()
-            actual = (response.json().get("properties") or {}).get("environment", "")
+
+            actual = (
+                response.json()
+                .get("properties", {})
+                .get("environment", "")
+            )
+
             if actual != expected:
                 errors.append(
-                    f"Environment verification failed for '{node_name}'. "
-                    f"Expected {expected!r}, got {actual!r}"
+                    f"Environment verification failed for "
+                    f"'{node_name}'. Expected {expected!r}, "
+                    f"got {actual!r}"
                 )
+
         except Exception as exc:
             errors.append(
-                f"Environment verification for '{node_name}' failed: {exc}"
+                f"Environment verification for "
+                f"'{node_name}' failed: {exc}"
             )
 
 
@@ -756,7 +1035,14 @@ def configure_scenario_nodes(
             errors,
         )
 
-        for sensor_name, sensor_ip, _tag, _units, _data_type in stage["sensors"]:
+        for (
+            sensor_name,
+            sensor_ip,
+            _tag,
+            _units,
+            _data_type,
+        ) in stage["sensors"]:
+
             configure_interfaces(
                 lab,
                 sensor_name,
@@ -800,7 +1086,14 @@ def set_scenario_environments(
             errors,
         )
 
-        for sensor_name, sensor_ip, tag, units, data_type in stage["sensors"]:
+        for (
+            sensor_name,
+            sensor_ip,
+            tag,
+            units,
+            data_type,
+        ) in stage["sensors"]:
+
             set_docker_node_environment(
                 server_url,
                 lab,
@@ -849,26 +1142,63 @@ def stop_node(
     try:
         node = lab.get_node(node_name)
         node.get()
-        status = getattr(node.status, "value", str(node.status)).lower()
+
+        status = getattr(
+            node.status,
+            "value",
+            str(node.status),
+        ).lower()
+
         if status == "started":
             node.stop()
-            logging.info("Stopped node '%s' before applying configuration.", node_name)
+
+            logging.info(
+                "Stopped node '%s' before applying configuration.",
+                node_name,
+            )
+
     except Exception as exc:
-        errors.append(f"Stop node '{node_name}' failed: {exc}")
+        errors.append(
+            f"Stop node '{node_name}' failed: {exc}"
+        )
 
 
 def stop_configurable_nodes(
     lab: Project,
     errors: list[str],
 ) -> None:
-    """Stop all Docker nodes so updated environment variables take effect on restart."""
+    """Stop all Docker nodes before applying configuration."""
     for stage in STAGES:
-        stop_node(lab, stage["plc"], errors)
-        for sensor_name, _ip, _tag, _units, _data_type in stage["sensors"]:
-            stop_node(lab, sensor_name, errors)
+        stop_node(
+            lab,
+            stage["plc"],
+            errors,
+        )
 
-    for node_name in ("hmi-poller", "historian", "scada-server"):
-        stop_node(lab, node_name, errors)
+        for (
+            sensor_name,
+            _ip,
+            _tag,
+            _units,
+            _data_type,
+        ) in stage["sensors"]:
+
+            stop_node(
+                lab,
+                sensor_name,
+                errors,
+            )
+
+    for node_name in (
+        "hmi-poller",
+        "historian",
+        "scada-server",
+    ):
+        stop_node(
+            lab,
+            node_name,
+            errors,
+        )
 
 
 def start_node(
@@ -880,13 +1210,22 @@ def start_node(
         node = lab.get_node(node_name)
         node.get()
 
-        status = getattr(node.status, "value", str(node.status)).lower()
+        status = getattr(
+            node.status,
+            "value",
+            str(node.status),
+        ).lower()
 
         if status == "started":
             return
 
         node.start()
-        logging.info("Started node '%s'.", node_name)
+
+        logging.info(
+            "Started node '%s'.",
+            node_name,
+        )
+
     except Exception as exc:
         errors.append(
             f"Start node '{node_name}' failed: {exc}"
@@ -897,16 +1236,52 @@ def start_scenario_nodes(
     lab: Project,
     errors: list[str],
 ) -> None:
+    # Start field sensors first, then their PLC.
+    # This lets each PLC discover its sensors during its initial scan.
     for stage in STAGES:
-        start_node(lab, stage["plc"], errors)
+        for (
+            sensor_name,
+            _ip,
+            _tag,
+            _units,
+            _data_type,
+        ) in stage["sensors"]:
 
-        for sensor_name, _ip, _tag, _units, _data_type in stage["sensors"]:
-            start_node(lab, sensor_name, errors)
+            start_node(
+                lab,
+                sensor_name,
+                errors,
+            )
 
-    start_node(lab, "hmi-poller", errors)
-    start_node(lab, "historian", errors)
-    start_node(lab, "scada-server", errors)
-    start_node(lab, "KaliLinux-1", errors)
+        start_node(
+            lab,
+            stage["plc"],
+            errors,
+        )
+
+    start_node(
+        lab,
+        "hmi-poller",
+        errors,
+    )
+
+    start_node(
+        lab,
+        "historian",
+        errors,
+    )
+
+    start_node(
+        lab,
+        "scada-server",
+        errors,
+    )
+
+    start_node(
+        lab,
+        "KaliLinux-1",
+        errors,
+    )
 
 
 def create_link(
@@ -918,7 +1293,13 @@ def create_link(
     errors: list[str],
 ) -> None:
     try:
-        lab.create_link(node_a, port_a, node_b, port_b)
+        lab.create_link(
+            node_a,
+            port_a,
+            node_b,
+            port_b,
+        )
+
         logging.info(
             "Linked %s:%s -> %s:%s.",
             node_a,
@@ -926,9 +1307,11 @@ def create_link(
             node_b,
             port_b,
         )
+
     except Exception as exc:
         errors.append(
-            f"Create link {node_a}:{port_a} -> {node_b}:{port_b} failed: {exc}"
+            f"Create link {node_a}:{port_a} -> "
+            f"{node_b}:{port_b} failed: {exc}"
         )
 
 
@@ -946,10 +1329,17 @@ def create_scenario_links(
             errors,
         )
 
-        for index, (sensor_name, _ip, _tag, _units, _data_type) in enumerate(
+        for index, (
+            sensor_name,
+            _ip,
+            _tag,
+            _units,
+            _data_type,
+        ) in enumerate(
             stage["sensors"],
             start=1,
         ):
+
             create_link(
                 lab,
                 sensor_name,
@@ -1005,10 +1395,88 @@ def create_scenario_links(
     )
 
 
-def build_project_on_server(server_url: str) -> None:
+def install_freshwater_scada_files(
+    lab: Project,
+    errors: list[str],
+) -> None:
+    """
+    Install the 480-2-specific SCADA diagram files into the SCADA node.
+
+    Repository:
+        scada/freshwater_treatment/diagrams.yaml
+        scada/templates/diagrams/freshwater_overview.html
+
+    Container:
+        /app/scenarios/freshwater_treatment/diagrams.yaml
+        /app/scada/templates/diagrams/freshwater_overview.html
+    """
+    try:
+        if not FRESHWATER_DIAGRAM_CONFIG.is_file():
+            raise RuntimeError(
+                "Freshwater diagram config not found: "
+                f"{FRESHWATER_DIAGRAM_CONFIG}"
+            )
+
+        if not FRESHWATER_DIAGRAM_TEMPLATE.is_file():
+            raise RuntimeError(
+                "Freshwater diagram template not found: "
+                f"{FRESHWATER_DIAGRAM_TEMPLATE}"
+            )
+
+        diagram_config = (
+            FRESHWATER_DIAGRAM_CONFIG.read_text(
+                encoding="utf-8"
+            )
+        )
+
+        diagram_template = (
+            FRESHWATER_DIAGRAM_TEMPLATE.read_text(
+                encoding="utf-8"
+            )
+        )
+
+        node = lab.get_node("scada-server")
+        node.get()
+
+        status = getattr(
+            node.status,
+            "value",
+            str(node.status),
+        ).lower()
+
+        if status == "started":
+            node.stop()
+
+        node.write_file(
+            path=SCADA_DIAGRAM_CONFIG_PATH,
+            data=diagram_config,
+        )
+
+        node.write_file(
+            path=SCADA_DIAGRAM_TEMPLATE_PATH,
+            data=diagram_template,
+        )
+
+        logging.info(
+            "Installed freshwater SCADA diagram config and template."
+        )
+
+    except Exception as exc:
+        errors.append(
+            "Install freshwater SCADA diagram files failed: "
+            f"{exc}"
+        )
+
+
+def build_project_on_server(
+    server_url: str,
+) -> None:
     errors: list[str] = []
 
-    logging.info("Connecting to GNS3 server at %s.", server_url)
+    logging.info(
+        "Connecting to GNS3 server at %s.",
+        server_url,
+    )
 
     server = Gns3Connector(
         url=server_url,
@@ -1022,9 +1490,19 @@ def build_project_on_server(server_url: str) -> None:
             server_url,
             server.get_version(),
         )
+
         ensure_10_port_switch(server_url)
-        ensure_required_templates(server, server_url)
-        lab = open_or_create_project(server, server_url)
+
+        ensure_required_templates(
+            server,
+            server_url,
+        )
+
+        lab = open_or_create_project(
+            server,
+            server_url,
+        )
+
     except Exception as exc:
         raise RuntimeError(
             f"Project setup failed on {server_url}: {exc}"
@@ -1035,52 +1513,126 @@ def build_project_on_server(server_url: str) -> None:
         LAB_NAME,
         server_url,
     )
-    create_scenario_nodes(lab, errors)
+
+    create_scenario_nodes(
+        lab,
+        errors,
+    )
 
     try:
         lab.get()
+
     except Exception as exc:
         errors.append(
-            f"Refresh project inventory after node creation failed: {exc}"
+            "Refresh project inventory after node creation "
+            f"failed: {exc}"
         )
 
-    logging.info("Stopping Docker nodes before applying environment changes.")
-    stop_configurable_nodes(lab, errors)
+    logging.info(
+        "Stopping Docker nodes before applying environment changes."
+    )
 
-    logging.info("Applying Docker environments on %s.", server_url)
-    set_scenario_environments(server_url, lab, errors)
+    stop_configurable_nodes(
+        lab,
+        errors,
+    )
+
+    logging.info(
+        "Applying Docker environments on %s.",
+        server_url,
+    )
+
+    set_scenario_environments(
+        server_url,
+        lab,
+        errors,
+    )
 
     if not errors:
-        logging.info("Verifying Docker environments on %s.", server_url)
-        verify_scenario_environments(server_url, lab, errors)
+        logging.info(
+            "Verifying Docker environments on %s.",
+            server_url,
+        )
 
-    logging.info("Applying network configurations.")
-    configure_scenario_nodes(lab, errors)
+        verify_scenario_environments(
+            server_url,
+            lab,
+            errors,
+        )
+
+    logging.info(
+        "Applying network configurations."
+    )
+
+    configure_scenario_nodes(
+        lab,
+        errors,
+    )
 
     try:
         lab.get()
+
     except Exception as exc:
         errors.append(
-            f"Refresh project inventory after network configuration failed: {exc}"
+            "Refresh project inventory after network "
+            f"configuration failed: {exc}"
         )
 
-    logging.info("Creating freshwater links.")
-    create_scenario_links(lab, errors)
+    logging.info(
+        "Creating freshwater links."
+    )
+
+    create_scenario_links(
+        lab,
+        errors,
+    )
 
     if errors:
         raise RuntimeError(
-            "\n".join(f"{server_url}: {error}" for error in errors)
+            "\n".join(
+                f"{server_url}: {error}"
+                for error in errors
+            )
         )
 
-    logging.info("Starting freshwater nodes.")
-    start_scenario_nodes(lab, errors)
+    logging.info(
+        "Installing freshwater SCADA diagram files."
+    )
+
+    install_freshwater_scada_files(
+        lab,
+        errors,
+    )
 
     if errors:
         raise RuntimeError(
-            "\n".join(f"{server_url}: {error}" for error in errors)
+            "\n".join(
+                f"{server_url}: {error}"
+                for error in errors
+            )
         )
 
-    logging.info("Final link summary:")
+    logging.info(
+        "Starting freshwater nodes."
+    )
+
+    start_scenario_nodes(
+        lab,
+        errors,
+    )
+
+    if errors:
+        raise RuntimeError(
+            "\n".join(
+                f"{server_url}: {error}"
+                for error in errors
+            )
+        )
+
+    logging.info(
+        "Final link summary:"
+    )
+
     lab.links_summary()
 
     logging.info(
@@ -1093,22 +1645,32 @@ def build_project_on_server(server_url: str) -> None:
 def main() -> int:
     try:
         server_urls = read_server_urls()
+
     except RuntimeError as exc:
-        logging.error("Startup failed: %s", exc)
+        logging.error(
+            "Startup failed: %s",
+            exc,
+        )
         return 1
 
     failed_servers: list[str] = []
 
     for server_url in server_urls:
         try:
-            build_project_on_server(server_url)
+            build_project_on_server(
+                server_url,
+            )
+
         except Exception as exc:
             logging.error(
                 "Build failed for %s:\n%s",
                 server_url,
                 exc,
             )
-            failed_servers.append(server_url)
+
+            failed_servers.append(
+                server_url,
+            )
 
     if failed_servers:
         logging.error(
@@ -1120,6 +1682,7 @@ def main() -> int:
     logging.info(
         "All freshwater treatment builds completed successfully."
     )
+
     return 0
 
 
