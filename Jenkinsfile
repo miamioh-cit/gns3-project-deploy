@@ -34,10 +34,16 @@ pipeline {
                     // Commit and push deployment parameters
                     withCredentials([
                         usernamePassword(
-                            credentialsId: 'Backstage-GNS3-Project-Deploy',
-                            usernameVariable: 'GIT_USERNAME',
-                            passwordVariable: 'GIT_PASSWORD'
+                            credentialsId: 'it-ot-security-course',
+                            usernameVariable: 'COURSE_USER',
+                            passwordVariable: 'COURSE_PAT'
+                        ),
+                        usernamePassword(
+                            credentialsId: 'wtaylor8-dockerhub',
+                            usernameVariable: 'DOCKER_USERNAME',
+                            passwordVariable: 'DOCKER_TOKEN'
                         )
+                    ]) {
                     ]) {
                         sh '''
                             git config user.email "jenkins@miamioh.edu"
