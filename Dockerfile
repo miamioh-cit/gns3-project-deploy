@@ -26,6 +26,9 @@ COPY datastore /app/
 COPY course-config/course_it_ot_convergence/gns3_water_treatment/deploy_gns3_course.py /app/course/deploy-gns3-course.py
 COPY course-config/course_it_ot_convergence/gns3_water_treatment/configs /app/course/configs
 COPY course-config/course_it_ot_convergence/gns3_water_treatment/plc_sim /app/course/plc_sim
+
+COPY scada/freshwater_treatment /app/scada/freshwater_treatment
+COPY scada/templates/diagrams /app/scada/templates/diagrams
 # Optional: install system utilities
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
