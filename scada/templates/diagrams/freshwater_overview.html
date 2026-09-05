@@ -6,7 +6,7 @@
   <text class="sensor-tag" x="{{ x + 12 }}" y="{{ y + 17 }}">{{ tag }}</text>
   <text class="sensor-desc" x="{{ x + 12 }}" y="{{ y + 31 }}">{{ desc }}</text>
   <text class="sensor-value" x="{{ x + 12 }}" y="{{ y + 51 }}" id="val-{{ tag }}">—</text>
-  {% if unit %}<text class="sensor-unit" x="{{ x + w - 38 }}" y="{{ y + 51 }}">{{ unit }}</text>{% endif %}
+  {% if unit %}<text class="sensor-unit" x="{{ x + w - 34 }}" y="{{ y + 51 }}">{{ unit }}</text>{% endif %}
 </g>
 <path class="leader {{ cls }}" d="{{ lead }}"/>
 {%- endmacro %}
@@ -15,139 +15,156 @@
   <defs>
     <linearGradient id="tg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#172233"/><stop offset="50%" stop-color="#223650"/><stop offset="100%" stop-color="#172233"/></linearGradient>
     <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2385d0" stop-opacity="0.82"/><stop offset="100%" stop-color="#0e3c64" stop-opacity="0.62"/></linearGradient>
-    <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bc8cff" stop-opacity="0.70"/><stop offset="100%" stop-color="#4c2a08" stop-opacity="0.72"/></linearGradient>
+    <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#76672b" stop-opacity="0.62"/><stop offset="100%" stop-color="#4c2a08" stop-opacity="0.76"/></linearGradient>
     <filter id="gl"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
 
-  <!-- main process line: raw water -> intake -> filtration -> dosing -> storage -> finished water -->
-  <path class="eq-pipe" d="M 20 304 H 90 M 180 304 H 245 M 335 304 H 405 M 465 304 H 535 M 690 304 H 760 M 900 304 H 970 M 1060 304 H 1130 M 1415 304 H 1550"/>
-  <path class="eq-pipe-flow" d="M 20 304 H 90 M 180 304 H 245 M 335 304 H 405 M 465 304 H 535 M 690 304 H 760 M 900 304 H 970 M 1060 304 H 1130 M 1415 304 H 1550"/>
+  <!-- main freshwater process -->
+  <path class="eq-pipe" d="M 20 304 H 70 M 160 304 H 226 M 300 304 H 350 M 405 304 H 455 M 585 304 H 650 M 865 304 H 925 M 1065 304 H 1125 M 1415 304 H 1550"/>
+  <path class="eq-pipe-flow" d="M 20 304 H 70 M 160 304 H 226 M 300 304 H 350 M 405 304 H 455 M 585 304 H 650 M 865 304 H 925 M 1065 304 H 1125 M 1415 304 H 1550"/>
   <polygon points="16,297 31,304 16,311" fill="#58a6ff"/><text x="18" y="286" fill="#58a6ff" font-size="11" font-weight="800">RAW WATER</text>
-  <polygon points="1547,297 1562,304 1547,311" fill="#7ee787"/><text x="1480" y="286" fill="#7ee787" font-size="11" font-weight="800">FINISHED WATER</text>
+  <polygon points="1547,297 1562,304 1547,311" fill="#7ee787"/><text x="1492" y="286" fill="#7ee787" font-size="11" font-weight="800">FINISHED WATER</text>
 
-  <!-- raw water intake basin -->
-  <rect class="eq-tank" x="90" y="230" width="90" height="150" rx="5"/>
-  <rect class="eq-tank-fill" id="fill-LT-INTAKE" x="93" y="302" width="84" height="75" data-tankh="144" data-tanky="233"/>
-  <line x1="102" y1="238" x2="102" y2="370" stroke="#8fa8c4" opacity=".35"/><line x1="168" y1="238" x2="168" y2="370" stroke="#8fa8c4" opacity=".35"/>
-  <text x="135" y="405" class="eq-label">Raw Water Intake</text>
+  <!-- raw water intake -->
+  <rect class="eq-tank" x="70" y="230" width="90" height="150" rx="5"/>
+  <rect class="eq-tank-fill" id="fill-LT-INTAKE" x="73" y="305" width="84" height="72" data-tankh="144" data-tanky="233"/>
+  <line x1="82" y1="238" x2="82" y2="370" stroke="#8fa8c4" opacity=".35"/><line x1="148" y1="238" x2="148" y2="370" stroke="#8fa8c4" opacity=".35"/>
+  <text x="115" y="405" class="eq-label">Raw Water Intake</text>
 
   <!-- intake screen -->
-  <rect x="245" y="264" width="90" height="80" rx="4" fill="url(#tg)" stroke="#9fb1c7" stroke-width="2"/>
-  {% for i in range(8) %}<line x1="255" y1="272" x2="255" y2="336" stroke="#75869a" opacity=".45" transform="translate({{ i*9 }},0)"/>{% endfor %}
-  <text x="290" y="371" class="eq-label">Intake Screen</text>
+  <rect x="226" y="264" width="74" height="80" rx="4" fill="url(#tg)" stroke="#9fb1c7" stroke-width="2"/>
+  {% for i in range(7) %}<line x1="{{ 237+i*8 }}" y1="272" x2="{{ 237+i*8 }}" y2="336" stroke="#75869a" opacity=".45"/>{% endfor %}
+  <text x="263" y="371" class="eq-label">Intake Screen</text>
 
-  <!-- intake pump -->
-  <g id="pump-P-INTAKE"><circle class="eq-pump-body" cx="435" cy="304" r="30"/><g class="eq-pump-blade" style="transform-origin:435px 304px;"><line x1="435" y1="278" x2="435" y2="330"/><line x1="409" y1="304" x2="461" y2="304"/></g></g>
-  <text x="435" y="352" class="eq-label">P-INTAKE</text>
+  <!-- raw water pump -->
+  <g id="pump-P-INTAKE">
+    <circle class="eq-pump-body" cx="378" cy="304" r="30"/>
+    <g class="eq-pump-blade" style="transform-origin:378px 304px;"><line x1="378" y1="278" x2="378" y2="330"/><line x1="352" y1="304" x2="404" y2="304"/></g>
+  </g>
+  <text x="378" y="352" class="eq-label">P-INTAKE</text>
 
-  <!-- filtration train -->
-  <rect class="eq-tank" x="535" y="246" width="155" height="116" rx="5"/>
-  <rect class="eq-tank-fill" id="fill-LT-FILTRATION" x="538" y="296" width="149" height="63" data-tankh="110" data-tanky="249"/>
-  {% for y in [268,288,308,328,348] %}<line x1="545" y1="{{ y }}" x2="680" y2="{{ y }}" stroke="#8fa8c4" opacity=".28"/>{% endfor %}
-  {% for x in [565,610,655] %}<line x1="{{ x }}" y1="250" x2="{{ x }}" y2="358" stroke="#8fa8c4" opacity=".24"/>{% endfor %}
-  <text x="612" y="392" class="eq-label">Filtration</text>
+  <!-- filtration unit -->
+  <ellipse class="eq-tank" cx="520" cy="260" rx="72" ry="20"/>
+  <rect class="eq-tank" x="448" y="260" width="144" height="86"/>
+  <rect class="eq-tank-fill" id="fill-LT-FILTRATION" x="451" y="302" width="138" height="41" data-tankh="82" data-tanky="263"/>
+  <ellipse class="eq-tank" cx="520" cy="346" rx="72" ry="18"/>
+  {% for y in [275,292,309,326] %}<line x1="460" y1="{{ y }}" x2="580" y2="{{ y }}" stroke="#75869a" opacity=".38"/>{% endfor %}
+  <line x1="520" y1="268" x2="520" y2="340" stroke="#c8d3df" opacity=".45"/>
+  <text x="520" y="392" class="eq-label">Filtration Unit</text>
 
-  <!-- filtered water contact chamber -->
-  <rect class="eq-tank" x="760" y="246" width="140" height="116" rx="5"/>
-  <rect class="eq-tank-fill" x="763" y="296" width="134" height="63"/>
-  {% for x in [790,835,880] %}<line x1="{{ x }}" y1="250" x2="{{ x }}" y2="358" stroke="#8fa8c4" opacity=".30"/>{% endfor %}
-  {% for i in range(10) %}<circle cx="{{ 775 + (i*19)%110 }}" cy="{{ 270 + (i*17)%72 }}" r="2" fill="#8ac7ff" opacity=".35"/>{% endfor %}
-  <text x="830" y="392" class="eq-label">Filter Gallery</text>
+  <!-- filter gallery -->
+  <rect class="eq-tank" x="650" y="246" width="215" height="116" rx="5"/>
+  <rect class="eq-tank-fill" x="653" y="300" width="209" height="59"/>
+  {% for x in [706,758,810] %}<line x1="{{ x }}" y1="250" x2="{{ x }}" y2="356" stroke="#8fa8c4" opacity=".32"/>{% endfor %}
+  {% for i in range(14) %}<circle cx="{{ 675 + (i*17)%170 }}" cy="{{ 270 + (i*19)%70 }}" r="2" fill="#8ac7ff" opacity=".35"/>{% endfor %}
+  <text x="758" y="392" class="eq-label">Filter Gallery</text>
 
-  <!-- chemical dosing tank -->
-  <rect class="eq-tank" x="970" y="252" width="90" height="106" rx="5"/>
-  <rect class="eq-tank-fill" x="973" y="300" width="84" height="55" fill="url(#cg)"/>
-  <line x1="1015" y1="260" x2="1015" y2="350" stroke="#c8d3df" opacity=".42"/>
-  <text x="1015" y="392" class="eq-label">Dosing Tank</text>
+  <!-- chemical dosing -->
+  <rect class="eq-tank" x="925" y="250" width="140" height="108" rx="5"/>
+  <rect class="eq-tank-fill" x="928" y="303" width="134" height="52" fill="url(#sg)"/>
+  {% for x in [960,995,1030] %}<line x1="{{ x }}" y1="255" x2="{{ x }}" y2="353" stroke="#8fa8c4" opacity=".28"/>{% endfor %}
+  <text x="995" y="392" class="eq-label">Chemical Dosing</text>
 
-  <!-- chemical injection pump -->
-  <path class="eq-pipe" d="M 930 430 V 318 H 970"/>
-  <path class="eq-pipe-flow chem-flow" d="M 930 430 V 318 H 970"/>
-  <g id="pump-P-DOSE"><circle class="eq-pump-body" cx="930" cy="430" r="25"/><g class="eq-pump-blade" style="transform-origin:930px 430px;"><line x1="930" y1="408" x2="930" y2="452"/><line x1="908" y1="430" x2="952" y2="430"/></g></g>
-  <text x="930" y="470" class="eq-label">P-DOSE</text>
+  <!-- dosing pump -->
+  <path class="eq-pipe chem-flow" d="M 995 250 V 220 H 1065"/>
+  <g id="pump-P-DOSE">
+    <circle class="eq-pump-body" cx="995" cy="220" r="24"/>
+    <g class="eq-pump-blade" style="transform-origin:995px 220px;"><line x1="995" y1="198" x2="995" y2="242"/><line x1="973" y1="220" x2="1017" y2="220"/></g>
+  </g>
+  <text x="995" y="186" class="eq-label">P-DOSE</text>
 
   <!-- finished water storage -->
-  <ellipse class="eq-tank" cx="1270" cy="245" rx="145" ry="21"/>
-  <rect class="eq-tank" x="1125" y="245" width="290" height="110"/>
-  <rect class="eq-tank-fill" id="fill-LT-STORAGE" x="1128" y="292" width="284" height="60" data-tankh="104" data-tanky="248"/>
-  <ellipse class="eq-tank" cx="1270" cy="355" rx="145" ry="20"/>
-  {% for x in [1180,1230,1280,1330,1380] %}<line x1="{{ x }}" y1="251" x2="{{ x }}" y2="349" stroke="#8fa8c4" opacity=".22"/>{% endfor %}
+  <rect class="eq-tank" x="1125" y="260" width="290" height="92" rx="5"/>
+  <rect class="eq-tank-fill" id="fill-LT-STORAGE" x="1128" y="292" width="284" height="57" data-tankh="86" data-tanky="263"/>
+  {% for x in [1190,1260,1330] %}<line x1="{{ x }}" y1="264" x2="{{ x }}" y2="340" stroke="#505f70" stroke-width="2"/>{% endfor %}
+  <path class="eq-pipe" d="M 1190 260 V 220 H 1240"/>
+  <g id="valve-AV-OUT" class="eq-valve-closed"><polygon class="eq-valve-body" points="1207,220 1223,210 1223,230"/><polygon class="eq-valve-body" points="1239,220 1223,210 1223,230"/></g>
   <text x="1270" y="392" class="eq-label">Finished Water Storage</text>
 
-  <!-- distribution valve -->
-  <path class="eq-pipe" d="M 1415 304 H 1480 V 235 H 1540"/>
-  <g id="valve-OUT" class="eq-valve-closed"><polygon class="eq-valve-body" points="1468,304 1480,292 1480,316"/><polygon class="eq-valve-body" points="1492,304 1480,292 1480,316"/></g>
+  <!-- lower freshwater support process -->
+  <path class="eq-pipe" d="M 150 520 V 480 H 420 M 555 520 H 760 M 815 520 H 900 M 1045 520 H 1115"/>
+  <path class="eq-pipe-flow" d="M 150 520 V 480 H 420 M 555 520 H 760 M 815 520 H 900 M 1045 520 H 1115"/>
 
-  <!-- lower auxiliary/backwash process -->
-  <path class="eq-pipe" d="M 290 344 V 520 H 510 M 610 520 H 760 M 830 520 H 970 M 1040 520 H 1190"/>
-  <path class="eq-pipe-flow" d="M 290 344 V 520 H 510 M 610 520 H 760 M 830 520 H 970 M 1040 520 H 1190"/>
-  <text x="315" y="505" fill="#f28b28" font-size="12" font-weight="800">BACKWASH</text>
-  <text x="1070" y="505" fill="#bc8cff" font-size="12" font-weight="800">CHEMICAL FEED</text>
+  <text x="410" y="505" fill="#f28b28" font-size="12" font-weight="800">BACKWASH</text>
+  <text x="410" y="520" fill="#f28b28" font-size="12" font-weight="800">SYSTEM</text>
 
   <!-- backwash tank -->
-  <rect class="eq-tank" x="510" y="465" width="100" height="80"/>
-  <rect class="eq-tank-fill" x="513" y="503" width="94" height="39"/>
-  <text x="560" y="572" class="eq-label">Backwash Tank</text>
+  <rect class="eq-tank" x="90" y="455" width="120" height="85"/>
+  <rect class="eq-tank-fill" x="93" y="495" width="114" height="42"/>
+  <text x="150" y="568" class="eq-label">Backwash Tank</text>
 
   <!-- backwash pump -->
-  <g id="pump-P-BW"><circle class="eq-pump-body" cx="790" cy="520" r="28"/><g class="eq-pump-blade" style="transform-origin:790px 520px;"><line x1="790" y1="496" x2="790" y2="544"/><line x1="766" y1="520" x2="814" y2="520"/></g></g>
-  <text x="790" y="564" class="eq-label">P-BW</text>
+  <g id="pump-P-BW">
+    <circle class="eq-pump-body" cx="490" cy="520" r="28"/>
+    <g class="eq-pump-blade" style="transform-origin:490px 520px;"><line x1="490" y1="496" x2="490" y2="544"/><line x1="466" y1="520" x2="514" y2="520"/></g>
+  </g>
+  <text x="490" y="564" class="eq-label">P-BW</text>
 
-  <!-- chemical feed skid -->
-  <rect x="970" y="465" width="140" height="80" rx="5" fill="url(#tg)" stroke="#aab8ca" stroke-width="2"/>
-  {% for x in [995,1035,1075] %}<circle cx="{{ x }}" cy="505" r="18" fill="none" stroke="#9aacc2" stroke-width="2"/>{% endfor %}
-  <text x="1040" y="572" class="eq-label">Chemical Feed Skid</text>
+  <!-- chemical day tank -->
+  <rect class="eq-tank" x="590" y="465" width="110" height="80"/>
+  <rect class="eq-tank-fill" x="593" y="506" width="104" height="36" fill="url(#sg)"/>
+  <line x1="645" y1="458" x2="645" y2="587" stroke="#c8d3df" opacity=".48"/>
+  <text x="645" y="570" class="eq-label">Chemical Day Tank</text>
 
-  <!-- finished-water outlet pump -->
-  <g id="pump-P-OUT"><circle class="eq-pump-body" cx="1215" cy="520" r="28"/><g class="eq-pump-blade" style="transform-origin:1215px 520px;"><line x1="1215" y1="496" x2="1215" y2="544"/><line x1="1191" y1="520" x2="1239" y2="520"/></g></g>
-  <text x="1215" y="564" class="eq-label">P-OUT</text>
+  <!-- distribution pump -->
+  <g id="pump-P-OUT"><circle class="eq-pump-body" cx="790" cy="520" r="28"/><g class="eq-pump-blade" style="transform-origin:790px 520px;"><line x1="790" y1="496" x2="790" y2="544"/><line x1="766" y1="520" x2="814" y2="520"/></g></g>
+  <text x="790" y="564" class="eq-label">P-OUT</text>
+
+  <!-- finished water outlet manifold -->
+  <rect x="900" y="480" width="160" height="75" rx="5" fill="url(#tg)" stroke="#aab8ca" stroke-width="2"/>
+  {% for x in [935,980,1025] %}<circle cx="{{ x }}" cy="518" r="20" fill="none" stroke="#9aacc2" stroke-width="2"/>{% endfor %}
+  <text x="980" y="588" class="eq-label">Distribution Manifold</text>
+  <path class="eq-pipe" d="M 1060 520 H 1360"/><text x="1370" y="525" class="small-label">DISTRIBUTION</text>
 
   <!-- instrument dots -->
-  <circle class="leader-dot" cx="135" cy="235" fill="#58a6ff"/>
-  <circle class="leader-dot" cx="135" cy="300" fill="#58a6ff"/>
-  <circle class="leader-dot" cx="290" cy="288" fill="#ffbd2e"/>
-  <circle class="leader-dot" cx="435" cy="304" fill="#7ee787"/>
-  <circle class="leader-dot" cx="612" cy="318" fill="#58a6ff"/>
-  <circle class="leader-dot" cx="650" cy="318" fill="#ffbd2e"/>
-  <circle class="leader-dot" cx="830" cy="318" fill="#58a6ff"/>
-  <circle class="leader-dot" cx="875" cy="318" fill="#bc8cff"/>
-  <circle class="leader-dot" cx="1015" cy="318" fill="#bc8cff"/>
-  <circle class="leader-dot" cx="930" cy="430" fill="#bc8cff"/>
-  <circle class="leader-dot" cx="1270" cy="305" fill="#58a6ff"/>
-  <circle class="leader-dot" cx="1380" cy="318" fill="#7ee787"/>
-  <circle class="leader-dot" cx="560" cy="505" fill="#f28b28"/>
-  <circle class="leader-dot" cx="790" cy="520" fill="#f28b28"/>
-  <circle class="leader-dot" cx="1040" cy="505" fill="#bc8cff"/>
+  <circle class="leader-dot" cx="115" cy="235" fill="#58a6ff"/><circle class="leader-dot" cx="115" cy="300" fill="#58a6ff"/>
+  <circle class="leader-dot" cx="226" cy="288" fill="#ffbd2e"/><circle class="leader-dot" cx="300" cy="288" fill="#ffbd2e"/>
+  <circle class="leader-dot" cx="520" cy="302" fill="#58a6ff"/><circle class="leader-dot" cx="585" cy="304" fill="#ffbd2e"/>
+  <circle class="leader-dot" cx="706" cy="318" fill="#7ee787"/><circle class="leader-dot" cx="810" cy="318" fill="#bc8cff"/>
+  <circle class="leader-dot" cx="995" cy="302" fill="#bc8cff"/><circle class="leader-dot" cx="1030" cy="320" fill="#7ee787"/>
+  <circle class="leader-dot" cx="1290" cy="260" fill="#58a6ff"/><circle class="leader-dot" cx="1390" cy="304" fill="#7ee787"/>
+  <circle class="leader-dot" cx="645" cy="500" fill="#bc8cff"/><circle class="leader-dot" cx="980" cy="518" fill="#7ee787"/>
 
-  <!-- VLAN / section pills -->
-  <g class="section-pill"><rect x="70" y="420" width="180" height="25" rx="4"/><text class="vlan" x="83" y="437">VLAN 10</text><text x="142" y="437">Raw Intake</text></g>
-  <g class="section-pill"><rect x="265" y="420" width="195" height="25" rx="4"/><text class="vlan" x="278" y="437">VLAN 20</text><text x="340" y="437">Pre-Treatment</text></g>
-  <g class="section-pill"><rect x="485" y="420" width="190" height="25" rx="4"/><text class="vlan" x="498" y="437">VLAN 30</text><text x="560" y="437">Filtration</text></g>
-  <g class="section-pill"><rect x="705" y="420" width="185" height="25" rx="4"/><text class="vlan" x="718" y="437">VLAN 40</text><text x="780" y="437">Dosing</text></g>
-  <g class="section-pill"><rect x="920" y="420" width="205" height="25" rx="4"/><text class="vlan" x="933" y="437" fill="#bc8cff">VLAN 50</text><text x="995" y="437">Conditioning</text></g>
-  <g class="section-pill"><rect x="1145" y="420" width="225" height="25" rx="4"/><text class="vlan" x="1158" y="437" fill="#7ee787">VLAN 60</text><text x="1220" y="437">Storage</text></g>
+  <!-- VLAN bands -->
+  <g class="section-pill"><rect x="65" y="420" width="145" height="25" rx="4"/><text class="vlan" x="78" y="437">VLAN 10</text><text x="132" y="437">Intake</text></g>
+  <g class="section-pill"><rect x="445" y="420" width="170" height="25" rx="4"/><text class="vlan" x="458" y="437">VLAN 20</text><text x="516" y="437">Filtration</text></g>
+  <g class="section-pill"><rect x="760" y="420" width="180" height="25" rx="4"/><text class="vlan" x="773" y="437">VLAN 30</text><text x="831" y="437">Dosing</text></g>
+  <g class="section-pill"><rect x="1135" y="420" width="195" height="25" rx="4"/><text class="vlan" x="1148" y="437">VLAN 40</text><text x="1208" y="437">Storage</text></g>
 
-  <!-- top sensor row: one instance of each actual live tag -->
+  <!-- top row sensors: the 12 primary freshwater measurements -->
   {{ sensor('FT-INTAKE','FLOW','gpm', 20, 22, 118, 'M 79 78 V 205 H 55 V 304', 'leader-blue') }}
-  {{ sensor('LT-INTAKE','LEVEL','%', 150, 22, 118, 'M 209 78 V 205 H 135 V 235', 'leader-blue') }}
-  {{ sensor('DP-INTAKE','PRESSURE','psi', 280, 22, 126, 'M 343 78 V 214 H 290 V 288', 'leader-yellow') }}
-  {{ sensor('TU-INTAKE','TURBIDITY','NTU', 418, 22, 126, 'M 481 78 V 190 H 290 V 288', 'leader-yellow') }}
+  {{ sensor('LT-INTAKE','LEVEL','%', 150, 22, 118, 'M 209 78 V 205 H 115 V 235', 'leader-blue') }}
+  {{ sensor('DP-INTAKE','PRESSURE','psi', 280, 22, 126, 'M 343 78 V 214 H 262 V 288', 'leader-yellow') }}
+  {{ sensor('TU-INTAKE','TURBIDITY','NTU', 418, 22, 130, 'M 483 78 V 190 H 300 V 288', 'leader-yellow') }}
+  {{ sensor('TU-FILTRATION','TURBIDITY','NTU', 560, 22, 130, 'M 625 78 V 198 H 520 V 302', 'leader-yellow') }}
+  {{ sensor('DP-FILTRATION','PRESSURE','psi', 705, 22, 126, 'M 768 78 V 196 H 585 V 304', 'leader-yellow') }}
+  {{ sensor('FT-FILTRATION','FLOW','gpm', 843, 22, 126, 'M 906 78 V 196 H 706 V 318', 'leader-blue') }}
+  {{ sensor('LT-FILTRATION','LEVEL','%', 981, 22, 118, 'M 1040 78 V 198 H 520 V 302', 'leader-blue') }}
+  {{ sensor('CL-DOSING','CHLORINE','mg/L', 1111, 22, 130, 'M 1176 78 V 190 H 1030 V 320', 'leader-green') }}
+  {{ sensor('PH-DOSING','pH','pH', 1252, 22, 118, 'M 1311 78 V 194 H 995 V 302', 'leader-purple') }}
+  {{ sensor('FT-DOSING','FLOW','gpm', 1382, 22, 120, 'M 1442 78 V 188 H 995 V 220', 'leader-blue') }}
+  {{ sensor('FT-DOSE','DOSE FLOW','L/h', 1490, 100, 100, 'M 1540 156 V 210 H 995 V 220', 'leader-purple') }}
 
-  {{ sensor('TU-FILTRATION','TURBIDITY','NTU', 556, 22, 130, 'M 621 78 V 190 H 650 V 318', 'leader-yellow') }}
-  {{ sensor('DP-FILTRATION','PRESSURE','psi', 699, 22, 126, 'M 762 78 V 198 H 650 V 318', 'leader-yellow') }}
-  {{ sensor('FT-FILTRATION','FLOW','gpm', 829, 22, 126, 'M 892 78 V 196 H 612 V 318', 'leader-blue') }}
-  {{ sensor('LT-FILTRATION','LEVEL','%', 967, 22, 118, 'M 1026 78 V 190 H 612 V 300', 'leader-blue') }}
-
-  {{ sensor('CL-DOSING','CHLORINE','mg/L', 1098, 22, 130, 'M 1163 78 V 190 H 1015 V 318', 'leader-green') }}
-  {{ sensor('PH-DOSING','pH','pH', 1238, 22, 112, 'M 1294 78 V 194 H 930 V 430', 'leader-purple') }}
-  {{ sensor('FT-DOSING','FLOW','gpm', 1362, 22, 120, 'M 1422 78 V 188 H 930 V 430', 'leader-blue') }}
-  {{ sensor('FT-DOSE','DOSE RATE','L/h', 1492, 22, 100, 'M 1542 78 V 220 H 1015 V 318', 'leader-purple') }}
-
-  <!-- storage sensor row; unique IDs, grouped close to the storage vessel -->
-  {{ sensor('LT-STORAGE','LEVEL','%', 1090, 130, 108, 'M 1144 186 V 220 H 1270 V 305', 'leader-blue') }}
-  {{ sensor('TU-STORAGE','TURBIDITY','NTU', 1210, 130, 118, 'M 1269 186 V 240 H 1200 V 320', 'leader-yellow') }}
-  {{ sensor('CL-STORAGE','CHLORINE','mg/L', 1340, 130, 124, 'M 1402 186 V 240 H 1380 V 318', 'leader-green') }}
-  {{ sensor('TT-STORAGE','TEMP','C', 1475, 130, 110, 'M 1530 186 V 250 H 1340 V 320', 'leader-purple') }}
+  <!-- local storage sensors -->
+  {{ sensor('LT-STORAGE','LEVEL','%', 1110, 130, 108, 'M 1164 186 V 235 H 1290 V 300', 'leader-blue') }}
+  {{ sensor('TU-STORAGE','TURBIDITY','NTU', 1230, 130, 118, 'M 1289 186 V 242 H 1200 V 320', 'leader-yellow') }}
+  {{ sensor('CL-STORAGE','CHLORINE','mg/L', 1360, 130, 124, 'M 1422 186 V 242 H 1380 V 320', 'leader-green') }}
+  {{ sensor('TT-STORAGE','TEMPERATURE','C', 1490, 200, 100, 'M 1540 256 V 280 H 1275 V 330', 'leader-purple') }}
 
 </svg>
 {% endblock %}
+
+<style>
+/* The upstream diagram_base.html hard-codes its page title to wastewater.
+   Preserve the exact WTaylor shell but present the correct freshwater title. */
+.overview-title {
+    font-size: 0 !important;
+}
+.overview-title::after {
+    content: "FRESHWATER TREATMENT OVERVIEW";
+    font-size: 18px;
+    line-height: 1;
+    letter-spacing: .045em;
+    font-weight: 850;
+}
+</style>
