@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freshwater Treatment Plant</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #111820;
+            color: #e8eef5;
+        }
+
+        .header {
+            padding: 18px 24px;
+            background: #17222d;
+            border-bottom: 2px solid #2d3d4d;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            margin: 6px 0 0;
+            color: #9eacb9;
+            font-size: 13px;
+        }
+
+        .plant {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 24px;
+            overflow-x: auto;
+            min-height: calc(100vh - 90px);
+        }
+
+        .stage {
+            flex: 0 0 250px;
+            min-height: 520px;
+            background: #1a2631;
+            border: 1px solid #344555;
+            border-radius: 10px;
+            padding: 18px;
+            position: relative;
+        }
+
+        .stage-title {
+            margin: 0 0 4px;
+            font-size: 18px;
+        }
+
+        .stage-subtitle {
+            color: #8999a8;
+            font-size: 12px;
+            margin-bottom: 18px;
+        }
+
+        .process-icon {
+            width: 100%;
+            height: 90px;
+            border: 2px solid #53697d;
+            border-radius: 8px;
+            background: #202f3c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            font-size: 34px;
+        }
+
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .sensor {
+            background: #111a22;
+            border: 1px solid #344555;
+            border-radius: 7px;
+            padding: 10px;
+        }
+
+        .sensor-name {
+            font-size: 11px;
+            color: #9eacb9;
+            margin-bottom: 5px;
+        }
+
+        .sensor-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .sensor-status {
+            margin-top: 4px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .online {
+            border-color: #50705a;
+        }
+
+        .online .sensor-status {
+            color: #83c995;
+        }
+
+        .offline {
+            border-color: #704f4f;
+        }
+
+        .offline .sensor-status {
+            color: #df8c8c;
+        }
+
+        .arrow {
+            flex: 0 0 48px;
+            text-align: center;
+            font-size: 34px;
+            color: #687b8e;
+        }
+
+        .water-flow {
+            margin-top: 18px;
+            padding: 10px;
+            border-radius: 6px;
+            background: #172631;
+            border: 1px solid #354e5e;
+            text-align: center;
+            font-size: 12px;
+            color: #9fb7c7;
+        }
+
+        .output {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .output-box {
+            width: 170px;
+            height: 150px;
+            border: 2px solid #53697d;
+            border-radius: 10px;
+            background: #202f3c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .output-box .icon {
+            font-size: 42px;
+            margin-bottom: 8px;
+        }
+
+        .output-box strong {
+            font-size: 16px;
+        }
+
+        .legend {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            background: #17222d;
+            border: 1px solid #344555;
+            border-radius: 7px;
+            padding: 10px 14px;
+            font-size: 11px;
+            color: #9eacb9;
+        }
+
+        @media (max-width: 1100px) {
+            .plant {
+                align-items: flex-start;
+            }
+
+            .stage {
+                min-height: 480px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>FRESHWATER TREATMENT PLANT</h1>
+    <p>SCADA Process Overview</p>
+</div>
+
+<div class="plant">
+
+    <!-- INTAKE -->
+    <section class="stage">
+        <h2 class="stage-title">Raw Water Intake</h2>
+        <div class="stage-subtitle">Intake process monitoring</div>
+
+        <div class="process-icon">💧</div>
+
+        <div class="sensor-grid">
+
+            <div class="sensor" id="sensor-FT-INTAKE">
+                <div class="sensor-name">FT-INTAKE · FLOW</div>
+                <div class="sensor-value" id="val-FT-INTAKE">--</div>
+                <div class="sensor-status" id="status-FT-INTAKE">Waiting</div>
+            </div>
+
+            <div class="sensor" id="sensor-LT-INTAKE">
+                <div class="sensor-name">LT-INTAKE · LEVEL</div>
+                <div class="sensor-value" id="val-LT-INTAKE">--</div>
+                <div class="sensor-status" id="status-LT-INTAKE">Waiting</div>
+            </div>
+
+            <div class="sensor" id="sensor-DP-INTAKE">
+                <div class="sensor-name">DP-INTAKE · PRESSURE</div>
+                <div class="sensor-value" id="val-DP-INTAKE">--</div>
+                <div class="sensor-status" id="status-DP-INTAKE">Waiting</div>
+            </div>
+
+            <div class="sensor" id="sensor-TU-INTAKE">
+                <div class="sensor-name">TU-INTAKE · TURBIDITY</div>
+                <div class="sensor-value" id="val-TU-INTAKE">--</div>
+                <div class="sensor-status" id="status-TU-INTAKE">Waiting</div>
+            </div>
+
+        </div>
+
+        <div class="water-flow">RAW WATER →</div>
+    </section>
+
+    <div class="arrow">→</div>
+
+    <!-- FILTRATION -->
+    <section class="stage">
+        <h2 class="stage-title">Filtration</h2>
+        <div class="stage-subtitle">Filter process monitoring</div>
+
+        <div class="process-icon">▦</div>
+
+        <div class="sensor-grid">
+
+            <div class="sensor" id="sensor-DP-FILTRATION">
+                <div class="sensor-name">DP-FILTRATION · PRESSURE</div>
+                <div class="sensor-value" id="val-DP-FILTRATION">--</div>
+                <div class="sensor-status" id="status-DP-FILTRATION">Waiting</div>
+            </div>
+
+            <div class="sensor" id="sensor-FT-FILTRATION">
+                <div class="sensor-name">FT-FILTRATION · FLOW</div>
+                <div class="sensor-value" id="val-FT-FILTRATION">--</div>
+                <div class="sensor-status" id="status-FT-FILTRATION">Waiting</div>
+            </div>
+
+            <div class="sensor" id="sensor-LT-FILTRATION">
+                <div class="sensor-name">LT-FILTRATION · LEVEL</div>
+                <div class="sensor-value" id="val-LT-FILTRATION">--</div>
+                <div class="sensor-status" id="status-LT-FILTRATION">Waiting</div>
+            </div>
+
+            <div class="sensor" id="sensor-TU-FILTRATION">
+                <div class="sensor-name">TU-FILTRATION · TURBIDITY</div>
+                <div class="sensor-value" id="val-TU-FILTRATION">--</div>
+                <div class="sensor-status" id="status-TU-FILTRATION">Waiting</div>
+            </div>
+
+        </div>
+
+        <div class="water-flow">FILTERED WATER →</div>
+    </section>
+
+    <div class="arrow">→</div>
+
+    <!-- DOSING -->
+    <section class="stage">
+        <h2 class="stage-title">Chemical Dosing</h2>
+        <div class="stage-subtitle">Water chemistry monitoring</div>
+
+        <div class="process-icon">⚗</div>
+
+        <div class="sensor-grid">
+
+            <div class="sensor" id="sensor-CL-DOSING">
+                <div class="sensor-name">CL-DOSING · CHLORINE</div>
+                <div class="sensor-value" id="val-CL-DOSING">--</div>
+                <div class="sensor-status" id="status-CL-DOSING">Waiting</div>
+            </div>
+
+            <div class="sensor" id="sensor-PH-DOSING">
+                <div class="sensor-name">PH-DOSING · PH</div>
+                <div class="sensor-value" id="val-PH-DOSING">--</div>
+                <div class="sensor-status" id="status-PH-DOSING">Waiting</div>
+            </div>
+
+            <div class="sensor" id="sensor-FT-DOSING">
+                <div class="sensor-name">FT-DOSING · FLOW</div>
+                <div class="sensor-value" id="val-FT-DOSING">--</div>
+                <div class="sensor-status" id="status-FT-DOSING">Waiting</div>
+            </div>
+
+            <div class="sensor" id="sensor-FT-DOSE">
+                <div class="sensor-name">FT-DOSE · DOSING FLOW</div>
+                <div class="sensor-value" id="val-FT-DOSE">--</div>
+                <div class="sensor-status" id="status-FT-DOSE">Waiting</div>
+            </div>
+
+        </div>
+
+        <div class="water-flow">TREATED WATER →</div>
+    </section>
+
+    <div class="arrow">→</div>
+
+    <!-- STORAGE -->
+    <section class="stage">
+        <h2 class="stage-title">Finished Water Storage</h2>
+        <div class="stage-subtitle">Finished water monitoring</div>
+
+        <div class="process-icon">▱</div>
+
+        <div class="sensor-grid">
+
+            <div class="sensor" id="sensor-CL-STORAGE">
+                <div class="sensor-name">CL-STORAGE · CHLORINE</div>
+                <div class="sensor-value" id="val-CL-STORAGE">--</div>
+                <div class="sensor-status" id="status-CL-STORAGE">Waiting</div>
+            </div>
+
+            <div class="sensor" id="sensor-LT-STORAGE">
+                <div class="sensor-name">LT-STORAGE · LEVEL</div>
+                <div class="sensor-value" id="val-LT-STORAGE">--</div>
+                <div class="sensor-status" id="status-LT-STORAGE">Waiting</div>
+            </div>
+
+            <div class="sensor" id="sensor-TT-STORAGE">
+                <div class="sensor-name">TT-STORAGE · TEMPERATURE</div>
+                <div class="sensor-value" id="val-TT-STORAGE">--</div>
+                <div class="sensor-status" id="status-TT-STORAGE">Waiting</div>
+            </div>
+
+            <div class="sensor" id="sensor-TU-STORAGE">
+                <div class="sensor-name">TU-STORAGE · TURBIDITY</div>
+                <div class="sensor-value" id="val-TU-STORAGE">--</div>
+                <div class="sensor-status" id="status-TU-STORAGE">Waiting</div>
+            </div>
+
+        </div>
+
+        <div class="water-flow">FINISHED WATER →</div>
+    </section>
+
+    <div class="arrow">→</div>
+
+    <!-- OUTPUT -->
+    <section class="stage output">
+        <div class="output-box">
+            <div class="icon">💧</div>
+            <strong>Clean Water</strong>
+            <div style="font-size:11px;color:#9eacb9;margin-top:6px;">
+                Distribution
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<div class="legend">
+    Live data from SCADA
+</div>
+
+<script>
+    const TAGS = [
+        "FT-INTAKE",
+        "LT-INTAKE",
+        "DP-INTAKE",
+        "TU-INTAKE",
+
+        "DP-FILTRATION",
+        "FT-FILTRATION",
+        "LT-FILTRATION",
+        "TU-FILTRATION",
+
+        "CL-DOSING",
+        "PH-DOSING",
+        "FT-DOSING",
+        "FT-DOSE",
+
+        "CL-STORAGE",
+        "LT-STORAGE",
+        "TT-STORAGE",
+        "TU-STORAGE"
+    ];
+
+    function setSensor(tag, value, online) {
+        const sensor = document.getElementById("sensor-" + tag);
+        const valueElement = document.getElementById("val-" + tag);
+        const statusElement = document.getElementById("status-" + tag);
+
+        if (!sensor || !valueElement || !statusElement) {
+            return;
+        }
+
+        if (value === null || value === undefined || value === "") {
+            valueElement.textContent = "--";
+        } else {
+            valueElement.textContent = value;
+        }
+
+        sensor.classList.remove("online", "offline");
+
+        if (online) {
+            sensor.classList.add("online");
+            statusElement.textContent = "Online";
+        } else {
+            sensor.classList.add("offline");
+            statusElement.textContent = "Offline";
+        }
+    }
+
+    function extractValue(device) {
+        if (device === null || device === undefined) {
+            return null;
+        }
+
+        if (typeof device !== "object") {
+            return device;
+        }
+
+        if (device.value !== undefined) {
+            return device.value;
+        }
+
+        if (device.reading !== undefined) {
+            return device.reading;
+        }
+
+        if (device.data !== undefined) {
+            return device.data;
+        }
+
+        if (device.current_value !== undefined) {
+            return device.current_value;
+        }
+
+        return null;
+    }
+
+    function extractOnline(device) {
+        if (device === null || device === undefined) {
+            return false;
+        }
+
+        if (typeof device !== "object") {
+            return true;
+        }
+
+        if (device.online !== undefined) {
+            return Boolean(device.online);
+        }
+
+        if (device.connected !== undefined) {
+            return Boolean(device.connected);
+        }
+
+        if (device.status !== undefined) {
+            return device.status === "online" || device.status === "Online";
+        }
+
+        return true;
+    }
+
+    async function updateSensors() {
+        try {
+            const response = await fetch("/api/sensors", {
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
+
+            const data = await response.json();
+
+            /*
+             * Support either:
+             *   { "FT-INTAKE": {...}, ... }
+             *
+             * or:
+             *   [ { "tag": "FT-INTAKE", ... }, ... ]
+             */
+            const devices = {};
+
+            if (Array.isArray(data)) {
+                for (const device of data) {
+                    const tag =
+                        device.tag ||
+                        device.name ||
+                        device.device_tag;
+
+                    if (tag) {
+                        devices[tag] = device;
+                    }
+                }
+            } else if (data && typeof data === "object") {
+                Object.assign(devices, data);
+            }
+
+            for (const tag of TAGS) {
+                const device = devices[tag];
+
+                if (!device) {
+                    setSensor(tag, null, false);
+                    continue;
+                }
+
+                setSensor(
+                    tag,
+                    extractValue(device),
+                    extractOnline(device)
+                );
+            }
+
+        } catch (error) {
+            console.error("Unable to update SCADA sensors:", error);
+
+            for (const tag of TAGS) {
+                setSensor(tag, null, false);
+            }
+        }
+    }
+
+    updateSensors();
+
+    // Refresh live SCADA values every 2 seconds.
+    setInterval(updateSensors, 2000);
+</script>
+
+</body>
+</html>
