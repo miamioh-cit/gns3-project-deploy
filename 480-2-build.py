@@ -61,6 +61,10 @@ SCADA_TEMPLATE = "generic-scada"
 ICS_TEMPLATE = "ics-node"
 SENSOR_TEMPLATE = "generic-sensor"
 
+# This deployment owns the entire lab project. When rerun, clear the existing
+# project contents first so Jenkins retries can never append duplicate nodes.
+RESET_EXISTING_PROJECT = True
+
 SCADA_IP = "10.10.20.200"
 KALI_IP = "10.10.20.250"
 
@@ -473,6 +477,63 @@ def update_existing_template_properties(server_url, template, updates):
         ) from exc
 
 
+def reset_project_contents(server_url, lab):
+    """Delete all existing links and nodes from this deployment-owned project."""
+    try:
+        lab.get()
+    except Exception as exc:
+        raise RuntimeError(f"Could not refresh project before reset: {exc}") from exc
+
+    project_id = lab.project_id
+    links = list(getattr(lab, "links", []) or [])
+    nodes = list(getattr(lab, "nodes", []) or [])
+
+    # Delete links first so node deletion cannot leave dangling links.
+    for link in links:
+        link_id = getattr(link, "link_id", None) or getattr(link, "id", None)
+        if not link_id and isinstance(link, dict):
+            link_id = link.get("link_id") or link.get("id")
+        if not link_id:
+            logging.warning("Skipping existing link with no link_id while resetting project.")
+            continue
+        response = requests.delete(
+            f"{server_url}/v2/projects/{project_id}/links/{link_id}",
+            auth=(GNS3_USER, GNS3_PW),
+        )
+        if response.status_code not in (200, 204):
+            raise RuntimeError(
+                f"Delete existing link '{link_id}' failed: HTTP {response.status_code}: {response.text}"
+            )
+
+    for node in nodes:
+        node_id = getattr(node, "node_id", None) or getattr(node, "id", None)
+        if not node_id and isinstance(node, dict):
+            node_id = node.get("node_id") or node.get("id")
+        if not node_id:
+            logging.warning("Skipping existing node with no node_id while resetting project.")
+            continue
+        response = requests.delete(
+            f"{server_url}/v2/projects/{project_id}/nodes/{node_id}",
+            auth=(GNS3_USER, GNS3_PW),
+        )
+        if response.status_code not in (200, 204):
+            raise RuntimeError(
+                f"Delete existing node '{node_id}' failed: HTTP {response.status_code}: {response.text}"
+            )
+
+    try:
+        lab.get()
+    except Exception as exc:
+        raise RuntimeError(f"Could not refresh project after reset: {exc}") from exc
+
+    logging.info(
+        "Cleared existing project '%s' before rebuild: %d link(s), %d node(s).",
+        LAB_NAME,
+        len(links),
+        len(nodes),
+    )
+
+
 def open_or_create_project(server, server_url):
     """Open the freshwater project or create it if it does not exist."""
     try:
@@ -488,6 +549,8 @@ def open_or_create_project(server, server_url):
             lab.get()
             lab.open()
             logging.info("Opened existing project '%s' on %s.", LAB_NAME, server_url)
+            if RESET_EXISTING_PROJECT:
+                reset_project_contents(server_url, lab)
         else:
             lab = Project(name=LAB_NAME, connector=server)
             lab.create()
