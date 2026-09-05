@@ -20,7 +20,7 @@ Central operations network:
 PLC nodes use:
     wtaylor8/generic-plc:latest
 
-The shared generic-scada image is not modified. The 480-2-specific
+The shared generic-scada-freshwater image is not modified. The 480-2-specific
 freshwater SCADA diagram files are created inside the SCADA container
 at container startup.
 
@@ -133,7 +133,7 @@ REQUIRED_TEMPLATES = [
         "symbol": ":/symbols/docker_guest.svg",
     },
     {
-        "name": "generic-scada",
+        "name": "generic-scada-freshwater",
         "template_type": "docker",
         "category": "guest",
         "image": "evankunkel/generic-scada-freshwater:latest",
@@ -144,6 +144,7 @@ REQUIRED_TEMPLATES = [
         "compute_id": "local",
         "symbol": ":/symbols/docker_guest.svg",
     },
+
 ]
 
 
@@ -1037,7 +1038,7 @@ def create_scenario_nodes(
     create_node(
         lab,
         "scada-server",
-        "generic-scada",
+        "generic-scada-freshwater",
         260,
         40,
         errors,
