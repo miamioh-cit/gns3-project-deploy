@@ -119,10 +119,10 @@ STAGES = [
         "core_port": "Ethernet0",
         "x": -600,
         "sensors": [
-            ("sensor-intake-flow", "192.168.10.1", "FT-INTAKE", "m3/h", "float"),
-            ("sensor-intake-level", "192.168.10.2", "LT-INTAKE", "m", "float"),
-            ("sensor-intake-pressure", "192.168.10.3", "PT-INTAKE", "psi", "float"),
-            ("sensor-intake-turbidity", "192.168.10.4", "TU-INTAKE", "NTU", "float"),
+            ("sensor-intake-flow", "192.168.10.1", "FLOW", "m3/h", "float"),
+            ("sensor-intake-level", "192.168.10.2", "LEVEL", "m", "float"),
+            ("sensor-intake-pressure", "192.168.10.3", "PRESSURE", "psi", "float"),
+            ("sensor-intake-turbidity", "192.168.10.4", "TURBIDITY", "NTU", "float"),
         ],
     },
     {
@@ -136,10 +136,10 @@ STAGES = [
         "core_port": "Ethernet1",
         "x": -200,
         "sensors": [
-            ("sensor-filtration-turbidity", "192.168.20.1", "TU-FILTRATION", "NTU", "float"),
-            ("sensor-filtration-pressure", "192.168.20.2", "PT-FILTRATION", "psi", "float"),
-            ("sensor-filtration-flow", "192.168.20.3", "FT-FILTRATION", "m3/h", "float"),
-            ("sensor-filtration-level", "192.168.20.4", "LT-FILTRATION", "m", "float"),
+            ("sensor-filtration-turbidity", "192.168.20.1", "TURBIDITY", "NTU", "float"),
+            ("sensor-filtration-pressure", "192.168.20.2", "PRESSURE", "psi", "float"),
+            ("sensor-filtration-flow", "192.168.20.3", "FLOW", "m3/h", "float"),
+            ("sensor-filtration-level", "192.168.20.4", "LEVEL", "m", "float"),
         ],
     },
     {
@@ -153,10 +153,10 @@ STAGES = [
         "core_port": "Ethernet2",
         "x": 200,
         "sensors": [
-            ("sensor-dosing-chlorine", "192.168.30.1", "CL-DOSING", "mg/L", "float"),
-            ("sensor-dosing-ph", "192.168.30.2", "PH-DOSING", "pH", "float"),
-            ("sensor-dosing-flow", "192.168.30.3", "FT-DOSING", "m3/h", "float"),
-            ("sensor-dosing-rate", "192.168.30.4", "DR-DOSING", "L/h", "float"),
+            ("sensor-dosing-chlorine", "192.168.30.1", "CHLORINE", "mg/L", "float"),
+            ("sensor-dosing-ph", "192.168.30.2", "PH", "pH", "float"),
+            ("sensor-dosing-flow", "192.168.30.3", "FLOW", "m3/h", "float"),
+            ("sensor-dosing-rate", "192.168.30.4", "DOSING_RATE", "L/h", "float"),
         ],
     },
     {
@@ -170,10 +170,10 @@ STAGES = [
         "core_port": "Ethernet3",
         "x": 600,
         "sensors": [
-            ("sensor-storage-level", "192.168.40.1", "LT-STORAGE", "m", "float"),
-            ("sensor-storage-turbidity", "192.168.40.2", "TU-STORAGE", "NTU", "float"),
-            ("sensor-storage-chlorine", "192.168.40.3", "CL-STORAGE", "mg/L", "float"),
-            ("sensor-storage-temperature", "192.168.40.4", "TT-STORAGE", "C", "float"),
+            ("sensor-storage-level", "192.168.40.1", "LEVEL", "m", "float"),
+            ("sensor-storage-turbidity", "192.168.40.2", "TURBIDITY", "NTU", "float"),
+            ("sensor-storage-chlorine", "192.168.40.3", "CHLORINE", "mg/L", "float"),
+            ("sensor-storage-temperature", "192.168.40.4", "TEMPERATURE", "C", "float"),
         ],
     },
 ]
@@ -579,7 +579,6 @@ def plc_environment(stage: dict) -> str:
         AGE_FAILURE_MAX_REQUESTS=30,
         AGE_FAILURE_DURATION_SECONDS=20,
         AGE_FAILURE_MODE="zero",
-        PLC_SCAN_SUBNETS=stage["field_subnet"],
     )
 
 
