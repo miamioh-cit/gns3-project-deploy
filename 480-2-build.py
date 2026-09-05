@@ -1572,12 +1572,21 @@ def install_freshwater_scada_files(
     errors: list[str],
 ) -> None:
     """
-    Configure the Docker SCADA node's startup command so the two
-    480-2-specific diagram files are created inside the running
-    SCADA container before python3 -m scada starts.
+    Configure the SCADA Docker node so the 480-2-specific freshwater
+    diagram files are created inside the container at startup.
 
-    The files are base64 encoded to safely pass HTML/YAML through
-    Docker environment variables.
+    The files are base64 encoded into Docker environment variables.
+
+    IMPORTANT:
+    This uses the normal GNS3 controller node endpoint:
+
+        /v2/projects/{project_id}/nodes/{node_id}
+
+    The previous implementation used the Docker compute endpoint:
+
+        /v2/compute/projects/.../docker/nodes/...
+
+    which returned HTTP 405 on the current GNS3 server.
     """
 
     try:
@@ -1618,15 +1627,18 @@ def install_freshwater_scada_files(
         )
         node.get()
 
-        # GNS3 Docker-specific node endpoint.
-        docker_node_url = (
-            f"{server_url}/v2/compute/projects/"
-            f"{lab.project_id}/docker/nodes/"
+        # ---------------------------------------------------------------
+        # Use the normal controller node endpoint.
+        # ---------------------------------------------------------------
+
+        node_url = (
+            f"{server_url}/v2/projects/"
+            f"{lab.project_id}/nodes/"
             f"{node.node_id}"
         )
 
         response = requests.get(
-            docker_node_url,
+            node_url,
             auth=(
                 GNS3_USER,
                 GNS3_PW,
@@ -1636,22 +1648,30 @@ def install_freshwater_scada_files(
 
         response.raise_for_status()
 
-        docker_node = response.json()
+        node_data = response.json()
 
-        existing_environment = (
-            docker_node.get("environment") or ""
+        properties = dict(
+            node_data.get("properties") or {}
         )
 
-        environment_lines = [
-            line
-            for line in existing_environment.splitlines()
-            if line.strip()
-        ]
+        existing_environment = (
+            properties.get("environment") or ""
+        )
 
-        # Remove previous copies if Jenkins is rerun.
-        filtered_environment = []
+        # ---------------------------------------------------------------
+        # Preserve existing environment variables.
+        # Remove old copies of the two freshwater variables so rerunning
+        # Jenkins does not create duplicates.
+        # ---------------------------------------------------------------
 
-        for line in environment_lines:
+        environment_lines = []
+
+        for line in existing_environment.splitlines():
+
+            line = line.strip()
+
+            if not line:
+                continue
 
             if line.startswith(
                 "FRESHWATER_DIAGRAM_CONFIG_B64="
@@ -1663,24 +1683,34 @@ def install_freshwater_scada_files(
             ):
                 continue
 
-            filtered_environment.append(
+            environment_lines.append(
                 line
             )
 
-        filtered_environment.extend(
-            [
-                (
-                    "FRESHWATER_DIAGRAM_CONFIG_B64="
-                    f"{config_b64}"
-                ),
-                (
-                    "FRESHWATER_DIAGRAM_TEMPLATE_B64="
-                    f"{template_b64}"
-                ),
-            ]
+        environment_lines.append(
+            "FRESHWATER_DIAGRAM_CONFIG_B64="
+            + config_b64
         )
 
-        # This runs inside the SCADA Docker container.
+        environment_lines.append(
+            "FRESHWATER_DIAGRAM_TEMPLATE_B64="
+            + template_b64
+        )
+
+        properties["environment"] = "\n".join(
+            environment_lines
+        )
+
+        # ---------------------------------------------------------------
+        # Startup command executed INSIDE the SCADA container.
+        #
+        # It:
+        #   1. Creates the freshwater scenario directory.
+        #   2. Decodes diagrams.yaml.
+        #   3. Decodes freshwater_overview.html.
+        #   4. Starts the normal SCADA application.
+        # ---------------------------------------------------------------
+
         start_command = (
             "mkdir -p "
             "/app/scenarios/freshwater_treatment "
@@ -1697,18 +1727,17 @@ def install_freshwater_scada_files(
             "&& exec python3 -m scada"
         )
 
-        update_payload = {
-            "environment": (
-                "\n".join(
-                    filtered_environment
-                )
-            ),
-            "start_command": start_command,
-        }
+        properties["start_command"] = start_command
+
+        # ---------------------------------------------------------------
+        # PUT the updated properties through the controller endpoint.
+        # ---------------------------------------------------------------
 
         response = requests.put(
-            docker_node_url,
-            json=update_payload,
+            node_url,
+            json={
+                "properties": properties
+            },
             auth=(
                 GNS3_USER,
                 GNS3_PW,
@@ -1718,12 +1747,17 @@ def install_freshwater_scada_files(
 
         require_http_success(
             response,
-            "Configure freshwater SCADA Docker node",
+            "Configure freshwater SCADA node",
         )
 
-        # Verify GNS3 retained the Docker properties.
+        # ---------------------------------------------------------------
+        # Read the node back and verify that GNS3 retained:
+        #   - both encoded files
+        #   - the custom start command
+        # ---------------------------------------------------------------
+
         response = requests.get(
-            docker_node_url,
+            node_url,
             auth=(
                 GNS3_USER,
                 GNS3_PW,
@@ -1733,14 +1767,19 @@ def install_freshwater_scada_files(
 
         response.raise_for_status()
 
-        verified_node = response.json()
+        verified_data = response.json()
+
+        verified_properties = dict(
+            verified_data.get("properties") or {}
+        )
 
         verified_environment = (
-            verified_node.get("environment") or ""
+            verified_properties.get("environment") or ""
         )
 
         verified_start_command = (
-            verified_node.get("start_command")
+            verified_properties.get("start_command")
+            or ""
         )
 
         if (
@@ -1761,15 +1800,35 @@ def install_freshwater_scada_files(
                 "FRESHWATER_DIAGRAM_TEMPLATE_B64."
             )
 
-        if verified_start_command != start_command:
+        if (
+            "/app/scenarios/"
+            "freshwater_treatment/diagrams.yaml"
+            not in verified_start_command
+        ):
             raise RuntimeError(
-                "GNS3 did not retain the "
-                "freshwater SCADA start_command."
+                "GNS3 did not retain the freshwater "
+                "diagrams.yaml startup command."
+            )
+
+        if (
+            "/app/scada/templates/diagrams/"
+            "freshwater_overview.html"
+            not in verified_start_command
+        ):
+            raise RuntimeError(
+                "GNS3 did not retain the freshwater "
+                "HTML template startup command."
+            )
+
+        if "python3 -m scada" not in verified_start_command:
+            raise RuntimeError(
+                "GNS3 did not retain the normal "
+                "SCADA startup command."
             )
 
         logging.info(
             "Configured and verified freshwater "
-            "SCADA Docker startup."
+            "SCADA startup."
         )
 
     except Exception as exc:
