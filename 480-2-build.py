@@ -22,7 +22,12 @@ PLC nodes use the existing:
     wtaylor8/generic-plc:latest
 
 This script configures GNS3 node properties and network files only.
-It does not use Node.execute(); gns3fy.Node does not provide that method.
+It does not use Node.execute(); all verification is performed through the GNS3 REST API.
+
+Important PLC discovery fix:
+    PLC_SCAN_SUBNETS is explicitly restricted to each PLC's own field LAN.
+    This prevents a PLC from importing the other PLCs from the operations LAN
+    into its aggregate child table.
 """
 
 from __future__ import annotations
@@ -119,10 +124,10 @@ STAGES = [
         "core_port": "Ethernet0",
         "x": -600,
         "sensors": [
-            ("sensor-intake-flow", "192.168.10.1", "FLOW", "m3/h", "float"),
-            ("sensor-intake-level", "192.168.10.2", "LEVEL", "m", "float"),
-            ("sensor-intake-pressure", "192.168.10.3", "PRESSURE", "psi", "float"),
-            ("sensor-intake-turbidity", "192.168.10.4", "TURBIDITY", "NTU", "float"),
+            ("sensor-intake-flow", "192.168.10.1", "FT-INTAKE", "gpm", "float"),
+            ("sensor-intake-level", "192.168.10.2", "LT-INTAKE", "%", "float"),
+            ("sensor-intake-pressure", "192.168.10.3", "DP-INTAKE", "psi", "float"),
+            ("sensor-intake-turbidity", "192.168.10.4", "TU-INTAKE", "NTU", "float"),
         ],
     },
     {
@@ -136,10 +141,10 @@ STAGES = [
         "core_port": "Ethernet1",
         "x": -200,
         "sensors": [
-            ("sensor-filtration-turbidity", "192.168.20.1", "TURBIDITY", "NTU", "float"),
-            ("sensor-filtration-pressure", "192.168.20.2", "PRESSURE", "psi", "float"),
-            ("sensor-filtration-flow", "192.168.20.3", "FLOW", "m3/h", "float"),
-            ("sensor-filtration-level", "192.168.20.4", "LEVEL", "m", "float"),
+            ("sensor-filtration-turbidity", "192.168.20.1", "TU-FILTRATION", "NTU", "float"),
+            ("sensor-filtration-pressure", "192.168.20.2", "DP-FILTRATION", "psi", "float"),
+            ("sensor-filtration-flow", "192.168.20.3", "FT-FILTRATION", "gpm", "float"),
+            ("sensor-filtration-level", "192.168.20.4", "LT-FILTRATION", "%", "float"),
         ],
     },
     {
@@ -153,10 +158,10 @@ STAGES = [
         "core_port": "Ethernet2",
         "x": 200,
         "sensors": [
-            ("sensor-dosing-chlorine", "192.168.30.1", "CHLORINE", "mg/L", "float"),
-            ("sensor-dosing-ph", "192.168.30.2", "PH", "pH", "float"),
-            ("sensor-dosing-flow", "192.168.30.3", "FLOW", "m3/h", "float"),
-            ("sensor-dosing-rate", "192.168.30.4", "DOSING_RATE", "L/h", "float"),
+            ("sensor-dosing-chlorine", "192.168.30.1", "CL-DOSING", "mg/L", "float"),
+            ("sensor-dosing-ph", "192.168.30.2", "PH-DOSING", "pH", "float"),
+            ("sensor-dosing-flow", "192.168.30.3", "FT-DOSING", "gpm", "float"),
+            ("sensor-dosing-rate", "192.168.30.4", "FT-DOSE", "L/h", "float"),
         ],
     },
     {
@@ -170,10 +175,10 @@ STAGES = [
         "core_port": "Ethernet3",
         "x": 600,
         "sensors": [
-            ("sensor-storage-level", "192.168.40.1", "LEVEL", "m", "float"),
-            ("sensor-storage-turbidity", "192.168.40.2", "TURBIDITY", "NTU", "float"),
-            ("sensor-storage-chlorine", "192.168.40.3", "CHLORINE", "mg/L", "float"),
-            ("sensor-storage-temperature", "192.168.40.4", "TEMPERATURE", "C", "float"),
+            ("sensor-storage-level", "192.168.40.1", "LT-STORAGE", "%", "float"),
+            ("sensor-storage-turbidity", "192.168.40.2", "TU-STORAGE", "NTU", "float"),
+            ("sensor-storage-chlorine", "192.168.40.3", "CL-STORAGE", "mg/L", "float"),
+            ("sensor-storage-temperature", "192.168.40.4", "TT-STORAGE", "C", "float"),
         ],
     },
 ]
@@ -579,6 +584,15 @@ def plc_environment(stage: dict) -> str:
         AGE_FAILURE_MAX_REQUESTS=30,
         AGE_FAILURE_DURATION_SECONDS=20,
         AGE_FAILURE_MODE="zero",
+        PLC_SCAN_SUBNETS=stage["field_subnet"],
+        # Explicit interface/IP naming used by the course PLC runtime.
+        PLC_FIELD_INTERFACE="eth0",
+        PLC_FIELD_IP=stage["field_ip"],
+        PLC_FIELD_SUBNET=stage["field_subnet"],
+        PLC_CONTROL_INTERFACE="eth1",
+        PLC_CONTROL_IP=stage["plc_ops_ip"],
+        PLC_CONTROL_SUBNET=OPERATIONS_SUBNET,
+        PLC_MODBUS_PORT=502,
     )
 
 
@@ -684,6 +698,49 @@ def create_scenario_nodes(
     create_node(lab, "KaliLinux-1", "Kali Linux", 520, 40, errors)
 
 
+def verify_scenario_environments(
+    server_url: str,
+    lab: Project,
+    errors: list[str],
+) -> None:
+    """Fail loudly if GNS3 did not retain the requested Docker environments."""
+    expected_nodes = []
+    for stage in STAGES:
+        expected_nodes.append((stage["plc"], plc_environment(stage)))
+        for sensor_name, sensor_ip, tag, units, data_type in stage["sensors"]:
+            expected_nodes.append((
+                sensor_name,
+                sensor_environment(stage, sensor_ip, tag, units, data_type),
+            ))
+
+    expected_nodes.extend([
+        ("hmi-poller", hmi_environment()),
+        ("historian", historian_environment()),
+        ("scada-server", scada_environment()),
+    ])
+
+    for node_name, expected in expected_nodes:
+        try:
+            node = lab.get_node(node_name)
+            node.get()
+            response = requests.get(
+                f"{server_url}/v2/projects/{lab.project_id}/nodes/{node.node_id}",
+                auth=(GNS3_USER, GNS3_PW),
+                timeout=30,
+            )
+            response.raise_for_status()
+            actual = (response.json().get("properties") or {}).get("environment", "")
+            if actual != expected:
+                errors.append(
+                    f"Environment verification failed for '{node_name}'. "
+                    f"Expected {expected!r}, got {actual!r}"
+                )
+        except Exception as exc:
+            errors.append(
+                f"Environment verification for '{node_name}' failed: {exc}"
+            )
+
+
 def configure_scenario_nodes(
     lab: Project,
     errors: list[str],
@@ -781,6 +838,37 @@ def set_scenario_environments(
         scada_environment(),
         errors,
     )
+
+
+def stop_node(
+    lab: Project,
+    node_name: str,
+    errors: list[str],
+) -> None:
+    """Stop a node before Docker environment changes are applied."""
+    try:
+        node = lab.get_node(node_name)
+        node.get()
+        status = getattr(node.status, "value", str(node.status)).lower()
+        if status == "started":
+            node.stop()
+            logging.info("Stopped node '%s' before applying configuration.", node_name)
+    except Exception as exc:
+        errors.append(f"Stop node '{node_name}' failed: {exc}")
+
+
+def stop_configurable_nodes(
+    lab: Project,
+    errors: list[str],
+) -> None:
+    """Stop all Docker nodes so updated environment variables take effect on restart."""
+    for stage in STAGES:
+        stop_node(lab, stage["plc"], errors)
+        for sensor_name, _ip, _tag, _units, _data_type in stage["sensors"]:
+            stop_node(lab, sensor_name, errors)
+
+    for node_name in ("hmi-poller", "historian", "scada-server"):
+        stop_node(lab, node_name, errors)
 
 
 def start_node(
@@ -956,8 +1044,15 @@ def build_project_on_server(server_url: str) -> None:
             f"Refresh project inventory after node creation failed: {exc}"
         )
 
+    logging.info("Stopping Docker nodes before applying environment changes.")
+    stop_configurable_nodes(lab, errors)
+
     logging.info("Applying Docker environments on %s.", server_url)
     set_scenario_environments(server_url, lab, errors)
+
+    if not errors:
+        logging.info("Verifying Docker environments on %s.", server_url)
+        verify_scenario_environments(server_url, lab, errors)
 
     logging.info("Applying network configurations.")
     configure_scenario_nodes(lab, errors)
