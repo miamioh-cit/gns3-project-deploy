@@ -144,7 +144,6 @@ REQUIRED_TEMPLATES = [
         "compute_id": "local",
         "symbol": ":/symbols/docker_guest.svg",
     },
-
 ]
 
 
@@ -696,6 +695,141 @@ def create_node(
         errors.append(
             f"Create node '{name}' using template "
             f"'{template}' failed: {exc}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Managed node cleanup
+# ---------------------------------------------------------------------------
+
+def managed_node_names() -> set[str]:
+    """
+    Return the exact node names that this 480-2 deployment owns.
+    """
+
+    names: set[str] = set()
+
+    for stage in STAGES:
+        names.add(stage["field_switch"])
+        names.add(stage["plc"])
+
+        for sensor_name, *_ in stage["sensors"]:
+            names.add(sensor_name)
+
+    names.update(
+        {
+            "ops-switch",
+            "hmi-poller",
+            "historian",
+            "scada-server",
+            "KaliLinux-1",
+        }
+    )
+
+    return names
+
+
+def remove_existing_scenario_nodes(
+    lab: Project,
+    errors: list[str],
+) -> None:
+    """
+    Remove every node managed by the 480-2 deployment.
+
+    This also removes GNS3-created duplicates such as:
+        plc-intake1
+        plc-intake2
+        sensor-intake-flow1
+        scada-server1
+        KaliLinux-2
+
+    Deleting the nodes also removes their associated links, allowing
+    the next deployment to recreate a clean topology.
+    """
+
+    try:
+        lab.get()
+
+        expected_names = managed_node_names()
+
+        # Take a snapshot so deletion does not modify the collection
+        # while it is being iterated.
+        existing_nodes = list(lab.nodes)
+
+        for node in existing_nodes:
+
+            node_name = node.name
+
+            should_remove = False
+
+            for base_name in expected_names:
+
+                if node_name == base_name:
+                    should_remove = True
+                    break
+
+                suffix = node_name[len(base_name):]
+
+                if (
+                    node_name.startswith(base_name)
+                    and suffix.isdigit()
+                ):
+                    should_remove = True
+                    break
+
+            if not should_remove:
+                continue
+
+            try:
+                logging.info(
+                    "Removing existing 480-2 node '%s'.",
+                    node_name,
+                )
+
+                # Stop the node first when possible.
+                try:
+                    status = getattr(
+                        node.status,
+                        "value",
+                        str(node.status),
+                    ).lower()
+
+                    if status == "started":
+                        node.stop()
+
+                        logging.info(
+                            "Stopped existing node '%s'.",
+                            node_name,
+                        )
+
+                except Exception as stop_exc:
+                    logging.warning(
+                        "Could not stop existing node '%s' "
+                        "before deletion: %s",
+                        node_name,
+                        stop_exc,
+                    )
+
+                node.delete()
+
+                logging.info(
+                    "Deleted existing node '%s'.",
+                    node_name,
+                )
+
+            except Exception as exc:
+                errors.append(
+                    f"Delete existing node "
+                    f"'{node_name}' failed: {exc}"
+                )
+
+        # Refresh the project inventory after deletions.
+        lab.get()
+
+    except Exception as exc:
+        errors.append(
+            "Refresh/remove existing 480-2 nodes failed: "
+            f"{exc}"
         )
 
 
@@ -1621,15 +1755,12 @@ def install_freshwater_scada_files(
         )
         node.get()
 
-        # Docker-specific endpoint.
         docker_node_url = (
             f"{server_url}/v2/compute/projects/"
             f"{lab.project_id}/docker/nodes/"
             f"{node.node_id}"
         )
 
-        # Preserve the existing Docker environment from the
-        # controller-side node properties.
         controller_node_url = (
             f"{server_url}/v2/projects/"
             f"{lab.project_id}/nodes/"
@@ -1694,7 +1825,6 @@ def install_freshwater_scada_files(
             environment_lines
         )
 
-        # This command runs INSIDE the SCADA container.
         start_command = (
             "sh -c "
             "'mkdir -p /app/scenarios/freshwater_treatment; "
@@ -1704,11 +1834,6 @@ def install_freshwater_scada_files(
             "base64 -d > /app/scada/templates/diagrams/freshwater_overview.html; "
             "exec python3 -m scada'"
         )
-        # ---------------------------------------------------------------
-        # IMPORTANT:
-        # start_command and environment must be sent to the
-        # Docker-specific endpoint.
-        # ---------------------------------------------------------------
 
         docker_payload = {
             "environment": docker_environment,
@@ -1737,13 +1862,6 @@ def install_freshwater_scada_files(
         logging.info(
             "Freshwater SCADA Docker properties updated."
         )
-
-        # ---------------------------------------------------------------
-        # IMPORTANT:
-        # We verify using GET on the controller endpoint for the
-        # environment, and use the Docker endpoint's PUT response
-        # as confirmation for start_command.
-        # ---------------------------------------------------------------
 
         docker_response = response.json()
 
@@ -1792,6 +1910,11 @@ def install_freshwater_scada_files(
             f"{exc}"
         )
 
+
+# ---------------------------------------------------------------------------
+# Build project
+# ---------------------------------------------------------------------------
+
 def build_project_on_server(
     server_url: str,
 ) -> None:
@@ -1835,6 +1958,40 @@ def build_project_on_server(
             f"Project setup failed on "
             f"{server_url}: {exc}"
         ) from exc
+
+    # -----------------------------------------------------------------------
+    # IMPORTANT:
+    # Clean out any nodes previously created by this deployment before
+    # creating the fresh topology. This prevents GNS3 from making duplicate
+    # nodes such as plc-intake1 / plc-intake2 and eliminates stale links.
+    # -----------------------------------------------------------------------
+
+    logging.info(
+        "Cleaning up existing freshwater nodes for '%s' on %s.",
+        LAB_NAME,
+        server_url,
+    )
+
+    remove_existing_scenario_nodes(
+        lab,
+        errors,
+    )
+
+    if errors:
+        raise RuntimeError(
+            "\n".join(
+                f"{server_url}: {error}"
+                for error in errors
+            )
+        )
+
+    logging.info(
+        "Existing 480-2 managed nodes removed successfully."
+    )
+
+    # -----------------------------------------------------------------------
+    # Create clean topology
+    # -----------------------------------------------------------------------
 
     logging.info(
         "Creating freshwater nodes for '%s' on %s.",
