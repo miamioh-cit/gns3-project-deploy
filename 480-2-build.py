@@ -323,6 +323,37 @@ STAGES = [
 
 
 # ---------------------------------------------------------------------------
+# Sensor simulation profiles
+# ---------------------------------------------------------------------------
+
+SENSOR_SIMULATION = {
+    # Intake
+    "FT-INTAKE": "random_walk:start=350,step=8,min=250,max=500",
+    "LT-INTAKE": "random_walk:start=72,step=1.2,min=55,max=88",
+    "DP-INTAKE": "random_walk:start=42,step=1.0,min=30,max=55",
+    "TU-INTAKE": "random_walk:start=1.5,step=0.12,min=0.5,max=3.0",
+
+    # Filtration
+    "TU-FILTRATION": "random_walk:start=0.7,step=0.08,min=0.1,max=1.5",
+    "DP-FILTRATION": "random_walk:start=9,step=0.25,min=4,max=18",
+    "FT-FILTRATION": "random_walk:start=310,step=7,min=220,max=450",
+    "LT-FILTRATION": "random_walk:start=68,step=1.0,min=50,max=85",
+
+    # Chemical dosing
+    "CL-DOSING": "random_walk:start=2.0,step=0.05,min=1.2,max=2.8",
+    "PH-DOSING": "random_walk:start=7.2,step=0.03,min=6.8,max=7.6",
+    "FT-DOSING": "random_walk:start=280,step=6,min=200,max=400",
+    "FT-DOSE": "random_walk:start=4.0,step=0.15,min=2.0,max=7.0",
+
+    # Finished-water storage
+    "LT-STORAGE": "random_walk:start=76,step=0.8,min=55,max=92",
+    "TU-STORAGE": "random_walk:start=0.25,step=0.03,min=0.05,max=0.8",
+    "CL-STORAGE": "random_walk:start=1.4,step=0.04,min=0.8,max=2.0",
+    "TT-STORAGE": "random_walk:start=21,step=0.15,min=17,max=25",
+}
+
+
+# ---------------------------------------------------------------------------
 # General helpers
 # ---------------------------------------------------------------------------
 
@@ -1165,6 +1196,17 @@ def sensor_environment(
     units: str,
     data_type: str,
 ) -> str:
+    """
+    Return the freshwater field sensor environment.
+
+    Each sensor gets a realistic random-walk simulation profile
+    based on its instrument tag.
+    """
+
+    simulation = SENSOR_SIMULATION.get(
+        tag,
+        "random_walk:start=50,step=1,min=0,max=100",
+    )
 
     return build_environment(
 
@@ -1172,7 +1214,7 @@ def sensor_environment(
 
         TAG=tag,
 
-        SIMULATION="true",
+        SIMULATION=simulation,
 
         UNITS=units,
 
