@@ -1,5 +1,5 @@
 FROM wtaylor8/generic-scada:latest
 
 COPY scada/freshwater_treatment/ /app/scenarios/freshwater_treatment/
-COPY scada/templates/diagram_base.html /app/scada/templates/diagram_base.html
+COPY scada/templates/diagrams/diagram_base.html /app/scada/templates/diagrams/diagram_base.html
 COPY scada/templates/diagrams/freshwater_overview.html /app/scada/templates/diagrams/freshwater_overview.html
