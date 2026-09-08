@@ -542,6 +542,13 @@ def update_template(
             "has no template_id."
         )
 
+
+    logging.info(
+        "Template '%s' current image=%r, expected image=%r",
+        template_name,
+        template.get("image"),
+        expected_definition.get("image"),
+    )
     changes: dict[str, object] = {}
 
     for key in (
