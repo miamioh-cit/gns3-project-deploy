@@ -622,66 +622,6 @@ def start_node(lab, node_name, errors):
 
 
 def configure_kali(lab, node_name, errors):
-    try:
-        node = lab.get_node(node_name)
-        node.get()
-
-        status = getattr(
-            node.status,
-            "value",
-            str(node.status),
-        ).lower()
-
-        if status != "started":
-            node.start()
-
-        time.sleep(8)
-
-        for attempt in range(30):
-
-            try:
-                result = node.execute(
-                    "nmcli device status"
-                )
-
-                if "eth0" in str(result):
-                    break
-
-            except Exception:
-                pass
-
-            time.sleep(2)
-
-        node.execute(
-            "nmcli connection delete kali-eth0 || true"
-        )
-
-        node.execute(
-            "nmcli connection add "
-            "type ethernet "
-            "ifname eth0 "
-            "con-name kali-eth0 "
-            "ipv4.method manual "
-            f"ipv4.addresses {KALI_IP}/24"
-        )
-
-        time.sleep(2)
-
-        node.execute(
-            "nmcli connection up kali-eth0"
-        )
-
-        logging.info(
-            "Configured Kali as %s/24.",
-            KALI_IP,
-        )
-
-    except Exception as exc:
-        errors.append(
-            f"Configure Kali failed: {exc}"
-        )
-
-
     logging.info(
         "Skipping automated Kali configuration for '%s'.",
         node_name,
