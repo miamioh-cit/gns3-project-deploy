@@ -408,20 +408,53 @@ def open_or_create_project(server, server_url):
     )
 
     if existing:
-        lab = Project(
-            project_id=existing["project_id"],
-            connector=server,
-        )
-        lab.get()
-        lab.open()
+        project_id = existing["project_id"]
 
         logging.info(
-            "Opened existing project '%s'.",
+            "Existing project '%s' found. Deleting it before rebuild.",
             LAB_NAME,
         )
 
-        return lab
+        # Close the project if it is open.
+        if existing.get("status") == "opened":
+            response = requests.post(
+                f"{server_url}/v2/projects/{project_id}/close",
+                auth=(GNS3_USER, GNS3_PW),
+                timeout=30,
+            )
 
+            if response.status_code not in (200, 201, 204):
+                raise RuntimeError(
+                    f"Close project '{LAB_NAME}' failed: "
+                    f"HTTP {response.status_code}: {response.text}"
+                )
+
+            logging.info(
+                "Closed existing project '%s'.",
+                LAB_NAME,
+            )
+
+        # Delete the old project.
+        response = requests.delete(
+            f"{server_url}/v2/projects/{project_id}",
+            auth=(GNS3_USER, GNS3_PW),
+            timeout=30,
+        )
+
+        if response.status_code not in (200, 204):
+            raise RuntimeError(
+                f"Delete project '{LAB_NAME}' failed: "
+                f"HTTP {response.status_code}: {response.text}"
+            )
+
+        logging.info(
+            "Deleted existing project '%s'.",
+            LAB_NAME,
+        )
+
+        time.sleep(2)
+
+    # Create a completely fresh project.
     lab = Project(
         name=LAB_NAME,
         connector=server,
@@ -436,8 +469,7 @@ def open_or_create_project(server, server_url):
     )
 
     return lab
-
-
+    
 def create_node(
     lab,
     name,
@@ -623,66 +655,11 @@ def start_node(lab, node_name, errors):
 
 
 def configure_kali(lab, node_name, errors):
-    try:
-        node = lab.get_node(node_name)
-        node.get()
-
-        status = getattr(
-            node.status,
-            "value",
-            str(node.status),
-        ).lower()
-
-        if status != "started":
-            node.start()
-
-        time.sleep(8)
-
-        for attempt in range(30):
-
-            try:
-                result = node.execute(
-                    "nmcli device status"
-                )
-
-                if "eth0" in str(result):
-                    break
-
-            except Exception:
-                pass
-
-            time.sleep(2)
-
-        node.execute(
-            "nmcli connection delete kali-eth0 || true"
-        )
-
-        node.execute(
-            "nmcli connection add "
-            "type ethernet "
-            "ifname eth0 "
-            "con-name kali-eth0 "
-            "ipv4.method manual "
-            f"ipv4.addresses {KALI_IP}/24"
-        )
-
-        time.sleep(2)
-
-        node.execute(
-            "nmcli connection up kali-eth0"
-        )
-
-        logging.info(
-            "Configured Kali as %s/24.",
-            KALI_IP,
-        )
-
-    except Exception as exc:
-        errors.append(
-            f"Configure Kali failed: {exc}"
-        )
-
-
+    logging.info(
+        "Skipping automated Kali configuration for '%s'.",
+        node_name,
+    )
+    
 def create_link(
     lab,
     node_a,
