@@ -411,17 +411,57 @@ def open_or_create_project(server, server_url):
         lab = Project(
             project_id=existing["project_id"],
             connector=server,
+        project_id = existing["project_id"]
+
+        logging.info(
+            "Existing project '%s' found. Deleting it before rebuild.",
+            LAB_NAME,
+        )
+
+        # Close the project if it is open.
+        if existing.get("status") == "opened":
+            response = requests.post(
+                f"{server_url}/v2/projects/{project_id}/close",
+                auth=(GNS3_USER, GNS3_PW),
+                timeout=30,
+            )
+
+            if response.status_code not in (200, 201, 204):
+                raise RuntimeError(
+                    f"Close project '{LAB_NAME}' failed: "
+                    f"HTTP {response.status_code}: {response.text}"
+                )
+
+            logging.info(
+                "Closed existing project '%s'.",
+                LAB_NAME,
+            )
+
+        # Delete the old project.
+        response = requests.delete(
+            f"{server_url}/v2/projects/{project_id}",
+            auth=(GNS3_USER, GNS3_PW),
+            timeout=30,
         )
         lab.get()
         lab.open()
 
+        if response.status_code not in (200, 204):
+            raise RuntimeError(
+                f"Delete project '{LAB_NAME}' failed: "
+                f"HTTP {response.status_code}: {response.text}"
+            )
+
         logging.info(
             "Opened existing project '%s'.",
+            "Deleted existing project '%s'.",
             LAB_NAME,
         )
 
         return lab
+        time.sleep(2)
 
+    # Create a completely fresh project.
     lab = Project(
         name=LAB_NAME,
         connector=server,
@@ -438,6 +478,7 @@ def open_or_create_project(server, server_url):
     return lab
 
 
+    
 def create_node(
     lab,
     name,
@@ -683,6 +724,11 @@ def configure_kali(lab, node_name, errors):
         )
 
 
+    logging.info(
+        "Skipping automated Kali configuration for '%s'.",
+        node_name,
+    )
+    
 def create_link(
     lab,
     node_a,
@@ -814,7 +860,6 @@ def scada_environment():
     return build_environment(
         SCENARIO=SCENARIO,
         SCADA_SUBNETS=OPERATIONS_SUBNET,
-        SCADA_DIAGRAM_CONFIG="traffic/diagrams.yaml",
         SCADA_DIAGRAM_CONFIG="module3/diagrams.yaml",
         IP_ADDRESS=SCADA_IP,
         NETMASK=OPERATIONS_NETMASK,
