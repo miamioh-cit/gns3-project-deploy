@@ -654,11 +654,7 @@ def start_node(lab, node_name, errors):
         )
 
 
-def configure_kali(lab, node_name, errors):
-    logging.info(
-        "Skipping automated Kali configuration for '%s'.",
-        node_name,
-    )
+
     
 def create_link(
     lab,
