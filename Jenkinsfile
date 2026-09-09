@@ -10,16 +10,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
-            steps {
-                git(
-                    url: "${GITHUB_URL}",
-                    branch: 'main',
-                    credentialsId: 'Backstage-GNS3-Project-Deploy'
-                )
-            }
-        }
-
         stage('Update Deployment Files') {
             steps {
                 script {
@@ -48,7 +38,7 @@ pipeline {
                                 git commit -m "Deploy project ${params.PROJECT_ID} to datastore ${params.DATASTORE} (IP: ${params.IP_ADDRESS}) [skip ci]"
                             fi
 
-                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/miamoh-cit/gns3-project-deploy.git main
+                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/miamioh-cit/gns3-project-deploy.git main
                         """
                     }
                 }
