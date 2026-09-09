@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        GITHUB_URL = 'https://github.com/miamioh-cit/gns3-project-deploy.git'
+        GITHUB_URL = 'https://github.com/miamoh-cit/gns3-project-deploy.git'
         IMAGE_NAME = 'gns3-deploy'
         FRESHWATER_SCADA_IMAGE = 'evankunkel/generic-scada-freshwater:latest'
         TRAFFIC_SCADA_IMAGE = 'evankunkel/generic-scada-traffic:latest'
@@ -57,13 +57,14 @@ pipeline {
 
         // ==========================================
         // ROUTE 1: STANDARD DEPLOYMENTS
-        // Runs for everything EXCEPT 480-2
+        // Runs for everything EXCEPT 480-2 and 480-3
         // ==========================================
 
         stage('Build Docker Image (Standard)') {
             when {
                 expression {
-                    return params.PROJECT_ID != '480-2'
+                    return params.PROJECT_ID != '480-2' &&
+                           params.PROJECT_ID != '480-3'
                 }
             }
             steps {
@@ -77,7 +78,8 @@ pipeline {
         stage('Run GNS3 Deployment (Standard)') {
             when {
                 expression {
-                    return params.PROJECT_ID != '480-2'
+                    return params.PROJECT_ID != '480-2' &&
+                           params.PROJECT_ID != '480-3'
                 }
             }
             steps {
