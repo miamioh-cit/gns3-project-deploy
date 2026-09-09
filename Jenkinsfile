@@ -215,7 +215,7 @@ pipeline {
                         docker build \
                             --no-cache \
                             -t evankunkel/generic-scada-traffic:latest \
-                            -f scada/module3/Dockerfile \
+                            -f scada/traffic/Dockerfile \
                             .
 
                         echo "🔐 Logging into Docker Hub..."
