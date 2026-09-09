@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        GITHUB_URL = 'https://github.com/miamioh-cit/gns3-project-deploy.git'
+        GITHUB_URL = 'https://github.com/miamoh-cit/gns3-project-deploy.git'
         IMAGE_NAME = 'gns3-deploy'
-        FRESHWATER_SCADA_IMAGE = 'wtaylor8/generic-scada-freshwater:latest'
         FRESHWATER_SCADA_IMAGE = 'evankunkel/generic-scada-freshwater:latest'
+        TRAFFIC_SCADA_IMAGE = 'evankunkel/generic-scada-traffic:latest'
     }
 
     stages {
@@ -48,7 +48,7 @@ pipeline {
                                 git commit -m "Deploy project ${params.PROJECT_ID} to datastore ${params.DATASTORE} (IP: ${params.IP_ADDRESS}) [skip ci]"
                             fi
 
-                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/miamioh-cit/gns3-project-deploy.git main
+                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/miamoh-cit/gns3-project-deploy.git main
                         """
                     }
                 }
@@ -57,13 +57,14 @@ pipeline {
 
         // ==========================================
         // ROUTE 1: STANDARD DEPLOYMENTS
-        // Runs for everything EXCEPT 480-2
+        // Runs for everything EXCEPT 480-2 and 480-3
         // ==========================================
 
         stage('Build Docker Image (Standard)') {
             when {
                 expression {
-                    return params.PROJECT_ID != '480-2'
+                    return params.PROJECT_ID != '480-2' &&
+                           params.PROJECT_ID != '480-3'
                 }
             }
             steps {
@@ -77,7 +78,8 @@ pipeline {
         stage('Run GNS3 Deployment (Standard)') {
             when {
                 expression {
-                    return params.PROJECT_ID != '480-2'
+                    return params.PROJECT_ID != '480-2' &&
+                           params.PROJECT_ID != '480-3'
                 }
             }
             steps {
@@ -166,6 +168,90 @@ pipeline {
                             -e GNS3_PASSWORD=gns3 \
                             ${IMAGE_NAME}-480 \
                             480-2-build.py
+                    """
+                }
+            }
+        }
+
+        // ==========================================
+        // ROUTE 3: CUSTOM 480-3 DEPLOYMENT
+        // Runs ONLY for 480-3
+        // ==========================================
+
+        stage('Deploy Custom Course (480-3)') {
+            when {
+                expression {
+                    return params.PROJECT_ID == '480-3'
+                }
+            }
+
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'it-ot-security-course',
+                        usernameVariable: 'COURSE_USER',
+                        passwordVariable: 'COURSE_PAT'
+                    ),
+                    usernamePassword(
+                        credentialsId: 'wtaylor8-dockerhub',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_TOKEN'
+                    )
+                ]) {
+                    sh """
+                        set -e
+
+                        echo "📚 Checking out private course repository..."
+                        rm -rf course-config
+
+                        git clone \
+                            --depth 1 \
+                            --no-tags \
+                            --branch main \
+                            https://\${COURSE_USER}:\${COURSE_PAT}@github.com/kunkelec-stack/it-ot-security-course.git \
+                            course-config
+
+                        echo "🐳 Building traffic SCADA image..."
+
+                        docker build \
+                            --no-cache \
+                            -t ${TRAFFIC_SCADA_IMAGE} \
+                            -f scada/module3/Dockerfile \
+                            .
+
+                        echo "🔐 Logging into Docker Hub..."
+
+                        echo "\${DOCKER_TOKEN}" | docker login \
+                            --username "\${DOCKER_USERNAME}" \
+                            --password-stdin
+
+                        echo "🚀 Pushing traffic SCADA image..."
+
+                        docker push ${TRAFFIC_SCADA_IMAGE}
+
+                        echo "🔒 Logging out of Docker Hub..."
+
+                        docker logout
+
+                        echo "🐳 Building Docker image for 480-3..."
+
+                        docker builder prune -f || true
+
+                        docker build \
+                            --no-cache \
+                            -t ${IMAGE_NAME}-480-3 \
+                            -f Dockerfile \
+                            .
+
+                        echo "🚀 Running GNS3 deployment for 480-3..."
+
+                        docker run --rm \
+                            --entrypoint python3 \
+                            -e GNS3_URL=http://\${IP_ADDRESS}:80 \
+                            -e GNS3_USER=gns3 \
+                            -e GNS3_PASSWORD=gns3 \
+                            ${IMAGE_NAME}-480-3 \
+                            480-3-build.py
                     """
                 }
             }
