@@ -170,8 +170,91 @@ pipeline {
                 }
             }
         }
-    }
+        // ==========================================
+        // ROUTE 3: CUSTOM 480-3 DEPLOYMENT
+        // Runs ONLY for 480-3
+        // ==========================================
 
+        stage('Deploy Custom Course (480-3)') {
+            when {
+                expression {
+                    return params.PROJECT_ID == '480-3'
+                }
+            }
+
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'it-ot-security-course',
+                        usernameVariable: 'COURSE_USER',
+                        passwordVariable: 'COURSE_PAT'
+                    ),
+                    usernamePassword(
+                        credentialsId: 'wtaylor8-dockerhub',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_TOKEN'
+                    )
+                ]) {
+                    sh """
+                        set -e
+
+                        echo "📚 Checking out private course repository..."
+                        rm -rf course-config
+
+                        git clone \
+                            --depth 1 \
+                            --no-tags \
+                            --branch main \
+                            https://\${COURSE_USER}:\${COURSE_PAT}@github.com/kunkelec-stack/it-ot-security-course.git \
+                            course-config
+
+                        echo "🐳 Building traffic SCADA image..."
+
+                        docker build \
+                            --no-cache \
+                            -t evankunkel/generic-scada-traffic:latest \
+                            -f scada/module3/Dockerfile \
+                            .
+
+                        echo "🔐 Logging into Docker Hub..."
+
+                        echo "\${DOCKER_TOKEN}" | docker login \
+                            --username "\${DOCKER_USERNAME}" \
+                            --password-stdin
+
+                        echo "🚀 Pushing traffic SCADA image..."
+
+                        docker push evankunkel/generic-scada-traffic:latest
+
+                        echo "🔒 Logging out of Docker Hub..."
+
+                        docker logout
+
+                        echo "🐳 Building Docker image for 480-3..."
+
+                        docker builder prune -f || true
+
+                        docker build \
+                            --no-cache \
+                            -t ${IMAGE_NAME}-480-3 \
+                            -f Dockerfile \
+                            .
+
+                        echo "🚀 Running GNS3 deployment for 480-3..."
+
+                        docker run --rm \
+                            --entrypoint python3 \
+                            -e GNS3_URL=http://\${IP_ADDRESS}:80 \
+                            -e GNS3_USER=gns3 \
+                            -e GNS3_PASSWORD=gns3 \
+                            ${IMAGE_NAME}-480-3 \
+                            480-3-build.py
+                    """
+                }
+            }
+        }
+    }
+    
     post {
         success {
             echo "✅ GNS3 Project ${params.PROJECT_ID} Deployed Successfully to ${params.IP_ADDRESS}!"
