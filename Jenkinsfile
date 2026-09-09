@@ -63,7 +63,8 @@ pipeline {
         stage('Build Docker Image (Standard)') {
             when {
                 expression {
-                    return params.PROJECT_ID != '480-2'
+                    return params.PROJECT_ID != '480-2' &&
+                           params.PROJECT_ID != '480-3'
                 }
             }
             steps {
@@ -77,7 +78,8 @@ pipeline {
         stage('Run GNS3 Deployment (Standard)') {
             when {
                 expression {
-                    return params.PROJECT_ID != '480-2'
+                    return params.PROJECT_ID != '480-2' &&
+                           params.PROJECT_ID != '480-3'
                 }
             }
             steps {
