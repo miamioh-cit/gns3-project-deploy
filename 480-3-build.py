@@ -365,20 +365,41 @@ def ensure_required_templates(server, server_url):
         for template in available
     }
 
+    shared_templates = {
+        "generic-sensor",
+        "generic-plc",
+        "generic-hmi",
+    }
+
     for template in REQUIRED_TEMPLATES:
 
+        template_name = template["name"]
+
         existing = templates_by_name.get(
-            template["name"]
+            template_name
         )
 
         if existing:
+
+            # These templates are shared by multiple course modules.
+            # Never modify an existing shared template from Traffic.
+            if template_name in shared_templates:
+                logging.info(
+                    "Leaving shared template '%s' unchanged.",
+                    template_name,
+                )
+                continue
+
+            # Traffic-specific templates may be synchronized normally.
             update_template(
                 server_url,
                 existing,
                 template,
             )
+
             continue
 
+        # Only create a missing template.
         response = requests.post(
             f"{server_url}/v2/templates",
             json=template,
@@ -388,15 +409,14 @@ def ensure_required_templates(server, server_url):
 
         require_http_success(
             response,
-            f"Register template '{template['name']}'",
+            f"Register template '{template_name}'",
         )
 
         logging.info(
-            "Registered template '%s'.",
-            template["name"],
+            "Registered missing template '%s'.",
+            template_name,
         )
-
-
+        
 def open_or_create_project(server, server_url):
     projects = server.get_projects()
 
