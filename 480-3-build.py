@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import sys
-import time
 
 import requests
 from gns3fy import Gns3Connector, Project
@@ -43,6 +42,12 @@ HISTORIAN_IP = "172.16.0.220"
 
 # ---------------------------------------------------------------------------
 # Required GNS3 templates
+#
+# IMPORTANT: generic-sensor, generic-plc, and generic-hmi are shared GNS3
+# templates used by multiple course modules. Their environment is therefore
+# intentionally NOT defined here. Each project sets SCENARIO on its own nodes
+# through set_scenario_environment(), so a traffic deployment cannot change
+# the global template environment to SCENARIO=traffic.
 # ---------------------------------------------------------------------------
 
 REQUIRED_TEMPLATES = [
@@ -53,7 +58,6 @@ REQUIRED_TEMPLATES = [
         "image": "wtaylor8/generic-sensor:latest",
         "adapters": 5,
         "console_type": "telnet",
-        "environment": f"SCENARIO={SCENARIO}",
         "default_name_format": "{name}-{0}",
         "compute_id": "local",
         "symbol": ":/symbols/docker_guest.svg",
@@ -65,7 +69,6 @@ REQUIRED_TEMPLATES = [
         "image": "wtaylor8/generic-plc:latest",
         "adapters": 5,
         "console_type": "telnet",
-        "environment": f"SCENARIO={SCENARIO}",
         "default_name_format": "{name}-{0}",
         "compute_id": "local",
         "symbol": ":/symbols/docker_guest.svg",
@@ -77,7 +80,6 @@ REQUIRED_TEMPLATES = [
         "image": "wtaylor8/generic-hmi:latest",
         "adapters": 5,
         "console_type": "telnet",
-        "environment": f"SCENARIO={SCENARIO}",
         "default_name_format": "{name}-{0}",
         "compute_id": "local",
         "symbol": ":/symbols/docker_guest.svg",
@@ -436,7 +438,8 @@ def open_or_create_project(server, server_url):
     )
 
     return lab
-    
+
+
 def create_node(
     lab,
     name,
@@ -622,11 +625,15 @@ def start_node(lab, node_name, errors):
 
 
 def configure_kali(lab, node_name, errors):
+    # Kali is intentionally configured manually.
+    # gns3fy Node objects do not provide the execute() method used by
+    # the old automatic configuration attempt.
     logging.info(
         "Skipping automated Kali configuration for '%s'.",
         node_name,
     )
-    
+
+
 def create_link(
     lab,
     node_a,
