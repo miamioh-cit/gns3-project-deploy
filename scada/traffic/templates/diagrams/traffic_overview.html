@@ -767,21 +767,23 @@
   <!-- ========================================================= -->
   <!-- JAVASCRIPT -->
   <!-- ========================================================= -->
-
- <script>
+<script>
   const trafficZones = {
     i75: {
       name: "I-75",
       loopTag: "LOOP-101"
     },
+
     us35: {
       name: "US-35",
       loopTag: "LOOP-201"
     },
+
     sr48: {
       name: "SR-48",
       loopTag: "LOOP-301"
     },
+
     downtown: {
       name: "DOWNTOWN",
       loopTag: "LOOP-401"
@@ -790,47 +792,49 @@
 
   const zoneState = {};
 
-  const ROAD_LENGTH = 390;
-  const STOP_DISTANCE = 125;
-  const INTERSECTION_START = 145;
-  const INTERSECTION_END = 265;
-  const CAR_GAP = 30;
-  const MAX_CARS_PER_ZONE = 18;
+  /* --------------------------------------------------------- */
+  /* Zone state                                                */
+  /* --------------------------------------------------------- */
 
   Object.keys(trafficZones).forEach(zone => {
+
     zoneState[zone] = {
       cycleStart:
         Date.now() -
-        Math.floor(Math.random() * 12000),
+        Math.floor(Math.random() * 15000),
 
       phaseOffset:
         Math.floor(Math.random() * 15000),
 
       cycleLength: 30000,
 
-      demand:
-        Math.floor(Math.random() * 6) + 3,
+      queueTarget:
+        Math.floor(Math.random() * 6) + 2,
 
-      lastDemandChange: Date.now(),
+      lastQueueUpdate: Date.now(),
 
       lastSpawn: 0,
 
       spawnInterval:
         900 +
-        Math.random() * 900,
+        Math.floor(Math.random() * 1200),
 
       cars: []
     };
+
   });
 
 
-  /* ========================================================= */
-  /* SENSOR VALUES                                             */
-  /* ========================================================= */
+  /* --------------------------------------------------------- */
+  /* Sensor values                                             */
+  /* --------------------------------------------------------- */
 
   function getNumericSensorValue(tag) {
+
     const element =
-      document.getElementById("val-" + tag);
+      document.getElementById(
+        "val-" + tag
+      );
 
     if (!element) {
       return null;
@@ -846,37 +850,59 @@
     const value =
       parseFloat(raw);
 
-    return Number.isFinite(value)
-      ? value
-      : null;
-  }
-
-
-  function getTrafficDemand(zone) {
-    const liveValue =
-      getNumericSensorValue(
-        trafficZones[zone].loopTag
-      );
-
-    if (liveValue !== null) {
-      return Math.max(
-        1,
-        Math.min(
-          MAX_CARS_PER_ZONE,
-          Math.round(liveValue)
-        )
-      );
+    if (!Number.isFinite(value)) {
+      return null;
     }
 
-    return zoneState[zone].demand;
+    return value;
   }
 
 
-  /* ========================================================= */
-  /* TRAFFIC DEMAND                                            */
-  /* ========================================================= */
+  /* --------------------------------------------------------- */
+  /* Traffic demand                                            */
+  /* --------------------------------------------------------- */
 
-  function updateDemand(zone) {
+  function getTrafficDemand(zone) {
+
+    const config =
+      trafficZones[zone];
+
+    const liveLoop =
+      getNumericSensorValue(
+        config.loopTag
+      );
+
+    /*
+     * If the actual LOOP sensor is producing a
+     * numeric vehicle count, use it.
+     */
+    if (liveLoop !== null) {
+
+      return Math.max(
+        0,
+        Math.min(
+          12,
+          Math.round(liveLoop)
+        )
+      );
+
+    }
+
+    /*
+     * Otherwise generate a realistic changing
+     * traffic demand.
+     */
+    return zoneState[zone].queueTarget;
+
+  }
+
+
+  /* --------------------------------------------------------- */
+  /* Changing traffic demand                                   */
+  /* --------------------------------------------------------- */
+
+  function updateTrafficDemand(zone) {
+
     const state =
       zoneState[zone];
 
@@ -884,36 +910,41 @@
       Date.now();
 
     if (
-      now - state.lastDemandChange <
+      now -
+      state.lastQueueUpdate <
       5000
     ) {
       return;
     }
 
-    state.lastDemandChange =
-      now;
+    state.lastQueueUpdate = now;
 
+    /*
+     * Occasionally traffic gets heavier or lighter.
+     */
     const change =
       Math.floor(
         Math.random() * 5
       ) - 2;
 
-    state.demand =
+    state.queueTarget =
       Math.max(
-        1,
+        0,
         Math.min(
-          14,
-          state.demand + change
+          12,
+          state.queueTarget + change
         )
       );
+
   }
 
 
-  /* ========================================================= */
-  /* TRAFFIC SIGNAL STATE                                      */
-  /* ========================================================= */
+  /* --------------------------------------------------------- */
+  /* Signal cycle                                              */
+  /* --------------------------------------------------------- */
 
   function getPhase(zone) {
+
     const state =
       zoneState[zone];
 
@@ -924,6 +955,20 @@
         state.phaseOffset
       ) %
       state.cycleLength;
+
+    /*
+     * 0-12 sec:
+     * North/South GREEN
+     *
+     * 12-15 sec:
+     * North/South YELLOW
+     *
+     * 15-27 sec:
+     * East/West GREEN
+     *
+     * 27-30 sec:
+     * East/West YELLOW
+     */
 
     if (elapsed < 12000) {
       return "green-ns";
@@ -941,57 +986,84 @@
   }
 
 
-  function directionAllowed(
+  /* --------------------------------------------------------- */
+  /* Which directions may move?                                */
+  /* --------------------------------------------------------- */
+
+  function directionPermission(
     zone,
-    direction,
-    carDistance
+    direction
   ) {
+
     const phase =
       getPhase(zone);
 
-    /*
-     * Cars that are already inside the
-     * intersection are always allowed
-     * to clear it.
-     */
     if (
-      carDistance >=
-      INTERSECTION_START
+      phase === "green-ns"
     ) {
-      return true;
-    }
 
-    if (
-      phase === "green-ns" ||
-      phase === "yellow-ns"
-    ) {
       return (
         direction === "north" ||
         direction === "south"
       );
+
     }
 
-    return (
-      direction === "east" ||
-      direction === "west"
-    );
+    if (
+      phase === "yellow-ns"
+    ) {
+
+      return (
+        direction === "north" ||
+        direction === "south"
+      );
+
+    }
+
+    if (
+      phase === "green-ew"
+    ) {
+
+      return (
+        direction === "east" ||
+        direction === "west"
+      );
+
+    }
+
+    if (
+      phase === "yellow-ew"
+    ) {
+
+      return (
+        direction === "east" ||
+        direction === "west"
+      );
+
+    }
+
+    return false;
+
   }
 
 
-  /* ========================================================= */
-  /* LIGHTS                                                    */
-  /* ========================================================= */
+  /* --------------------------------------------------------- */
+  /* Signal lights                                              */
+  /* --------------------------------------------------------- */
 
   function setLight(
     zone,
     direction,
-    activeColor
+    color
   ) {
-    [
+
+    const colors = [
       "red",
       "yellow",
       "green"
-    ].forEach(color => {
+    ];
+
+    colors.forEach(lightColor => {
 
       const element =
         document.getElementById(
@@ -1000,7 +1072,7 @@
           "-" +
           direction +
           "-" +
-          color
+          lightColor
         );
 
       if (!element) {
@@ -1014,20 +1086,35 @@
         "signal-off"
       );
 
-      element.classList.add(
-        color === activeColor
-          ? "signal-" + color
-          : "signal-off"
-      );
+      if (
+        lightColor === color
+      ) {
+
+        element.classList.add(
+          "signal-" + color
+        );
+
+      } else {
+
+        element.classList.add(
+          "signal-off"
+        );
+
+      }
+
     });
+
   }
 
 
   function updateSignals(zone) {
+
     const phase =
       getPhase(zone);
 
-    if (phase === "green-ns") {
+    if (
+      phase === "green-ns"
+    ) {
 
       setLight(
         zone,
@@ -1053,7 +1140,9 @@
         "red"
       );
 
-    } else if (
+    }
+
+    else if (
       phase === "yellow-ns"
     ) {
 
@@ -1081,7 +1170,9 @@
         "red"
       );
 
-    } else if (
+    }
+
+    else if (
       phase === "green-ew"
     ) {
 
@@ -1109,7 +1200,9 @@
         "green"
       );
 
-    } else {
+    }
+
+    else {
 
       setLight(
         zone,
@@ -1134,15 +1227,18 @@
         "west",
         "yellow"
       );
+
     }
+
   }
 
 
-  /* ========================================================= */
-  /* CAR COLORS                                                */
-  /* ========================================================= */
+  /* --------------------------------------------------------- */
+  /* Car colors                                                */
+  /* --------------------------------------------------------- */
 
   function randomCarColor() {
+
     const colors = [
       "#60a5fa",
       "#f97316",
@@ -1158,69 +1254,68 @@
         colors.length
       )
     ];
+
   }
 
 
-  /* ========================================================= */
-  /* CAR POSITIONING                                           */
-  /* ========================================================= */
+  /* --------------------------------------------------------- */
+  /* Starting positions                                       */
+  /* --------------------------------------------------------- */
 
-  function calculatePosition(
-    car
+  function startingPosition(
+    direction,
+    laneOffset
   ) {
-    const d =
-      car.distance;
 
-    const lane =
-      car.lane === 0
-        ? -13
-        : 13;
+    if (
+      direction === "north"
+    ) {
 
-    switch (car.direction) {
+      return {
+        x: 177 + laneOffset,
+        y: 35
+      };
 
-      case "north":
-        return {
-          x: 177 + lane,
-          y: 35 + d
-        };
-
-      case "south":
-        return {
-          x: 177 + lane,
-          y: 302 - d
-        };
-
-      case "east":
-        return {
-          x: 370 - d,
-          y: 164 + lane
-        };
-
-      case "west":
-        return {
-          x: d - 20,
-          y: 164 + lane
-        };
-
-      default:
-        return {
-          x: 0,
-          y: 0
-        };
     }
+
+    if (
+      direction === "south"
+    ) {
+
+      return {
+        x: 177 + laneOffset,
+        y: 302
+      };
+
+    }
+
+    if (
+      direction === "east"
+    ) {
+
+      return {
+        x: 370,
+        y: 164 + laneOffset
+      };
+
+    }
+
+    return {
+      x: -20,
+      y: 164 + laneOffset
+    };
+
   }
 
 
-  /* ========================================================= */
-  /* CREATE CAR                                                */
-  /* ========================================================= */
+  /* --------------------------------------------------------- */
+  /* Create a car                                               */
+  /* --------------------------------------------------------- */
 
   function createCar(
     zone,
     direction
   ) {
-    const state =
-      zoneState[zone];
 
     const group =
       document.getElementById(
@@ -1228,8 +1323,22 @@
       );
 
     if (!group) {
-      return;
+      return null;
     }
+
+    const state =
+      zoneState[zone];
+
+    const laneOffset =
+      Math.random() > 0.5
+        ? -13
+        : 13;
+
+    const position =
+      startingPosition(
+        direction,
+        laneOffset
+      );
 
     const car =
       document.createElementNS(
@@ -1242,109 +1351,151 @@
       "car"
     );
 
-    if (
+    car.setAttribute(
+      "width",
       direction === "north" ||
       direction === "south"
-    ) {
+        ? "9"
+        : "18"
+    );
 
-      car.setAttribute(
-        "width",
-        "9"
-      );
-
-      car.setAttribute(
-        "height",
-        "18"
-      );
-
-    } else {
-
-      car.setAttribute(
-        "width",
-        "18"
-      );
-
-      car.setAttribute(
-        "height",
-        "9"
-      );
-    }
+    car.setAttribute(
+      "height",
+      direction === "north" ||
+      direction === "south"
+        ? "18"
+        : "9"
+    );
 
     car.setAttribute(
       "fill",
       randomCarColor()
     );
 
-    group.appendChild(car);
+    car.setAttribute(
+      "x",
+      position.x
+    );
+
+    car.setAttribute(
+      "y",
+      position.y
+    );
+
+    group.appendChild(
+      car
+    );
 
     const carState = {
       element: car,
 
-      direction,
+      direction: direction,
 
-      lane:
-        Math.random() < 0.5
-          ? 0
-          : 1,
+      x: position.x,
 
-      distance: 0,
+      y: position.y,
 
       speed:
-        42 +
-        Math.random() * 20
+        35 +
+        Math.random() * 25,
+
+      laneOffset,
+
+      stopped: false
     };
 
     state.cars.push(
       carState
     );
 
-    updateCarElement(
-      carState
-    );
+    return carState;
+
   }
 
 
-  function updateCarElement(
-    car
+  /* --------------------------------------------------------- */
+  /* Determine whether a new car can enter                     */
+  /* --------------------------------------------------------- */
+
+  function canSpawnCar(
+    zone,
+    direction
   ) {
-    const position =
-      calculatePosition(
-        car
-      );
 
-    car.element.setAttribute(
-      "x",
-      position.x
-    );
-
-    car.element.setAttribute(
-      "y",
-      position.y
-    );
-  }
-
-
-  /* ========================================================= */
-  /* SPAWN TRAFFIC                                             */
-  /* ========================================================= */
-
-  function spawnTraffic(zone) {
     const state =
       zoneState[zone];
 
-    if (
-      state.cars.length >=
-      MAX_CARS_PER_ZONE
+    const sameDirectionCars =
+      state.cars.filter(
+        car =>
+          car.direction ===
+          direction
+      );
+
+    for (
+      const car of sameDirectionCars
     ) {
-      return;
+
+      if (
+        direction === "north" &&
+        car.y < 85
+      ) {
+        return false;
+      }
+
+      if (
+        direction === "south" &&
+        car.y > 250
+      ) {
+        return false;
+      }
+
+      if (
+        direction === "west" &&
+        car.x < 75
+      ) {
+        return false;
+      }
+
+      if (
+        direction === "east" &&
+        car.x > 295
+      ) {
+        return false;
+      }
+
     }
+
+    return true;
+
+  }
+
+
+  /* --------------------------------------------------------- */
+  /* Spawn traffic                                             */
+  /* --------------------------------------------------------- */
+
+  function spawnTraffic(
+    zone
+  ) {
+
+    const state =
+      zoneState[zone];
 
     const demand =
       getTrafficDemand(zone);
 
+    /*
+     * Never allow the screen to become ridiculous.
+     */
+    const desired =
+      Math.min(
+        12,
+        demand
+      );
+
     if (
-      state.cars.length >=
-      demand
+      state.cars.length >= desired
     ) {
       return;
     }
@@ -1353,14 +1504,14 @@
       Date.now();
 
     if (
-      now - state.lastSpawn <
+      now -
+      state.lastSpawn <
       state.spawnInterval
     ) {
       return;
     }
 
-    state.lastSpawn =
-      now;
+    state.lastSpawn = now;
 
     const directions = [
       "north",
@@ -1370,9 +1521,42 @@
     ];
 
     /*
-     * Try several times to find
-     * an open entry lane.
+     * Bias traffic toward the currently
+     * active direction.
      */
+    const phase =
+      getPhase(zone);
+
+    let allowed = directions;
+
+    if (
+      phase === "green-ns" ||
+      phase === "yellow-ns"
+    ) {
+
+      allowed = [
+        "north",
+        "south",
+        "east",
+        "west"
+      ];
+
+    }
+
+    else if (
+      phase === "green-ew" ||
+      phase === "yellow-ew"
+    ) {
+
+      allowed = [
+        "east",
+        "west",
+        "north",
+        "south"
+      ];
+
+    }
+
     for (
       let attempt = 0;
       attempt < 8;
@@ -1380,313 +1564,375 @@
     ) {
 
       const direction =
-        directions[
+        allowed[
           Math.floor(
             Math.random() *
-            directions.length
+            allowed.length
           )
         ];
 
-      const lane =
-        Math.random() < 0.5
-          ? 0
-          : 1;
-
-      const blocked =
-        state.cars.some(car =>
-          car.direction ===
-            direction &&
-          car.lane ===
-            lane &&
-          car.distance < 45
-        );
-
-      if (!blocked) {
+      if (
+        canSpawnCar(
+          zone,
+          direction
+        )
+      ) {
 
         createCar(
           zone,
           direction
         );
 
-        /*
-         * Assign a fresh random spawn
-         * interval so traffic doesn't
-         * look perfectly periodic.
-         */
-        state.spawnInterval =
-          700 +
-          Math.random() * 1400;
-
         return;
+
       }
+
     }
+
   }
 
 
-  /* ========================================================= */
-  /* CAR FOLLOWING                                             */
-  /* ========================================================= */
-
-  function getCarAhead(
-    zone,
-    car
-  ) {
-    const cars =
-      zoneState[zone].cars;
-
-    let closest = null;
-    let closestDistance =
-      Infinity;
-
-    cars.forEach(other => {
-
-      if (other === car) {
-        return;
-      }
-
-      if (
-        other.direction !==
-        car.direction
-      ) {
-        return;
-      }
-
-      if (
-        other.lane !==
-        car.lane
-      ) {
-        return;
-      }
-
-      if (
-        other.distance <=
-        car.distance
-      ) {
-        return;
-      }
-
-      const gap =
-        other.distance -
-        car.distance;
-
-      if (
-        gap <
-        closestDistance
-      ) {
-
-        closest =
-          other;
-
-        closestDistance =
-          gap;
-      }
-    });
-
-    return closest;
-  }
-
-
-  /* ========================================================= */
-  /* CAR MOVEMENT                                              */
-  /* ========================================================= */
+  /* --------------------------------------------------------- */
+  /* Movement / stopping logic                                 */
+  /* --------------------------------------------------------- */
 
   function updateCars(
     zone,
     deltaSeconds
   ) {
+
     const state =
       zoneState[zone];
 
-    state.cars.forEach(car => {
+    const cars =
+      state.cars;
 
+    const stopLines = {
+      north: 105,
+      south: 240,
+      west: 120,
+      east: 250
+    };
+
+    for (
+      let i = 0;
+      i < cars.length;
+      i++
+    ) {
+
+      const car =
+        cars[i];
+
+      const canMove =
+        directionPermission(
+          zone,
+          car.direction
+        );
+
+      /*
+       * Default movement.
+       */
       let speed =
         car.speed;
 
+      /*
+       * Yellow = slower movement.
+       */
       const phase =
         getPhase(zone);
 
-      /*
-       * Slow down slightly during yellow.
-       */
       if (
         phase === "yellow-ns" ||
         phase === "yellow-ew"
       ) {
-        speed *= 0.65;
+
+        speed *= 0.55;
+
       }
 
-      const ahead =
-        getCarAhead(
-          zone,
-          car
-        );
-
       /*
-       * Following distance.
+       * Check the signal.
        */
-      if (ahead) {
+      if (!canMove) {
 
-        const gap =
-          ahead.distance -
-          car.distance;
-
-        if (gap < CAR_GAP) {
+        if (
+          car.direction === "north" &&
+          car.y >= stopLines.north
+        ) {
 
           speed = 0;
 
-        } else if (
-          gap < CAR_GAP + 18
+        }
+
+        else if (
+          car.direction === "south" &&
+          car.y <= stopLines.south
         ) {
 
-          speed *= 0.35;
+          speed = 0;
+
         }
+
+        else if (
+          car.direction === "west" &&
+          car.x >= stopLines.west
+        ) {
+
+          speed = 0;
+
+        }
+
+        else if (
+          car.direction === "east" &&
+          car.x <= stopLines.east
+        ) {
+
+          speed = 0;
+
+        }
+
       }
 
       /*
-       * Determine whether the signal
-       * requires this car to stop.
+       * Prevent cars from driving into
+       * the back of another car.
        */
-      const allowed =
-        directionAllowed(
-          zone,
-          car.direction,
-          car.distance
-        );
-
-      /*
-       * Only stop at the stop line if
-       * the car has not entered the
-       * intersection yet.
-       */
-      if (
-        !allowed &&
-        car.distance <
-          STOP_DISTANCE
+      for (
+        let j = 0;
+        j < cars.length;
+        j++
       ) {
 
-        const distanceToStop =
-          STOP_DISTANCE -
-          car.distance;
+        if (i === j) {
+          continue;
+        }
+
+        const other =
+          cars[j];
+
+        if (
+          other.direction !==
+          car.direction
+        ) {
+          continue;
+        }
+
+        let distance = Infinity;
+
+        if (
+          car.direction === "north"
+        ) {
+
+          if (
+            other.y > car.y
+          ) {
+
+            distance =
+              other.y -
+              car.y;
+
+          }
+
+        }
+
+        else if (
+          car.direction === "south"
+        ) {
+
+          if (
+            other.y < car.y
+          ) {
+
+            distance =
+              car.y -
+              other.y;
+
+          }
+
+        }
+
+        else if (
+          car.direction === "west"
+        ) {
+
+          if (
+            other.x > car.x
+          ) {
+
+            distance =
+              other.x -
+              car.x;
+
+          }
+
+        }
+
+        else if (
+          car.direction === "east"
+        ) {
+
+          if (
+            other.x < car.x
+          ) {
+
+            distance =
+              car.x -
+              other.x;
+
+          }
+
+        }
 
         /*
-         * Slow down approaching
-         * the red light.
+         * Maintain following distance.
          */
         if (
-          distanceToStop <
-          30
+          distance < 28
         ) {
 
-          speed =
-            Math.min(
-              speed,
-              Math.max(
-                0,
-                distanceToStop *
-                  1.5
-              )
-            );
+          speed = 0;
 
-        } else {
-
-          speed =
-            Math.min(
-              speed,
-              12
-            );
         }
+
       }
 
       /*
-       * Move.
+       * Move car.
        */
-      car.distance +=
-        speed *
-        deltaSeconds;
+      if (speed > 0) {
 
-      /*
-       * Never overshoot the stop line
-       * on red.
-       */
-      if (
-        !allowed &&
-        car.distance >
-          STOP_DISTANCE &&
-        car.distance <
-          INTERSECTION_START
-      ) {
+        const movement =
+          speed *
+          deltaSeconds;
 
-        car.distance =
-          STOP_DISTANCE;
+        if (
+          car.direction === "north"
+        ) {
+
+          car.y += movement;
+
+        }
+
+        else if (
+          car.direction === "south"
+        ) {
+
+          car.y -= movement;
+
+        }
+
+        else if (
+          car.direction === "west"
+        ) {
+
+          car.x += movement;
+
+        }
+
+        else {
+
+          car.x -= movement;
+
+        }
+
       }
 
-      updateCarElement(
-        car
+      /*
+       * Update SVG position.
+       */
+      car.element.setAttribute(
+        "x",
+        car.x
       );
-    });
+
+      car.element.setAttribute(
+        "y",
+        car.y
+      );
+
+    }
 
     /*
-     * Remove cars after they leave
+     * Remove cars that have left
      * the intersection.
      */
     state.cars =
       state.cars.filter(car => {
 
-        if (
-          car.distance >
-          ROAD_LENGTH
-        ) {
+        const outside =
+          car.x < -50 ||
+          car.x > 420 ||
+          car.y < -50 ||
+          car.y > 360;
+
+        if (outside) {
 
           car.element.remove();
 
           return false;
+
         }
 
         return true;
+
       });
+
   }
 
 
-  /* ========================================================= */
-  /* STATUS / VMS                                             */
-  /* ========================================================= */
+  /* --------------------------------------------------------- */
+  /* Status / VMS                                             */
+  /* --------------------------------------------------------- */
 
   function updateMessages(
     zone
   ) {
-    const demand =
+
+    const queue =
       getTrafficDemand(zone);
 
     const phase =
       getPhase(zone);
 
     let direction =
-      "EAST / WEST";
+      "ALL DIRECTIONS";
 
     if (
       phase === "green-ns" ||
       phase === "yellow-ns"
     ) {
+
       direction =
         "NORTH / SOUTH";
+
     }
 
-    let level =
+    else {
+
+      direction =
+        "EAST / WEST";
+
+    }
+
+    let trafficLevel =
       "NORMAL TRAFFIC";
 
     if (
-      demand >= 9
+      queue >= 8
     ) {
 
-      level =
+      trafficLevel =
         "HEAVY TRAFFIC";
 
-    } else if (
-      demand >= 5
+    }
+
+    else if (
+      queue >= 5
     ) {
 
-      level =
+      trafficLevel =
         "MODERATE TRAFFIC";
+
     }
 
     const message =
@@ -1695,11 +1941,13 @@
       );
 
     if (message) {
+
       message.textContent =
         "VMS: " +
-        level +
+        trafficLevel +
         " — " +
         direction;
+
     }
 
     const status =
@@ -1708,11 +1956,13 @@
       );
 
     if (status) {
+
       status.textContent =
         direction +
         " ACTIVE — " +
-        zoneState[zone].cars.length +
-        " VEHICLES ON ROAD";
+        queue +
+        " VEHICLES EXPECTED";
+
     }
 
     const operations =
@@ -1721,19 +1971,22 @@
       );
 
     if (operations) {
+
       operations.textContent =
         trafficZones[zone].name +
         ": " +
-        zoneState[zone].cars.length +
+        queue +
         " VEHICLES / " +
         direction;
+
     }
+
   }
 
 
-  /* ========================================================= */
-  /* ANIMATION LOOP                                            */
-  /* ========================================================= */
+  /* --------------------------------------------------------- */
+  /* Main animation loop                                       */
+  /* --------------------------------------------------------- */
 
   let lastFrame =
     performance.now();
@@ -1743,8 +1996,7 @@
     const deltaSeconds =
       Math.min(
         0.05,
-        (now - lastFrame) /
-          1000
+        (now - lastFrame) / 1000
       );
 
     lastFrame = now;
@@ -1753,18 +2005,27 @@
       trafficZones
     ).forEach(zone => {
 
-      updateDemand(zone);
+      updateTrafficDemand(
+        zone
+      );
 
-      updateSignals(zone);
+      updateSignals(
+        zone
+      );
 
-      spawnTraffic(zone);
+      spawnTraffic(
+        zone
+      );
 
       updateCars(
         zone,
         deltaSeconds
       );
 
-      updateMessages(zone);
+      updateMessages(
+        zone
+      );
+
     });
 
     const update =
@@ -1777,11 +2038,13 @@
       update.textContent =
         "Last update: " +
         new Date().toLocaleTimeString();
+
     }
 
     requestAnimationFrame(
       animate
     );
+
   }
 
   requestAnimationFrame(
