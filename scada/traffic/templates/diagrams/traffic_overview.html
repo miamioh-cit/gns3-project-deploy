@@ -1,133 +1,1435 @@
 {% extends "diagram_base.html" %}
 {% block diagram %}
 
-{% macro sensor(tag, desc, unit, x, y, lead) -%}
-<g class="sensor-box" id="box-{{ tag }}">
-  <rect x="{{ x }}" y="{{ y }}" width="150" height="54"/>
-  <text class="sensor-tag" x="{{ x + 10 }}" y="{{ y + 17 }}">{{ tag }}</text>
-  <text class="sensor-desc" x="{{ x + 10 }}" y="{{ y + 32 }}">{{ desc }}</text>
-  <text class="sensor-value" x="{{ x + 10 }}" y="{{ y + 48 }}" id="val-{{ tag }}">—</text>
-  {% if unit %}<text class="sensor-unit" x="{{ x + 125 }}" y="{{ y + 48 }}">{{ unit }}</text>{% endif %}
-</g>
-<path class="leader leader-blue" d="{{ lead }}"/>
-{%- endmacro %}
+<style>
+  .traffic-screen {
+    font-family: Arial, Helvetica, sans-serif;
+  }
 
-<svg viewBox="0 0 1600 760"
-     xmlns="http://www.w3.org/2000/svg">
+  .traffic-title {
+    font-size: 28px;
+    font-weight: bold;
+    fill: #ffffff;
+    letter-spacing: 1px;
+  }
 
-  <!-- TITLE -->
-  <text class="eq-label" x="800" y="35" text-anchor="middle">
+  .traffic-subtitle {
+    font-size: 13px;
+    fill: #cbd5e1;
+  }
+
+  .zone-title {
+    font-size: 18px;
+    font-weight: bold;
+    fill: #ffffff;
+  }
+
+  .zone-status {
+    font-size: 13px;
+    font-weight: bold;
+    fill: #d1d5db;
+  }
+
+  .road {
+    fill: #30343b;
+    stroke: #111827;
+    stroke-width: 2;
+  }
+
+  .road-line {
+    stroke: #f8fafc;
+    stroke-width: 3;
+    stroke-dasharray: 18 14;
+    opacity: 0.8;
+  }
+
+  .lane-line {
+    stroke: #e5e7eb;
+    stroke-width: 2;
+    opacity: 0.65;
+  }
+
+  .intersection {
+    fill: #20242a;
+    stroke: #111827;
+    stroke-width: 2;
+  }
+
+  .grass {
+    fill: #687442;
+  }
+
+  .signal-housing {
+    fill: #171717;
+    stroke: #9ca3af;
+    stroke-width: 1;
+  }
+
+  .signal-light {
+    stroke: #111827;
+    stroke-width: 2;
+  }
+
+  .signal-red {
+    fill: #ef4444;
+  }
+
+  .signal-yellow {
+    fill: #facc15;
+  }
+
+  .signal-green {
+    fill: #22c55e;
+  }
+
+  .signal-off {
+    fill: #374151;
+  }
+
+  .car {
+    rx: 5;
+    ry: 5;
+    stroke: #111827;
+    stroke-width: 1;
+  }
+
+  .sensor-panel {
+    fill: #111827;
+    stroke: #475569;
+    stroke-width: 1;
+  }
+
+  .sensor-heading {
+    font-size: 11px;
+    font-weight: bold;
+    fill: #94a3b8;
+  }
+
+  .sensor-value {
+    font-size: 17px;
+    font-weight: bold;
+    fill: #ffffff;
+  }
+
+  .sensor-unit {
+    font-size: 10px;
+    fill: #94a3b8;
+  }
+
+  .message-panel {
+    fill: #172033;
+    stroke: #475569;
+    stroke-width: 1;
+  }
+
+  .message-text {
+    font-size: 12px;
+    font-weight: bold;
+    fill: #f8fafc;
+  }
+
+  .header-panel {
+    fill: #111827;
+    stroke: #334155;
+    stroke-width: 1;
+  }
+
+  .system-ok {
+    fill: #22c55e;
+  }
+</style>
+
+<svg
+  class="traffic-screen"
+  viewBox="0 0 1600 920"
+  xmlns="http://www.w3.org/2000/svg"
+>
+
+  <!-- ========================================================= -->
+  <!-- HEADER -->
+  <!-- ========================================================= -->
+
+  <rect
+    class="header-panel"
+    x="20"
+    y="15"
+    width="1560"
+    height="70"
+    rx="10"
+  />
+
+  <text
+    class="traffic-title"
+    x="800"
+    y="48"
+    text-anchor="middle"
+  >
     MIAMI VALLEY TRAFFIC OPERATIONS
   </text>
 
-  <!-- ========================= I-75 ========================= -->
-  <rect class="section-pill" x="40" y="65" width="340" height="35" rx="8"/>
-  <text class="eq-label" x="210" y="89" text-anchor="middle">I-75 TRAFFIC ZONE</text>
-
-  <rect class="eq-pipe" x="150" y="125" width="120" height="55" rx="8"/>
-  <text class="eq-label" x="210" y="158" text-anchor="middle">PLC-I75</text>
-
-  <rect class="eq-pipe" x="160" y="205" width="100" height="45" rx="8"/>
-  <text class="eq-label" x="210" y="233" text-anchor="middle">HMI-I75</text>
-
-  {{ sensor("CAM-101", "Traffic Camera", "", 40, 280, "M170,180 L115,280") }}
-  {{ sensor("LOOP-101", "Vehicle Loop", "veh", 200, 280, "M210,180 L275,280") }}
-  {{ sensor("SIGNAL-101", "Signal State", "", 40, 355, "M170,180 L115,355") }}
-  {{ sensor("VMS-101", "Message Board", "", 200, 355, "M210,180 L275,355") }}
-
-  <!-- ========================= US-35 ========================= -->
-  <rect class="section-pill" x="420" y="65" width="340" height="35" rx="8"/>
-  <text class="eq-label" x="590" y="89" text-anchor="middle">US-35 TRAFFIC ZONE</text>
-
-  <rect class="eq-pipe" x="530" y="125" width="120" height="55" rx="8"/>
-  <text class="eq-label" x="590" y="158" text-anchor="middle">PLC-US35</text>
-
-  <rect class="eq-pipe" x="540" y="205" width="100" height="45" rx="8"/>
-  <text class="eq-label" x="590" y="233" text-anchor="middle">HMI-US35</text>
-
-  {{ sensor("CAM-201", "Traffic Camera", "", 420, 280, "M550,180 L495,280") }}
-  {{ sensor("LOOP-201", "Vehicle Loop", "veh", 580, 280, "M590,180 L655,280") }}
-  {{ sensor("SIGNAL-201", "Signal State", "", 420, 355, "M550,180 L495,355") }}
-  {{ sensor("VMS-201", "Message Board", "", 580, 355, "M590,180 L655,355") }}
-
-  <!-- ========================= SR-48 ========================= -->
-  <rect class="section-pill" x="800" y="65" width="340" height="35" rx="8"/>
-  <text class="eq-label" x="970" y="89" text-anchor="middle">SR-48 TRAFFIC ZONE</text>
-
-  <rect class="eq-pipe" x="910" y="125" width="120" height="55" rx="8"/>
-  <text class="eq-label" x="970" y="158" text-anchor="middle">PLC-SR48</text>
-
-  <rect class="eq-pipe" x="920" y="205" width="100" height="45" rx="8"/>
-  <text class="eq-label" x="970" y="233" text-anchor="middle">HMI-SR48</text>
-
-  {{ sensor("CAM-301", "Traffic Camera", "", 800, 280, "M930,180 L875,280") }}
-  {{ sensor("LOOP-301", "Vehicle Loop", "veh", 960, 280, "M970,180 L1035,280") }}
-  {{ sensor("SIGNAL-301", "Signal State", "", 800, 355, "M930,180 L875,355") }}
-  {{ sensor("VMS-301", "Message Board", "", 960, 355, "M970,180 L1035,355") }}
-
-  <!-- ========================= DOWNTOWN ========================= -->
-  <rect class="section-pill" x="1180" y="65" width="340" height="35" rx="8"/>
-  <text class="eq-label" x="1350" y="89" text-anchor="middle">DOWNTOWN TRAFFIC ZONE</text>
-
-  <rect class="eq-pipe" x="1290" y="125" width="120" height="55" rx="8"/>
-  <text class="eq-label" x="1350" y="158" text-anchor="middle">PLC-DOWNTOWN</text>
-
-  <rect class="eq-pipe" x="1300" y="205" width="100" height="45" rx="8"/>
-  <text class="eq-label" x="1350" y="233" text-anchor="middle">HMI-DOWNTOWN</text>
-
-  {{ sensor("CAM-401", "Traffic Camera", "", 1180, 280, "M1310,180 L1255,280") }}
-  {{ sensor("LOOP-401", "Vehicle Loop", "veh", 1340, 280, "M1350,180 L1415,280") }}
-  {{ sensor("SIGNAL-401", "Signal State", "", 1180, 355, "M1310,180 L1255,355") }}
-  {{ sensor("VMS-401", "Message Board", "", 1340, 355, "M1350,180 L1415,355") }}
-
-  <!-- ========================= OPERATIONS NETWORK ========================= -->
-
-  <rect class="section-pill" x="275" y="485" width="1050" height="35" rx="8"/>
-  <text class="eq-label" x="800" y="509" text-anchor="middle">
-    OPERATIONS NETWORK — 172.16.0.0/24
+  <text
+    class="traffic-subtitle"
+    x="800"
+    y="69"
+    text-anchor="middle"
+  >
+    LIVE TRAFFIC SIGNAL AND VEHICLE MONITORING
   </text>
 
-  <!-- PLCs -->
-  <rect class="eq-pipe" x="300" y="550" width="155" height="50" rx="8"/>
-  <text class="eq-label" x="377" y="581" text-anchor="middle">172.16.0.1</text>
+  <circle
+    id="system-status"
+    class="system-ok"
+    cx="45"
+    cy="50"
+    r="10"
+  />
 
-  <rect class="eq-pipe" x="530" y="550" width="155" height="50" rx="8"/>
-  <text class="eq-label" x="607" y="581" text-anchor="middle">172.16.0.3</text>
+  <text
+    id="system-status-text"
+    class="traffic-subtitle"
+    x="65"
+    y="55"
+  >
+    SYSTEM ONLINE
+  </text>
 
-  <rect class="eq-pipe" x="760" y="550" width="155" height="50" rx="8"/>
-  <text class="eq-label" x="837" y="581" text-anchor="middle">172.16.0.5</text>
+  <!-- ========================================================= -->
+  <!-- INTERSECTION MACRO -->
+  <!-- ========================================================= -->
 
-  <rect class="eq-pipe" x="990" y="550" width="155" height="50" rx="8"/>
-  <text class="eq-label" x="1067" y="581" text-anchor="middle">172.16.0.7</text>
+  {% macro intersection(zone, title, cam_tag, loop_tag, signal_tag, vms_tag, x, y) %}
 
-  <!-- CORE -->
-  <rect class="eq-pipe" x="590" y="640" width="180" height="55" rx="8"/>
-  <text class="eq-label" x="680" y="674" text-anchor="middle">CORE-SWITCH</text>
+  <g
+    id="zone-{{ zone }}"
+    transform="translate({{ x }}, {{ y }})"
+  >
 
-  <!-- SCADA -->
-  <rect class="eq-tank" x="800" y="635" width="180" height="65" rx="8"/>
-  <text class="eq-label" x="890" y="662" text-anchor="middle">SCADA</text>
-  <text class="small-label" x="890" y="683" text-anchor="middle">172.16.0.200</text>
+    <text
+      class="zone-title"
+      x="185"
+      y="0"
+      text-anchor="middle"
+    >
+      {{ title }}
+    </text>
 
-  <!-- KALI -->
-  <rect class="eq-pipe" x="1020" y="635" width="180" height="65" rx="8"/>
-  <text class="eq-label" x="1110" y="662" text-anchor="middle">KALI</text>
-  <text class="small-label" x="1110" y="683" text-anchor="middle">172.16.0.250</text>
+    <text
+      id="status-{{ zone }}"
+      class="zone-status"
+      x="185"
+      y="19"
+      text-anchor="middle"
+    >
+      INITIALIZING
+    </text>
 
-  <!-- NETWORK LINKS -->
-  <path class="leader leader-blue" d="M377,600 L650,640"/>
-  <path class="leader leader-blue" d="M607,600 L675,640"/>
-  <path class="leader leader-blue" d="M837,600 L705,640"/>
-  <path class="leader leader-blue" d="M1067,600 L725,640"/>
+    <!-- ======================================================= -->
+    <!-- ROAD -->
+    <!-- ======================================================= -->
 
-  <path class="leader leader-blue" d="M770,667 L800,667"/>
-  <path class="leader leader-blue" d="M980,667 L1020,667"/>
+    <rect
+      class="grass"
+      x="0"
+      y="35"
+      width="370"
+      height="275"
+      rx="8"
+    />
 
-  <!-- ZONE VLAN LABELS -->
-  <text class="vlan" x="210" y="435" text-anchor="middle">VLAN 101</text>
-  <text class="vlan" x="590" y="435" text-anchor="middle">VLAN 201</text>
-  <text class="vlan" x="970" y="435" text-anchor="middle">VLAN 301</text>
-  <text class="vlan" x="1350" y="435" text-anchor="middle">VLAN 401</text>
+    <rect
+      class="road"
+      x="0"
+      y="120"
+      width="370"
+      height="105"
+    />
+
+    <rect
+      class="road"
+      x="132"
+      y="35"
+      width="106"
+      height="275"
+    />
+
+    <rect
+      class="intersection"
+      x="132"
+      y="120"
+      width="106"
+      height="105"
+    />
+
+    <!-- Lane markings -->
+
+    <line
+      class="lane-line"
+      x1="0"
+      y1="151"
+      x2="132"
+      y2="151"
+    />
+
+    <line
+      class="lane-line"
+      x1="0"
+      y1="194"
+      x2="132"
+      y2="194"
+    />
+
+    <line
+      class="lane-line"
+      x1="238"
+      y1="151"
+      x2="370"
+      y2="151"
+    />
+
+    <line
+      class="lane-line"
+      x1="238"
+      y1="194"
+      x2="370"
+      y2="194"
+    />
+
+    <line
+      class="lane-line"
+      x1="162"
+      y1="35"
+      x2="162"
+      y2="120"
+    />
+
+    <line
+      class="lane-line"
+      x1="208"
+      y1="35"
+      x2="208"
+      y2="120"
+    />
+
+    <line
+      class="lane-line"
+      x1="162"
+      y1="225"
+      x2="162"
+      y2="310"
+    />
+
+    <line
+      class="lane-line"
+      x1="208"
+      y1="225"
+      x2="208"
+      y2="310"
+    />
+
+    <!-- Center road markings -->
+
+    <line
+      class="road-line"
+      x1="20"
+      y1="172"
+      x2="120"
+      y2="172"
+    />
+
+    <line
+      class="road-line"
+      x1="250"
+      y1="172"
+      x2="350"
+      y2="172"
+    />
+
+    <line
+      class="road-line"
+      x1="185"
+      y1="45"
+      x2="185"
+      y2="110"
+    />
+
+    <line
+      class="road-line"
+      x1="185"
+      y1="235"
+      x2="185"
+      y2="300"
+    />
+
+    <!-- ======================================================= -->
+    <!-- NORTH SIGNAL -->
+    <!-- ======================================================= -->
+
+    <g transform="translate(246, 75)">
+      <rect
+        class="signal-housing"
+        width="24"
+        height="72"
+        rx="5"
+      />
+
+      <circle
+        id="light-{{ zone }}-north-red"
+        class="signal-light signal-red"
+        cx="12"
+        cy="14"
+        r="7"
+      />
+
+      <circle
+        id="light-{{ zone }}-north-yellow"
+        class="signal-light signal-off"
+        cx="12"
+        cy="36"
+        r="7"
+      />
+
+      <circle
+        id="light-{{ zone }}-north-green"
+        class="signal-light signal-off"
+        cx="12"
+        cy="58"
+        r="7"
+      />
+    </g>
+
+    <!-- ======================================================= -->
+    <!-- SOUTH SIGNAL -->
+    <!-- ======================================================= -->
+
+    <g transform="translate(100, 228)">
+      <rect
+        class="signal-housing"
+        width="24"
+        height="72"
+        rx="5"
+      />
+
+      <circle
+        id="light-{{ zone }}-south-red"
+        class="signal-light signal-red"
+        cx="12"
+        cy="14"
+        r="7"
+      />
+
+      <circle
+        id="light-{{ zone }}-south-yellow"
+        class="signal-light signal-off"
+        cx="12"
+        cy="36"
+        r="7"
+      />
+
+      <circle
+        id="light-{{ zone }}-south-green"
+        class="signal-light signal-off"
+        cx="12"
+        cy="58"
+        r="7"
+      />
+    </g>
+
+    <!-- ======================================================= -->
+    <!-- EAST SIGNAL -->
+    <!-- ======================================================= -->
+
+    <g transform="translate(278, 105)">
+      <rect
+        class="signal-housing"
+        width="72"
+        height="24"
+        rx="5"
+      />
+
+      <circle
+        id="light-{{ zone }}-east-red"
+        class="signal-light signal-red"
+        cx="14"
+        cy="12"
+        r="7"
+      />
+
+      <circle
+        id="light-{{ zone }}-east-yellow"
+        class="signal-light signal-off"
+        cx="36"
+        cy="12"
+        r="7"
+      />
+
+      <circle
+        id="light-{{ zone }}-east-green"
+        class="signal-light signal-off"
+        cx="58"
+        cy="12"
+        r="7"
+      />
+    </g>
+
+    <!-- ======================================================= -->
+    <!-- WEST SIGNAL -->
+    <!-- ======================================================= -->
+
+    <g transform="translate(20, 205)">
+      <rect
+        class="signal-housing"
+        width="72"
+        height="24"
+        rx="5"
+      />
+
+      <circle
+        id="light-{{ zone }}-west-red"
+        class="signal-light signal-red"
+        cx="14"
+        cy="12"
+        r="7"
+      />
+
+      <circle
+        id="light-{{ zone }}-west-yellow"
+        class="signal-light signal-off"
+        cx="36"
+        cy="12"
+        r="7"
+      />
+
+      <circle
+        id="light-{{ zone }}-west-green"
+        class="signal-light signal-off"
+        cx="58"
+        cy="12"
+        r="7"
+      />
+    </g>
+
+    <!-- ======================================================= -->
+    <!-- LIVE VEHICLES -->
+    <!-- ======================================================= -->
+
+    <g id="cars-{{ zone }}"></g>
+
+    <!-- ======================================================= -->
+    <!-- SENSOR PANELS -->
+    <!-- ======================================================= -->
+
+    <rect
+      class="sensor-panel"
+      x="0"
+      y="325"
+      width="178"
+      height="72"
+      rx="7"
+    />
+
+    <text
+      class="sensor-heading"
+      x="12"
+      y="345"
+    >
+      {{ cam_tag }}
+    </text>
+
+    <text
+      id="val-{{ cam_tag }}"
+      class="sensor-value"
+      x="12"
+      y="370"
+    >
+      —
+    </text>
+
+    <text
+      class="sensor-unit"
+      x="125"
+      y="370"
+    >
+      activity
+    </text>
+
+    <rect
+      class="sensor-panel"
+      x="192"
+      y="325"
+      width="178"
+      height="72"
+      rx="7"
+    />
+
+    <text
+      class="sensor-heading"
+      x="204"
+      y="345"
+    >
+      {{ loop_tag }}
+    </text>
+
+    <text
+      id="val-{{ loop_tag }}"
+      class="sensor-value"
+      x="204"
+      y="370"
+    >
+      —
+    </text>
+
+    <text
+      class="sensor-unit"
+      x="317"
+      y="370"
+    >
+      vehicles
+    </text>
+
+    <rect
+      class="message-panel"
+      x="0"
+      y="410"
+      width="370"
+      height="48"
+      rx="7"
+    />
+
+    <text
+      id="message-{{ zone }}"
+      class="message-text"
+      x="185"
+      y="440"
+      text-anchor="middle"
+    >
+      VMS: NORMAL TRAFFIC
+    </text>
+
+    <!-- Keep signal and VMS values available to the SCADA -->
+    <!-- data-binding system without cluttering the screen. -->
+
+    <text
+      id="val-{{ signal_tag }}"
+      x="-100"
+      y="-100"
+      visibility="hidden"
+    >
+      —
+    </text>
+
+    <text
+      id="val-{{ vms_tag }}"
+      x="-100"
+      y="-100"
+      visibility="hidden"
+    >
+      —
+    </text>
+
+  </g>
+
+  {% endmacro %}
+
+  <!-- ========================================================= -->
+  <!-- FOUR TRAFFIC ZONES -->
+  <!-- ========================================================= -->
+
+  {{ intersection(
+      "i75",
+      "I-75",
+      "CAM-101",
+      "LOOP-101",
+      "SIGNAL-101",
+      "VMS-101",
+      20,
+      105
+  ) }}
+
+  {{ intersection(
+      "us35",
+      "US-35",
+      "CAM-201",
+      "LOOP-201",
+      "SIGNAL-201",
+      "VMS-201",
+      405,
+      105
+  ) }}
+
+  {{ intersection(
+      "sr48",
+      "SR-48",
+      "CAM-301",
+      "LOOP-301",
+      "SIGNAL-301",
+      "VMS-301",
+      790,
+      105
+  ) }}
+
+  {{ intersection(
+      "downtown",
+      "DOWNTOWN",
+      "CAM-401",
+      "LOOP-401",
+      "SIGNAL-401",
+      "VMS-401",
+      1175,
+      105
+  ) }}
+
+  <!-- ========================================================= -->
+  <!-- OPERATIONS STATUS -->
+  <!-- ========================================================= -->
+
+  <rect
+    class="header-panel"
+    x="20"
+    y="650"
+    width="1560"
+    height="235"
+    rx="10"
+  />
+
+  <text
+    class="zone-title"
+    x="800"
+    y="682"
+    text-anchor="middle"
+  >
+    TRAFFIC CONTROL STATUS
+  </text>
+
+  <text
+    id="ops-i75"
+    class="zone-status"
+    x="120"
+    y="720"
+  >
+    I-75: INITIALIZING
+  </text>
+
+  <text
+    id="ops-us35"
+    class="zone-status"
+    x="520"
+    y="720"
+  >
+    US-35: INITIALIZING
+  </text>
+
+  <text
+    id="ops-sr48"
+    class="zone-status"
+    x="920"
+    y="720"
+  >
+    SR-48: INITIALIZING
+  </text>
+
+  <text
+    id="ops-downtown"
+    class="zone-status"
+    x="1320"
+    y="720"
+  >
+    DOWNTOWN: INITIALIZING
+  </text>
+
+  <text
+    class="traffic-subtitle"
+    x="800"
+    y="775"
+    text-anchor="middle"
+  >
+    Traffic signals alternate between North/South and East/West phases.
+  </text>
+
+  <text
+    class="traffic-subtitle"
+    x="800"
+    y="800"
+    text-anchor="middle"
+  >
+    Vehicle queues vary continuously to simulate changing traffic conditions.
+  </text>
+
+  <text
+    id="last-update"
+    class="traffic-subtitle"
+    x="800"
+    y="840"
+    text-anchor="middle"
+  >
+    Last update: —
+  </text>
+
+  <!-- ========================================================= -->
+  <!-- JAVASCRIPT -->
+  <!-- ========================================================= -->
+
+  <script>
+    const trafficZones = {
+      i75: {
+        name: "I-75",
+        loopTag: "LOOP-101"
+      },
+
+      us35: {
+        name: "US-35",
+        loopTag: "LOOP-201"
+      },
+
+      sr48: {
+        name: "SR-48",
+        loopTag: "LOOP-301"
+      },
+
+      downtown: {
+        name: "DOWNTOWN",
+        loopTag: "LOOP-401"
+      }
+    };
+
+    const zoneState = {};
+
+    function createZoneState() {
+      const now = Date.now();
+
+      return {
+        cycleStart:
+          now -
+          Math.floor(
+            Math.random() * 15000
+          ),
+
+        phaseOffset:
+          Math.floor(
+            Math.random() * 15000
+          ),
+
+        cycleLength: 30000,
+
+        queue:
+          Math.floor(
+            Math.random() * 8
+          ) + 1,
+
+        targetQueue:
+          Math.floor(
+            Math.random() * 8
+          ) + 1,
+
+        lastQueueUpdate: now
+      };
+    }
+
+    Object.keys(
+      trafficZones
+    ).forEach(zone => {
+      zoneState[zone] =
+        createZoneState();
+    });
+
+    function getNumericSensorValue(tag) {
+      const element =
+        document.getElementById(
+          "val-" + tag
+        );
+
+      if (!element) {
+        return null;
+      }
+
+      const raw =
+        element.textContent.trim();
+
+      if (
+        !raw ||
+        raw === "—"
+      ) {
+        return null;
+      }
+
+      const numeric =
+        parseFloat(raw);
+
+      return Number.isFinite(numeric)
+        ? numeric
+        : null;
+    }
+
+    function getTrafficQueue(zone) {
+      const config =
+        trafficZones[zone];
+
+      const liveValue =
+        getNumericSensorValue(
+          config.loopTag
+        );
+
+      if (liveValue !== null) {
+        return Math.max(
+          0,
+          Math.min(
+            12,
+            Math.round(liveValue)
+          )
+        );
+      }
+
+      return zoneState[zone].queue;
+    }
+
+    function updateQueue(zone) {
+      const state =
+        zoneState[zone];
+
+      const now =
+        Date.now();
+
+      if (
+        now -
+        state.lastQueueUpdate <
+        4000
+      ) {
+        return;
+      }
+
+      state.lastQueueUpdate = now;
+
+      const change =
+        Math.floor(
+          Math.random() * 5
+        ) - 2;
+
+      state.targetQueue =
+        Math.max(
+          0,
+          Math.min(
+            12,
+            state.queue + change
+          )
+        );
+
+      if (
+        state.queue <
+        state.targetQueue
+      ) {
+        state.queue++;
+      }
+
+      else if (
+        state.queue >
+        state.targetQueue
+      ) {
+        state.queue--;
+      }
+    }
+
+    function getPhase(zone) {
+      const state =
+        zoneState[zone];
+
+      const elapsed =
+        (
+          Date.now() -
+          state.cycleStart +
+          state.phaseOffset
+        ) %
+        state.cycleLength;
+
+      if (
+        elapsed < 12000
+      ) {
+        return "green-ns";
+      }
+
+      if (
+        elapsed < 15000
+      ) {
+        return "yellow-ns";
+      }
+
+      if (
+        elapsed < 27000
+      ) {
+        return "green-ew";
+      }
+
+      if (
+        elapsed < 30000
+      ) {
+        return "yellow-ew";
+      }
+
+      return "red-all";
+    }
+
+    function setLight(
+      zone,
+      direction,
+      color
+    ) {
+      const colors = [
+        "red",
+        "yellow",
+        "green"
+      ];
+
+      colors.forEach(
+        lightColor => {
+
+          const element =
+            document.getElementById(
+              "light-" +
+              zone +
+              "-" +
+              direction +
+              "-" +
+              lightColor
+            );
+
+          if (!element) {
+            return;
+          }
+
+          element.classList.remove(
+            "signal-red",
+            "signal-yellow",
+            "signal-green",
+            "signal-off"
+          );
+
+          if (
+            lightColor === color
+          ) {
+            element.classList.add(
+              "signal-" +
+              color
+            );
+          }
+
+          else {
+            element.classList.add(
+              "signal-off"
+            );
+          }
+        }
+      );
+    }
+
+    function updateSignals(zone) {
+      const phase =
+        getPhase(zone);
+
+      if (
+        phase === "green-ns"
+      ) {
+        setLight(
+          zone,
+          "north",
+          "green"
+        );
+
+        setLight(
+          zone,
+          "south",
+          "green"
+        );
+
+        setLight(
+          zone,
+          "east",
+          "red"
+        );
+
+        setLight(
+          zone,
+          "west",
+          "red"
+        );
+      }
+
+      else if (
+        phase === "yellow-ns"
+      ) {
+        setLight(
+          zone,
+          "north",
+          "yellow"
+        );
+
+        setLight(
+          zone,
+          "south",
+          "yellow"
+        );
+
+        setLight(
+          zone,
+          "east",
+          "red"
+        );
+
+        setLight(
+          zone,
+          "west",
+          "red"
+        );
+      }
+
+      else if (
+        phase === "green-ew"
+      ) {
+        setLight(
+          zone,
+          "north",
+          "red"
+        );
+
+        setLight(
+          zone,
+          "south",
+          "red"
+        );
+
+        setLight(
+          zone,
+          "east",
+          "green"
+        );
+
+        setLight(
+          zone,
+          "west",
+          "green"
+        );
+      }
+
+      else if (
+        phase === "yellow-ew"
+      ) {
+        setLight(
+          zone,
+          "north",
+          "red"
+        );
+
+        setLight(
+          zone,
+          "south",
+          "red"
+        );
+
+        setLight(
+          zone,
+          "east",
+          "yellow"
+        );
+
+        setLight(
+          zone,
+          "west",
+          "yellow"
+        );
+      }
+
+      else {
+        setLight(
+          zone,
+          "north",
+          "red"
+        );
+
+        setLight(
+          zone,
+          "south",
+          "red"
+        );
+
+        setLight(
+          zone,
+          "east",
+          "red"
+        );
+
+        setLight(
+          zone,
+          "west",
+          "red"
+        );
+      }
+    }
+
+    function createCars(zone) {
+      const group =
+        document.getElementById(
+          "cars-" + zone
+        );
+
+      if (!group) {
+        return;
+      }
+
+      while (
+        group.firstChild
+      ) {
+        group.removeChild(
+          group.firstChild
+        );
+      }
+
+      const count =
+        getTrafficQueue(zone);
+
+      for (
+        let i = 0;
+        i < count;
+        i++
+      ) {
+        const direction =
+          i % 4;
+
+        const car =
+          document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect"
+          );
+
+        car.setAttribute(
+          "class",
+          "car"
+        );
+
+        car.setAttribute(
+          "width",
+          "17"
+        );
+
+        car.setAttribute(
+          "height",
+          "9"
+        );
+
+        let x = 0;
+        let y = 0;
+
+        if (
+          direction === 0
+        ) {
+          x =
+            72 +
+            (i % 3) * 19;
+
+          y =
+            135 +
+            Math.floor(
+              i / 4
+            ) * 15;
+        }
+
+        else if (
+          direction === 1
+        ) {
+          x =
+            270 +
+            (i % 3) * 19;
+
+          y =
+            185 -
+            Math.floor(
+              i / 4
+            ) * 15;
+        }
+
+        else if (
+          direction === 2
+        ) {
+          x =
+            168 +
+            Math.floor(
+              i / 4
+            ) * 15;
+
+          y =
+            55 +
+            (i % 3) * 19;
+        }
+
+        else {
+          x =
+            192 -
+            Math.floor(
+              i / 4
+            ) * 15;
+
+          y =
+            240 +
+            (i % 3) * 19;
+        }
+
+        car.setAttribute(
+          "x",
+          x
+        );
+
+        car.setAttribute(
+          "y",
+          y
+        );
+
+        const variation =
+          i % 3;
+
+        if (
+          variation === 0
+        ) {
+          car.setAttribute(
+            "fill",
+            "#60a5fa"
+          );
+        }
+
+        else if (
+          variation === 1
+        ) {
+          car.setAttribute(
+            "fill",
+            "#f97316"
+          );
+        }
+
+        else {
+          car.setAttribute(
+            "fill",
+            "#e5e7eb"
+          );
+        }
+
+        group.appendChild(
+          car
+        );
+      }
+    }
+
+    function updateMessages(zone) {
+      const messageElement =
+        document.getElementById(
+          "message-" + zone
+        );
+
+      const statusElement =
+        document.getElementById(
+          "status-" + zone
+        );
+
+      const opsElement =
+        document.getElementById(
+          "ops-" + zone
+        );
+
+      const queue =
+        getTrafficQueue(zone);
+
+      const phase =
+        getPhase(zone);
+
+      let direction =
+        "ALL DIRECTIONS";
+
+      if (
+        phase === "green-ns" ||
+        phase === "yellow-ns"
+      ) {
+        direction =
+          "NORTH / SOUTH";
+      }
+
+      else if (
+        phase === "green-ew" ||
+        phase === "yellow-ew"
+      ) {
+        direction =
+          "EAST / WEST";
+      }
+
+      let trafficLevel =
+        "NORMAL TRAFFIC";
+
+      if (
+        queue >= 8
+      ) {
+        trafficLevel =
+          "HEAVY TRAFFIC";
+      }
+
+      else if (
+        queue >= 5
+      ) {
+        trafficLevel =
+          "MODERATE TRAFFIC";
+      }
+
+      if (messageElement) {
+        messageElement.textContent =
+          "VMS: " +
+          trafficLevel +
+          " — " +
+          direction;
+      }
+
+      if (statusElement) {
+        statusElement.textContent =
+          direction +
+          " ACTIVE — " +
+          queue +
+          " VEHICLES WAITING";
+      }
+
+      if (opsElement) {
+        opsElement.textContent =
+          trafficZones[zone].name +
+          ": " +
+          queue +
+          " VEHICLES / " +
+          direction;
+      }
+    }
+
+    function updateSystemStatus() {
+      const updateElement =
+        document.getElementById(
+          "last-update"
+        );
+
+      if (updateElement) {
+        updateElement.textContent =
+          "Last update: " +
+          new Date().toLocaleTimeString();
+      }
+    }
+
+    function updateDiagram() {
+      Object.keys(
+        trafficZones
+      ).forEach(zone => {
+        updateQueue(zone);
+        updateSignals(zone);
+        createCars(zone);
+        updateMessages(zone);
+      });
+
+      updateSystemStatus();
+    }
+
+    updateDiagram();
+
+    setInterval(
+      updateDiagram,
+      1000
+    );
+  </script>
 
 </svg>
 
