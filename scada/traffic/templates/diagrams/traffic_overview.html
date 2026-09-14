@@ -782,10 +782,17 @@
    * the same y coordinate. That prevents head-on collisions.
    */
   const laneGeometry = {
-    north: { axis: "vertical", fixed: 208, start: 35, stop: 112, end: 330, sign: 1 },
-    south: { axis: "vertical", fixed: 162, start: 302, stop: 235, end: -30, sign: -1 },
-    east:  { axis: "horizontal", fixed: 151, start: 370, stop: 250, end: -30, sign: -1 },
-    west:  { axis: "horizontal", fixed: 194, start: -20, stop: 120, end: 400, sign: 1 }
+    /* Northbound: right/east lane when looking north. */
+    north: { axis: "vertical", fixed: 223, start: 315, stop: 232, end: -35, sign: -1 },
+
+    /* Southbound: left/west lane when looking north. */
+    south: { axis: "vertical", fixed: 147, start: 35, stop: 113, end: 335, sign: 1 },
+
+    /* Eastbound: right/south lane when looking east. */
+    east: { axis: "horizontal", fixed: 210, start: -35, stop: 122, end: 405, sign: 1 },
+
+    /* Westbound: left/north lane when looking east. */
+    west: { axis: "horizontal", fixed: 135, start: 405, stop: 248, end: -35, sign: -1 }
   };
 
   const MAX_CARS = 16;
