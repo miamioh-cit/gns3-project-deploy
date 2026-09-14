@@ -834,9 +834,9 @@
   };
 
   const MAX_CARS = 16;
-  const MIN_GAP = 24;
-  const COMFORT_GAP = 34;
-  const ENTRY_GAP = 48;
+  const MIN_GAP = 34;
+  const COMFORT_GAP = 48;
+  const ENTRY_GAP = 68;
 
   const zoneState = {};
 
@@ -1156,18 +1156,23 @@
 
       let gap;
 
+      /*
+       * IMPORTANT: calculate distance in the direction the
+       * traffic is actually travelling.
+       *
+       * north: decreasing Y, so a car ahead has a SMALLER Y
+       * south: increasing Y, so a car ahead has a LARGER Y
+       * east:  increasing X, so a car ahead has a LARGER X
+       * west:  decreasing X, so a car ahead has a SMALLER X
+       */
       if (lane.axis === "vertical") {
-        if (lane.sign === -1) {
-          gap = other.y - car.y;
-        } else {
-          gap = car.y - other.y;
-        }
+        gap = lane.sign === -1
+          ? car.y - other.y
+          : other.y - car.y;
       } else {
-        if (lane.sign === 1) {
-          gap = other.x - car.x;
-        } else {
-          gap = car.x - other.x;
-        }
+        gap = lane.sign === 1
+          ? other.x - car.x
+          : car.x - other.x;
       }
 
       if (gap > 0 && gap < closestGap) {
