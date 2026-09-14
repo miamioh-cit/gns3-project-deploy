@@ -776,62 +776,59 @@
   };
 
   /*
-   * Each direction has its OWN physical lane.
-   * This is important: northbound and southbound must never share
-   * the same x coordinate, and eastbound/westbound must never share
-   * the same y coordinate. That prevents head-on collisions.
+   * RIGHT-HAND TRAFFIC LANE GEOMETRY
+   *
+   * Each approach has two one-way lanes:
+   *
+   *   Northbound: east/right side of the vertical road
+   *   Southbound: west/left side of the vertical road
+   *   Eastbound:  south/bottom side of the horizontal road
+   *   Westbound:  north/top side of the horizontal road
+   *
+   * Vehicles NEVER switch lanes and never share a lane with opposing traffic.
    */
   const laneGeometry = {
-    /*
-     * Coordinates follow right-hand traffic:
-     * Northbound = east/right lane.
-     * Southbound = west/left lane.
-     * Eastbound  = south/bottom lane.
-     * Westbound  = north/top lane.
-     *
-     * entry/exit are measured along each lane's distance axis.
-     */
     north: {
       axis: "vertical",
-      fixed: 223,
-      start: 315,
-      stopDistance: 88,
-      intersectionEntry: 90,
-      intersectionExit: 195,
-      end: 350,
+      fixed: 205,
+      start: 310,
+      stopY: 242,
+      entryY: 225,
+      exitY: 120,
+      end: -25,
       sign: -1
     },
 
     south: {
       axis: "vertical",
-      fixed: 147,
+      fixed: 165,
       start: 35,
-      stopDistance: 78,
-      intersectionEntry: 85,
-      intersectionExit: 190,
+      stopY: 103,
+      entryY: 120,
+      exitY: 225,
       end: 335,
       sign: 1
     },
 
     east: {
       axis: "horizontal",
-      fixed: 210,
-      start: -35,
-      stopDistance: 157,
-      intersectionEntry: 167,
-      intersectionExit: 273,
-      end: 440,
+      fixed: 194,
+      start: 0,
+      stopX: 120,
+      entryX: 132,
+      exitX: 238,
+      end: 395,
       sign: 1
     },
 
     west: {
       axis: "horizontal",
-      fixed: 135,
-      start: 405,
-      stopDistance: 157,
-      intersectionEntry: 167,
-      intersectionExit: 273,
-      end: 440,
+      fixed: 151,
+      start: 370,
+      stopX: 250,
+      entryX: 238,
+      exitX: 132,
+      end: -25,
       sign: -1
     }
   };
@@ -839,7 +836,7 @@
   const MAX_CARS = 16;
   const MIN_GAP = 24;
   const COMFORT_GAP = 34;
-  const STOP_BUFFER = 4;
+  const ENTRY_GAP = 48;
 
   const zoneState = {};
 
@@ -882,18 +879,26 @@
     const now = Date.now();
 
     if (now - state.lastDemandChange < 5000) return;
-    state.lastDema  function getIntersectionBounds(direction) {
-    const lane = laneGeometry[direction];
-    return {
-      entry: lane.intersectionEntry,
-      exit: lane.intersectionExit,
-      stop: Math.max(0, lane.stopDistance)
-    };
+
+    state.lastDemandChange = now;
+
+    const change = Math.floor(Math.random() * 5) - 2;
+    state.demand = Math.max(2, Math.min(14, state.demand + change));
   }
 
-  function isInsideIntersection(car) {
-    const bounds = getIntersectionBounds(car.direction);
-    return car.distance >= bounds.entry && car.distance <= bounds.exit;
+  function getPhase(zone) {
+    const state = zoneState[zone];
+
+    const elapsed = (
+      Date.now() -
+      state.cycleStart +
+      state.phaseOffset
+    ) % state.cycleLength;
+
+    if (elapsed < 12000) return "green-ns";
+    if (elapsed < 15000) return "yellow-ns";
+    if (elapsed < 27000) return "green-ew";
+    return "yellow-ew";
   }
 
   function phaseAllowsDirection(zone, direction) {
@@ -906,38 +911,56 @@
     return direction === "east" || direction === "west";
   }
 
-  function isConflictingDirection(a, b) {
-    const ns = direction => direction === "north" || direction === "south";
-    return ns(a) !== ns(b);
+  function getLane(direction) {
+    return laneGeometry[direction];
+  }
+
+  function getDistanceToEntry(car) {
+    const lane = getLane(car.direction);
+    return lane.axis === "vertical"
+      ? Math.abs(lane.entryY - car.y)
+      : Math.abs(lane.entryX - car.x);
+  }
+
+  function isInsideIntersection(car) {
+    const lane = getLane(car.direction);
+
+    if (lane.axis === "vertical") {
+      return car.y >= Math.min(lane.entryY, lane.exitY) &&
+             car.y <= Math.max(lane.entryY, lane.exitY);
+    }
+
+    return car.x >= Math.min(lane.entryX, lane.exitX) &&
+           car.x <= Math.max(lane.entryX, lane.exitX);
   }
 
   function conflictingCarInIntersection(zone, direction) {
+    const isNS = direction === "north" || direction === "south";
+
     return zoneState[zone].cars.some(other => {
       if (other.direction === direction) return false;
-      if (!isConflictingDirection(direction, other.direction)) return false;
-      return isInsideIntersection(other);
+
+      const otherIsNS =
+        other.direction === "north" ||
+        other.direction === "south";
+
+      return isNS !== otherIsNS && isInsideIntersection(other);
     });
   }
 
-  function directionAllowed(zone, direction, distance) {
-    const bounds = getIntersectionBounds(direction);
-
+  function directionAllowed(zone, direction, car) {
     /*
-     * Once a vehicle has entered the intersection, the signal cannot
-     * force it to stop. It must be allowed to clear the intersection.
+     * Once the front of the car has entered the intersection,
+     * it is NEVER stopped by the signal. It must clear the box.
      */
-    if (distance >= bounds.entry) {
-      return true;
-    }
+    if (isInsideIntersection(car)) return true;
 
-    /*
-     * A vehicle may approach the stop line only when its movement phase
-     * is active and the conflicting side of the intersection is clear.
-     */
-    return (
-      phaseAllowsDirection(zone, direction) &&
-      !conflictingCarInIntersection(zone, direction)
-    );
+    if (!phaseAllowsDirection(zone, direction)) return false;
+
+    /* Do not release cross traffic while the intersection is occupied. */
+    if (conflictingCarInIntersection(zone, direction)) return false;
+
+    return true;
   }
 
   function setLight(zone, direction, color) {
@@ -1001,17 +1024,17 @@
   }
 
   function carPosition(car) {
-    const lane = laneGeometry[car.direction];
+    const lane = getLane(car.direction);
 
     if (lane.axis === "vertical") {
       return {
         x: lane.fixed,
-        y: lane.start + lane.sign * car.distance
+        y: car.y
       };
     }
 
     return {
-      x: lane.start + lane.sign * car.distance,
+      x: car.x,
       y: lane.fixed
     };
   }
@@ -1027,29 +1050,32 @@
     const group = document.getElementById("cars-" + zone);
     if (!group) return null;
 
+    const lane = getLane(direction);
+
     const car = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "rect"
     );
 
     car.setAttribute("class", "car");
-    car.setAttribute(
-      "width",
-      direction === "north" || direction === "south" ? "9" : "18"
-    );
-    car.setAttribute(
-      "height",
-      direction === "north" || direction === "south" ? "18" : "9"
-    );
-    car.setAttribute("fill", randomCarColor());
 
+    if (lane.axis === "vertical") {
+      car.setAttribute("width", "10");
+      car.setAttribute("height", "18");
+    } else {
+      car.setAttribute("width", "18");
+      car.setAttribute("height", "10");
+    }
+
+    car.setAttribute("fill", randomCarColor());
     group.appendChild(car);
 
     const carState = {
       element: car,
       direction,
-      distance: 0,
       speed: 42 + Math.random() * 18,
+      x: lane.axis === "horizontal" ? lane.start : lane.fixed,
+      y: lane.axis === "vertical" ? lane.start : lane.fixed,
       id: Math.random().toString(36).slice(2)
     };
 
@@ -1059,10 +1085,20 @@
     return carState;
   }
 
+  function entryDistanceFromStart(car) {
+    const lane = getLane(car.direction);
+
+    if (lane.axis === "vertical") {
+      return Math.abs(car.y - lane.start);
+    }
+
+    return Math.abs(car.x - lane.start);
+  }
+
   function laneHasEntrySpace(zone, direction) {
     return !zoneState[zone].cars.some(car => {
       if (car.direction !== direction) return false;
-      return car.distance < 55;
+      return entryDistanceFromStart(car) < ENTRY_GAP;
     });
   }
 
@@ -1078,6 +1114,7 @@
     state.lastSpawn = now;
 
     const phase = getPhase(zone);
+
     const active =
       phase === "green-ns" || phase === "yellow-ns"
         ? ["north", "south"]
@@ -1088,9 +1125,10 @@
         ? ["east", "west"]
         : ["north", "south"];
 
+    /* Mostly spawn active traffic, but keep cross traffic alive. */
     const pool = [
       ...active,
-      ...inactive,
+      ...active,
       ...inactive
     ];
 
@@ -1110,11 +1148,27 @@
     let closest = null;
     let closestGap = Infinity;
 
+    const lane = getLane(car.direction);
+
     for (const other of zoneState[zone].cars) {
       if (other === car) continue;
       if (other.direction !== car.direction) continue;
 
-      const gap = other.distance - car.distance;
+      let gap;
+
+      if (lane.axis === "vertical") {
+        if (lane.sign === -1) {
+          gap = other.y - car.y;
+        } else {
+          gap = car.y - other.y;
+        }
+      } else {
+        if (lane.sign === 1) {
+          gap = other.x - car.x;
+        } else {
+          gap = car.x - other.x;
+        }
+      }
 
       if (gap > 0 && gap < closestGap) {
         closest = other;
@@ -1125,61 +1179,90 @@
     return closest;
   }
 
+  function advanceCar(car, amount) {
+    const lane = getLane(car.direction);
+
+    if (lane.axis === "vertical") {
+      car.y += lane.sign * amount;
+    } else {
+      car.x += lane.sign * amount;
+    }
+  }
+
+  function distanceToStopLine(car) {
+    const lane = getLane(car.direction);
+
+    if (lane.axis === "vertical") {
+      return Math.abs(car.y - lane.stopY);
+    }
+
+    return Math.abs(car.x - lane.stopX);
+  }
+
+  function distanceToIntersectionEntry(car) {
+    const lane = getLane(car.direction);
+
+    if (lane.axis === "vertical") {
+      return Math.abs(car.y - lane.entryY);
+    }
+
+    return Math.abs(car.x - lane.entryX);
+  }
+
   function updateCars(zone, deltaSeconds) {
     const state = zoneState[zone];
 
     for (const car of state.cars) {
-      const bounds = getIntersectionBounds(car.direction);
+      const lane = getLane(car.direction);
       const inside = isInsideIntersection(car);
       const ahead = getCarAhead(zone, car);
 
       let speed = car.speed;
 
-      /*
-       * Vehicles inside the intersection never obey the signal.
-       * The only thing that can slow them is a vehicle ahead in the
-       * exact same lane.
-       */
+      /* Same-lane following only. */
       if (ahead) {
-        const gap = ahead.distance - car.distance;
+        let gap;
 
-        if (inside) {
-          /* Never stop in the middle of the intersection. */
-          if (gap < MIN_GAP) {
-            speed = Math.min(speed, 10);
-          } else if (gap < COMFORT_GAP) {
-            speed = Math.min(speed, 22);
-          }
+        if (lane.axis === "vertical") {
+          gap = lane.sign === -1
+            ? ahead.y - car.y
+            : car.y - ahead.y;
         } else {
-          if (gap <= MIN_GAP) {
-            speed = 0;
-          } else if (gap < COMFORT_GAP) {
-            speed = Math.min(speed, 12);
-          }
+          gap = lane.sign === 1
+            ? ahead.x - car.x
+            : car.x - ahead.x;
+        }
+
+        if (gap <= MIN_GAP) {
+          speed = 0;
+        } else if (gap < COMFORT_GAP) {
+          speed = Math.min(speed, 14);
         }
       }
 
       /*
-       * Before the intersection, a red/conflicting movement stops at the
-       * stop line. Once the car crosses the entry point, it continues.
+       * A vehicle already inside the intersection never stops for
+       * the signal. It only follows another car in its own lane.
        */
-      if (!inside && car.distance < bounds.entry) {
-        const allowed = directionAllowed(
-          zone,
-          car.direction,
-          car.distance
-        );
+      if (!inside) {
+        const allowed =
+          directionAllowed(
+            zone,
+            car.direction,
+            car
+          );
 
         if (!allowed) {
-          const gapToStop = bounds.stop - car.distance;
+          const toStop =
+            distanceToStopLine(car);
 
-          if (gapToStop <= 1) {
-            car.distance = bounds.stop;
+          /* Slow down as we approach the stop line. */
+          if (toStop <= 2) {
             speed = 0;
-          } else if (gapToStop < 30) {
+          } else if (toStop < 32) {
             speed = Math.min(
               speed,
-              Math.max(4, gapToStop * 1.5)
+              Math.max(4, toStop * 1.5)
             );
           } else {
             speed = Math.min(speed, 8);
@@ -1187,45 +1270,64 @@
         }
       }
 
-      car.distance += speed * deltaSeconds;
+      /* Do not let a car jump through another car or signal. */
+      const movement = speed * deltaSeconds;
 
-      /* Never cross a closed stop line. */
-      if (
-        car.distance < bounds.entry &&
-        car.distance > bounds.stop &&
-        !directionAllowed(zone, car.direction, car.distance)
-      ) {
-        car.distance = bounds.stop;
+      if (movement > 0) {
+        const before = {
+          x: car.x,
+          y: car.y
+        };
+
+        advanceCar(car, movement);
+
+        /* Keep stopped vehicles exactly at the stop line. */
+        if (!inside && !directionAllowed(zone, car.direction, car)) {
+          const laneNow = getLane(car.direction);
+
+          if (laneNow.axis === "vertical") {
+            if (laneNow.sign === -1 && car.y < laneNow.stopY) {
+              car.y = laneNow.stopY;
+            }
+            if (laneNow.sign === 1 && car.y > laneNow.stopY) {
+              car.y = laneNow.stopY;
+            }
+          } else {
+            if (laneNow.sign === 1 && car.x > laneNow.stopX) {
+              car.x = laneNow.stopX;
+            }
+            if (laneNow.sign === -1 && car.x < laneNow.stopX) {
+              car.x = laneNow.stopX;
+            }
+          }
+        }
+
+        /* Safety fallback: never allow a single-frame huge jump. */
+        if (lane.axis === "vertical") {
+          if (Math.abs(car.y - before.y) > 6) {
+            car.y = before.y;
+          }
+        } else if (Math.abs(car.x - before.x) > 6) {
+          car.x = before.x;
+        }
       }
 
       updateCarElement(car);
     }
 
     state.cars = state.cars.filter(car => {
-      const bounds = getIntersectionBounds(car.direction);
+      const lane = getLane(car.direction);
 
-      if (car.distance > bounds.exit + 80) {
-        car.element.remove();
-        return false;
-      }
+      const outside =
+        lane.axis === "vertical"
+          ? (lane.sign === -1
+              ? car.y < lane.end
+              : car.y > lane.end)
+          : (lane.sign === 1
+              ? car.x > lane.end
+              : car.x < lane.end);
 
-      return true;
-    });
-  }
-
-anMove && car.distance > stopDistance) {
-        car.distance = stopDistance;
-      }
-
-      updateCarElement(car);
-    }
-
-    /* Remove cars that have completely left the intersection. */
-    state.cars = state.cars.filter(car => {
-      const lane = laneGeometry[car.direction];
-      const exitDistance = Math.abs(lane.end - lane.start);
-
-      if (car.distance > exitDistance) {
+      if (outside) {
         car.element.remove();
         return false;
       }
@@ -1238,11 +1340,10 @@ anMove && car.distance > stopDistance) {
     const demand = getTrafficDemand(zone);
     const phase = getPhase(zone);
 
-    let direction = "EAST / WEST";
-
-    if (phase === "green-ns" || phase === "yellow-ns") {
-      direction = "NORTH / SOUTH";
-    }
+    const direction =
+      phase === "green-ns" || phase === "yellow-ns"
+        ? "NORTH / SOUTH"
+        : "EAST / WEST";
 
     let trafficLevel = "NORMAL TRAFFIC";
 
@@ -1297,7 +1398,6 @@ anMove && car.distance > stopDistance) {
     });
 
     const update = document.getElementById("last-update");
-
     if (update) {
       update.textContent =
         "Last update: " +
