@@ -796,6 +796,7 @@ def scada_environment():
 # ---------------------------------------------------------------------------
 
 def create_scenario_nodes(
+    server_url,
     lab,
     errors,
 ):
@@ -879,7 +880,6 @@ def create_scenario_nodes(
         220,
         errors,
     )
-
     create_node(
         lab,
         "scada-server",
@@ -888,6 +888,34 @@ def create_scenario_nodes(
         80,
         errors,
     )
+
+# Force the Traffic SCADA HTTP console to a browser-safe port.
+    try:
+        scada_node = lab.get_node("scada-server")
+        scada_node.get()
+
+        response = requests.put(
+            f"{server_url}/v2/projects/"
+            f"{lab.project_id}/nodes/{scada_node.node_id}",
+            json={"console": 5122},
+            auth=(GNS3_USER, GNS3_PW),
+            timeout=30,
+        )
+
+        require_http_success(
+            response,
+            "Set Traffic SCADA console port",
+        )
+
+        logging.info(
+            "Traffic SCADA console set to port 5122."
+        )
+
+    except Exception as exc:
+        errors.append(
+            f"Set Traffic SCADA console port failed: {exc}"
+        )
+   
 
     create_node(
         lab,
@@ -1227,6 +1255,7 @@ def build_project_on_server(
     )
 
     create_scenario_nodes(
+        server_url,
         lab,
         errors,
     )
