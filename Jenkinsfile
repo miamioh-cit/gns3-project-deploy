@@ -255,8 +255,92 @@ pipeline {
                 }
             }
         }
+
+         // ==========================================
+        // ROUTE 4: CUSTOM 480-4 DEPLOYMENT
+        // Runs ONLY for 480-4
+        // ==========================================
+
+        stage('Deploy Custom Course (480-4)') {
+            when {
+                expression {
+                    return params.PROJECT_ID == '480-4'
+                }
+            }
+
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'it-ot-security-course',
+                        usernameVariable: 'COURSE_USER',
+                        passwordVariable: 'COURSE_PAT'
+                    ),
+                    usernamePassword(
+                        credentialsId: 'wtaylor8-dockerhub',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_TOKEN'
+                    )
+                ]) {
+                    sh """
+                        set -e
+
+                        echo "📚 Checking out private course repository..."
+                        rm -rf course-config
+
+                        git clone \
+                            --depth 1 \
+                            --no-tags \
+                            --branch main \
+                            https://\${COURSE_USER}:\${COURSE_PAT}@github.com/kunkelec-stack/it-ot-security-course.git \
+                            course-config
+
+                        echo "🐳 Building manufacturing SCADA image..."
+
+                        docker build \
+                            --no-cache \
+                            -t ${MANUFACTURING_SCADA_IMAGE} \
+                            -f scada/manufacturing/Dockerfile \
+                            .
+
+                        echo "🔐 Logging into Docker Hub..."
+
+                        echo "\${DOCKER_TOKEN}" | docker login \
+                            --username "\${DOCKER_USERNAME}" \
+                            --password-stdin
+
+                        echo "🚀 Pushing manufacturing SCADA image..."
+
+                        docker push ${MANUFACTURING_SCADA_IMAGE}
+
+                        echo "🔒 Logging out of Docker Hub..."
+
+                        docker logout
+
+                        echo "🐳 Building Docker image for 480-4..."
+
+                        docker builder prune -f || true
+
+                        docker build \
+                            --no-cache \
+                            -t ${IMAGE_NAME}-480-4 \
+                            -f Dockerfile \
+                            .
+
+                        echo "🚀 Running GNS3 deployment for 480-4..."
+
+                        docker run --rm \
+                            --entrypoint python3 \
+                            -e GNS3_URL=http://\${IP_ADDRESS}:80 \
+                            -e GNS3_USER=gns3 \
+                            -e GNS3_PASSWORD=gns3 \
+                            ${IMAGE_NAME}-480-4 \
+                            480-4-build.py
+                    """
+                }
+            }
+        }
     }
-    
+
     post {
         success {
             echo "✅ GNS3 Project ${params.PROJECT_ID} Deployed Successfully to ${params.IP_ADDRESS}!"
@@ -267,3 +351,5 @@ pipeline {
         }
     }
 }
+    
+ 
