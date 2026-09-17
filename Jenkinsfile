@@ -65,7 +65,7 @@ pipeline {
             when {
                 expression {
                     return params.PROJECT_ID != '480-2' &&
-                           params.PROJECT_ID != '480-3'
+                           params.PROJECT_ID != '480-3' &&
                            params.PROJECT_ID != '480-4'
                 }
             }
@@ -81,7 +81,7 @@ pipeline {
             when {
                 expression {
                     return params.PROJECT_ID != '480-2' &&
-                           params.PROJECT_ID != '480-3'
+                           params.PROJECT_ID != '480-3' &&
                            params.PROJECT_ID != '480-4'
                 }
             }
