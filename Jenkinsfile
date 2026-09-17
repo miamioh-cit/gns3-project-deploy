@@ -175,6 +175,7 @@ pipeline {
                 }
             }
         }
+
         // ==========================================
         // ROUTE 3: CUSTOM 480-3 DEPLOYMENT
         // Runs ONLY for 480-3
@@ -301,7 +302,7 @@ pipeline {
 
                         docker build \
                             --no-cache \
-                            -t ${evankunkel/generic-scada-manafacturing:latest} \
+                            -t evankunkel/generic-scada-manafacturing:latest \
                             -f scada/manufacturing/Dockerfile \
                             .
 
@@ -313,7 +314,7 @@ pipeline {
 
                         echo "🚀 Pushing manufacturing SCADA image..."
 
-                        docker push ${evankunkel/generic-scada-manfacturing:latest}
+                        docker push evankunkel/generic-scada-manafacturing:latest
 
                         echo "🔒 Logging out of Docker Hub..."
 
@@ -354,5 +355,3 @@ pipeline {
         }
     }
 }
-    
- 
