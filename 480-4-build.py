@@ -1250,7 +1250,6 @@ def scada_environment() -> str:
         IP_ADDRESS=SCADA_IP,
         NETMASK=OPERATIONS_NETMASK,
     )
-    )
 
 
 def sensor_environment(
