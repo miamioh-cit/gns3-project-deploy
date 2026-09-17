@@ -301,7 +301,7 @@ pipeline {
 
                         docker build \
                             --no-cache \
-                            -t ${MANUFACTURING_SCADA_IMAGE} \
+                            -t ${evankunkel/generic-scada-manafacturing:latest} \
                             -f scada/manufacturing/Dockerfile \
                             .
 
@@ -313,7 +313,7 @@ pipeline {
 
                         echo "🚀 Pushing manufacturing SCADA image..."
 
-                        docker push ${MANUFACTURING_SCADA_IMAGE}
+                        docker push ${evankunkel/generic-scada-manfacturing:latest}
 
                         echo "🔒 Logging out of Docker Hub..."
 
