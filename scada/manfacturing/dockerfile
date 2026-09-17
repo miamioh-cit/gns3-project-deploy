@@ -1,5 +1,0 @@
-FROM wtaylor8/generic-scada:latest
-
-COPY scada/manafacturing/ /app/scenarios/manafacturing/
-COPY scada/manafacturing/templates/diagram_base.html /app/scada/templates/diagram_base.html
-COPY scada/manafacturing/templates/diagrams/manafacturing_overview.html /app/scada/templates/diagrams/manafacturing_overview.html
