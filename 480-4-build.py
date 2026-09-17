@@ -1243,16 +1243,13 @@ def historian_environment() -> str:
 
 
 def scada_environment() -> str:
-
     return build_environment(
-
         SCENARIO=SCENARIO,
-
         SCADA_SUBNETS=OPERATIONS_SUBNET,
-
+        SCADA_DIAGRAM_CONFIG="manufacturing/diagrams.yaml",
         IP_ADDRESS=SCADA_IP,
-
         NETMASK=OPERATIONS_NETMASK,
+    )
     )
 
 
