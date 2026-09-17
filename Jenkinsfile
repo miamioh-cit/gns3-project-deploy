@@ -6,6 +6,7 @@ pipeline {
         IMAGE_NAME = 'gns3-deploy'
         FRESHWATER_SCADA_IMAGE = 'evankunkel/generic-scada-freshwater:latest'
         TRAFFIC_SCADA_IMAGE = 'evankunkel/generic-scada-traffic:latest'
+        MANAFACTURING_SCADA_IMAGE = 'evankunkel/generic-scada-manafacturing:latest'
     }
 
     stages {
