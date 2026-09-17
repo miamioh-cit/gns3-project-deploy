@@ -23,19 +23,27 @@ GNS3_USER = "gns3"
 GNS3_PW = "gns3"
 
 SCENARIO = "manufacturing"
+
 OPERATIONS_SUBNET = "10.10.40.0/24"
 OPERATIONS_NETMASK = "255.255.255.0"
 
-OPS_SWITCH_TEMPLATE = "GNS3 Ethernet switch"
-ICS_TEMPLATE = "ics-node"
+CORE_SWITCH_TEMPLATE = "Ethernet-Switch-10P"
+EDGE_SWITCH_TEMPLATE = "Ethernet switch"
 KALI_TEMPLATE = "Kali Linux"
+
+SENSOR_TEMPLATE = "generic-sensor"
+PLC_TEMPLATE = "generic-plc"
+HMI_TEMPLATE = "generic-hmi"
+
 MANUFACTURING_SCADA_TEMPLATE = "generic-scada-manufacturing"
-MANUFACTURING_SCADA_IMAGE = "evankunkel/generic-scada-manafacturing:latest"
+MANUFACTURING_SCADA_IMAGE = (
+    "evankunkel/generic-scada-manafacturing:latest"
+)
 
 SCADA_IP = "10.10.40.200"
 KALI_IP = "10.10.40.250"
-HISTORIAN_IP = "10.10.40.30"
 HMI_IP = "10.10.40.20"
+HISTORIAN_IP = "10.10.40.30"
 
 
 # ---------------------------------------------------------------------------
@@ -44,13 +52,34 @@ HMI_IP = "10.10.40.20"
 
 REQUIRED_TEMPLATES = [
     {
-        "name": ICS_TEMPLATE,
+        "name": SENSOR_TEMPLATE,
         "template_type": "docker",
         "category": "guest",
-        "image": "wtaylor8/ics-node:latest",
+        "image": "wtaylor8/generic-sensor:latest",
         "adapters": 5,
         "console_type": "telnet",
-        "environment": f"SCENARIO={SCENARIO}",
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg",
+    },
+    {
+        "name": PLC_TEMPLATE,
+        "template_type": "docker",
+        "category": "guest",
+        "image": "wtaylor8/generic-plc:latest",
+        "adapters": 5,
+        "console_type": "telnet",
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg",
+    },
+    {
+        "name": HMI_TEMPLATE,
+        "template_type": "docker",
+        "category": "guest",
+        "image": "wtaylor8/generic-hmi:latest",
+        "adapters": 5,
+        "console_type": "telnet",
         "default_name_format": "{name}-{0}",
         "compute_id": "local",
         "symbol": ":/symbols/docker_guest.svg",
@@ -71,47 +100,87 @@ REQUIRED_TEMPLATES = [
 
 
 # ---------------------------------------------------------------------------
-# Manufacturing PLCs
+# Manufacturing areas
 # ---------------------------------------------------------------------------
 
-MANUFACTURING_PLCS = [
+MANUFACTURING_AREAS = [
     {
-        "name": "plc-conveyor",
-        "ip": "10.10.40.11",
-        "role": "conveyor",
+        "name": "conveyor",
+        "label": "Conveyor Line",
+        "field_vlan": "Vlan-01",
+        "field_subnet": "192.168.10.0/24",
+        "plc": "plc-conveyor",
+        "plc_field_ip": "192.168.10.5",
+        "plc_ops_ip": "10.10.40.11",
+        "field_switch_core_port": "Ethernet0",
+        "x": -540,
+        "sensors": [
+            ("SPEED-101", "192.168.10.1", "rpm"),
+            ("PROX-101", "192.168.10.2", "state"),
+            ("TEMP-101", "192.168.10.3", "C"),
+            ("JAM-101", "192.168.10.4", "flag"),
+        ],
         "age": "8",
-        "switch_port": "Ethernet0",
+        "role": "conveyor",
     },
     {
-        "name": "plc-robot-cell",
-        "ip": "10.10.40.12",
-        "role": "robot_cell",
+        "name": "robot_cell",
+        "label": "Robot Cell",
+        "field_vlan": "Vlan-02",
+        "field_subnet": "192.168.20.0/24",
+        "plc": "plc-robot-cell",
+        "plc_field_ip": "192.168.20.5",
+        "plc_ops_ip": "10.10.40.12",
+        "field_switch_core_port": "Ethernet1",
+        "x": -180,
+        "sensors": [
+            ("POS-201", "192.168.20.1", "mm"),
+            ("PROX-201", "192.168.20.2", "state"),
+            ("TEMP-201", "192.168.20.3", "C"),
+            ("TORQUE-201", "192.168.20.4", "Nm"),
+        ],
         "age": "10",
-        "switch_port": "Ethernet1",
+        "role": "robot_cell",
     },
     {
-        "name": "plc-packaging",
-        "ip": "10.10.40.13",
-        "role": "packaging",
+        "name": "packaging",
+        "label": "Packaging",
+        "field_vlan": "Vlan-03",
+        "field_subnet": "192.168.30.0/24",
+        "plc": "plc-packaging",
+        "plc_field_ip": "192.168.30.5",
+        "plc_ops_ip": "10.10.40.13",
+        "field_switch_core_port": "Ethernet2",
+        "x": 180,
+        "sensors": [
+            ("COUNT-301", "192.168.30.1", "units/min"),
+            ("WEIGHT-301", "192.168.30.2", "kg"),
+            ("TEMP-301", "192.168.30.3", "C"),
+            ("SEAL-301", "192.168.30.4", "state"),
+        ],
         "age": "17",
-        "switch_port": "Ethernet2",
+        "role": "packaging",
     },
     {
-        "name": "plc-quality",
-        "ip": "10.10.40.14",
-        "role": "quality",
+        "name": "quality",
+        "label": "Quality Control",
+        "field_vlan": "Vlan-04",
+        "field_subnet": "192.168.40.0/24",
+        "plc": "plc-quality",
+        "plc_field_ip": "192.168.40.5",
+        "plc_ops_ip": "10.10.40.14",
+        "field_switch_core_port": "Ethernet3",
+        "x": 540,
+        "sensors": [
+            ("CAM-401", "192.168.40.1", "score"),
+            ("REJECT-401", "192.168.40.2", "count"),
+            ("VIB-401", "192.168.40.3", "mm/s"),
+            ("TEMP-401", "192.168.40.4", "C"),
+        ],
         "age": "12",
-        "switch_port": "Ethernet3",
+        "role": "quality",
     },
 ]
-
-
-PLC_TARGETS = (
-    "--plc conveyor=10.10.40.11:502 "
-    "--plc robot=10.10.40.12:502 "
-    "--plc packaging=10.10.40.13:502 "
-    "--plc quality=10.10.40.14:502"
-)
 
 
 # ---------------------------------------------------------------------------
@@ -149,7 +218,7 @@ def read_server_urls():
 
 
 def require_http_success(response, action):
-    if response.status_code not in (200, 201, 204):
+    if response.status_code not in (200, 201):
         raise RuntimeError(
             f"{action} failed: "
             f"HTTP {response.status_code}: "
@@ -173,18 +242,73 @@ iface eth0 inet static
 """
 
 
+def build_plc_config(field_ip, operations_ip):
+    return f"""
+auto eth0
+iface eth0 inet static
+    address {field_ip}
+    netmask 255.255.255.0
+
+auto eth1
+iface eth1 inet static
+    address {operations_ip}
+    netmask {OPERATIONS_NETMASK}
+"""
+
+
+def sensor_simulation(sensor_name):
+    if sensor_name.startswith("SPEED-"):
+        return "random_walk:start=1200,step=50,min=500,max=1800"
+
+    if sensor_name.startswith("POS-"):
+        return "random_walk:start=50,step=4,min=0,max=100"
+
+    if sensor_name.startswith("COUNT-"):
+        return "random_walk:start=35,step=3,min=0,max=70"
+
+    if sensor_name.startswith("WEIGHT-"):
+        return "random_walk:start=2.5,step=0.15,min=1.0,max=5.0"
+
+    if sensor_name.startswith("CAM-"):
+        return "random_walk:start=95,step=1,min=70,max=100"
+
+    if sensor_name.startswith("REJECT-"):
+        return "random_walk:start=1,step=1,min=0,max=10"
+
+    if sensor_name.startswith("TEMP-"):
+        return "random_walk:start=55,step=1.5,min=35,max=80"
+
+    if sensor_name.startswith("TORQUE-"):
+        return "random_walk:start=25,step=2,min=5,max=50"
+
+    if sensor_name.startswith("VIB-"):
+        return "random_walk:start=2.5,step=0.2,min=0.5,max=6"
+
+    if sensor_name.startswith("PROX-"):
+        return "random_walk:start=1,step=1,min=0,max=1"
+
+    if sensor_name.startswith("JAM-"):
+        return "random_walk:start=0,step=1,min=0,max=1"
+
+    if sensor_name.startswith("SEAL-"):
+        return "random_walk:start=1,step=1,min=0,max=1"
+
+    return "random_walk:start=1,step=0.1,min=0,max=10"
+
+
 # ---------------------------------------------------------------------------
-# GNS3 template setup
+# Template setup
 # ---------------------------------------------------------------------------
 
 def ensure_10_port_switch(server_url):
-    template_name = OPS_SWITCH_TEMPLATE
+    template_name = CORE_SWITCH_TEMPLATE
 
     response = requests.get(
         f"{server_url}/v2/templates",
         auth=(GNS3_USER, GNS3_PW),
         timeout=30,
     )
+
     response.raise_for_status()
 
     existing = next(
@@ -238,7 +362,11 @@ def ensure_10_port_switch(server_url):
     )
 
 
-def update_template(server_url, template, expected_definition):
+def update_template(
+    server_url,
+    template,
+    expected_definition,
+):
     template_name = template["name"]
     template_id = template.get("template_id")
 
@@ -308,16 +436,30 @@ def ensure_required_templates(server, server_url):
         for template in available
     }
 
+    shared_templates = {
+        SENSOR_TEMPLATE,
+        PLC_TEMPLATE,
+        HMI_TEMPLATE,
+    }
+
     for template in REQUIRED_TEMPLATES:
         template_name = template["name"]
         existing = templates_by_name.get(template_name)
 
         if existing:
+            if template_name in shared_templates:
+                logging.info(
+                    "Leaving shared template '%s' unchanged.",
+                    template_name,
+                )
+                continue
+
             update_template(
                 server_url,
                 existing,
                 template,
             )
+
             continue
 
         response = requests.post(
@@ -339,7 +481,7 @@ def ensure_required_templates(server, server_url):
 
 
 # ---------------------------------------------------------------------------
-# Project setup
+# Project
 # ---------------------------------------------------------------------------
 
 def open_or_create_project(server, server_url):
@@ -421,39 +563,55 @@ def create_scenario_nodes(
     lab,
     errors,
 ):
-    create_node(
-        lab,
-        "ops-switch",
-        OPS_SWITCH_TEMPLATE,
-        0,
-        80,
-        errors,
-    )
+    for area in MANUFACTURING_AREAS:
+        x = area["x"]
 
-    plc_positions = [
-        (-500, -250),
-        (-170, -250),
-        (170, -250),
-        (500, -250),
-    ]
+        for index, (
+            sensor_name,
+            _sensor_ip,
+            _units,
+        ) in enumerate(area["sensors"]):
 
-    for plc, (x, y) in zip(
-        MANUFACTURING_PLCS,
-        plc_positions,
-    ):
+            create_node(
+                lab,
+                sensor_name,
+                SENSOR_TEMPLATE,
+                x + index * 85,
+                -610,
+                errors,
+            )
+
         create_node(
             lab,
-            plc["name"],
-            ICS_TEMPLATE,
-            x,
-            y,
+            area["field_vlan"],
+            EDGE_SWITCH_TEMPLATE,
+            x + 120,
+            -460,
+            errors,
+        )
+
+        create_node(
+            lab,
+            area["plc"],
+            PLC_TEMPLATE,
+            x + 120,
+            -300,
             errors,
         )
 
     create_node(
         lab,
+        "ops-switch",
+        CORE_SWITCH_TEMPLATE,
+        0,
+        80,
+        errors,
+    )
+
+    create_node(
+        lab,
         "line-hmi",
-        ICS_TEMPLATE,
+        HMI_TEMPLATE,
         -160,
         250,
         errors,
@@ -462,8 +620,8 @@ def create_scenario_nodes(
     create_node(
         lab,
         "line-historian",
-        ICS_TEMPLATE,
-        180,
+        HMI_TEMPLATE,
+        170,
         250,
         errors,
     )
@@ -472,8 +630,8 @@ def create_scenario_nodes(
         lab,
         "scada-server",
         MANUFACTURING_SCADA_TEMPLATE,
-        500,
-        250,
+        360,
+        80,
         errors,
     )
 
@@ -481,7 +639,7 @@ def create_scenario_nodes(
         lab,
         "KaliLinux-1",
         KALI_TEMPLATE,
-        500,
+        600,
         80,
         errors,
     )
@@ -491,11 +649,37 @@ def create_scenario_nodes(
 # Environment definitions
 # ---------------------------------------------------------------------------
 
-def plc_environment(plc):
+def sensor_environment(
+    area,
+    sensor_name,
+    sensor_ip,
+    units,
+):
     return build_environment(
-        NODE_MODE="plc",
-        PLC_ROLE=plc["role"],
-        DEVICE_AGE_YEARS=plc["age"],
+        SCENARIO=SCENARIO,
+        TAG=sensor_name,
+        SIMULATION=sensor_simulation(sensor_name),
+        UNITS=units,
+        DATA_TYPE="float",
+        IP_ADDRESS=sensor_ip,
+        NETMASK=OPERATIONS_NETMASK,
+        FIELD_SUBNET=area["field_subnet"],
+    )
+
+
+def plc_environment(area):
+    return build_environment(
+        SCENARIO=SCENARIO,
+        PLC_SCAN_SUBNETS=area["field_subnet"],
+        PLC_FIELD_INTERFACE="eth0",
+        PLC_FIELD_IP=area["plc_field_ip"],
+        PLC_FIELD_SUBNET=area["field_subnet"],
+        PLC_CONTROL_INTERFACE="eth1",
+        PLC_CONTROL_IP=area["plc_ops_ip"],
+        PLC_CONTROL_SUBNET=OPERATIONS_SUBNET,
+        PLC_MODBUS_PORT=502,
+        PLC_ROLE=area["role"],
+        DEVICE_AGE_YEARS=area["age"],
         AGE_FAILURE_THRESHOLD_YEARS="12",
         AGE_FAILURE_WINDOW_SECONDS="10",
         AGE_FAILURE_MAX_REQUESTS="30",
@@ -505,20 +689,32 @@ def plc_environment(plc):
 
 
 def hmi_environment():
+    targets = " ".join(
+        f"--plc {area['name']}={area['plc_ops_ip']}:502"
+        for area in MANUFACTURING_AREAS
+    )
+
     return build_environment(
+        SCENARIO=SCENARIO,
         NODE_MODE="hmi",
         IP_ADDRESS=HMI_IP,
         NETMASK=OPERATIONS_NETMASK,
-        PLC_TARGETS=PLC_TARGETS,
+        PLC_TARGETS=targets,
     )
 
 
 def historian_environment():
+    targets = " ".join(
+        f"--plc {area['name']}={area['plc_ops_ip']}:502"
+        for area in MANUFACTURING_AREAS
+    )
+
     return build_environment(
+        SCENARIO=SCENARIO,
         NODE_MODE="historian",
         IP_ADDRESS=HISTORIAN_IP,
         NETMASK=OPERATIONS_NETMASK,
-        PLC_TARGETS=PLC_TARGETS,
+        PLC_TARGETS=targets,
     )
 
 
@@ -556,11 +752,14 @@ def set_docker_node_environment(
         response.raise_for_status()
 
         node_data = response.json()
+
         properties = dict(
             node_data.get("properties") or {}
         )
 
-        actual = properties.get("environment")
+        actual = properties.get(
+            "environment"
+        )
 
         if actual == environment:
             return
@@ -596,14 +795,28 @@ def set_scenario_environment(
     lab,
     errors,
 ):
-    for plc in MANUFACTURING_PLCS:
+    for area in MANUFACTURING_AREAS:
         set_docker_node_environment(
             server_url,
             lab,
-            plc["name"],
-            plc_environment(plc),
+            area["plc"],
+            plc_environment(area),
             errors,
         )
+
+        for sensor_name, sensor_ip, units in area["sensors"]:
+            set_docker_node_environment(
+                server_url,
+                lab,
+                sensor_name,
+                sensor_environment(
+                    area,
+                    sensor_name,
+                    sensor_ip,
+                    units,
+                ),
+                errors,
+            )
 
     set_docker_node_environment(
         server_url,
@@ -678,13 +891,24 @@ def configure_scenario_nodes(
     lab,
     errors,
 ):
-    for plc in MANUFACTURING_PLCS:
+    for area in MANUFACTURING_AREAS:
         configure_interfaces(
             lab,
-            plc["name"],
-            build_interface_config(plc["ip"]),
+            area["plc"],
+            build_plc_config(
+                area["plc_field_ip"],
+                area["plc_ops_ip"],
+            ),
             errors,
         )
+
+        for sensor_name, sensor_ip, _units in area["sensors"]:
+            configure_interfaces(
+                lab,
+                sensor_name,
+                build_interface_config(sensor_ip),
+                errors,
+            )
 
     configure_interfaces(
         lab,
@@ -705,19 +929,6 @@ def configure_scenario_nodes(
         "scada-server",
         build_interface_config(SCADA_IP),
         errors,
-    )
-
-
-# ---------------------------------------------------------------------------
-# Kali
-# ---------------------------------------------------------------------------
-
-def configure_kali(lab, node_name, errors):
-    # Kali is intentionally left unconfigured for the student.
-    # No automatic network configuration is performed.
-    logging.info(
-        "Skipping automated Kali configuration for '%s'.",
-        node_name,
     )
 
 
@@ -760,13 +971,39 @@ def create_scenario_links(
     lab,
     errors,
 ):
-    for plc in MANUFACTURING_PLCS:
+    for area in MANUFACTURING_AREAS:
         create_link(
             lab,
-            "ops-switch",
-            plc["switch_port"],
-            plc["name"],
+            area["plc"],
             "eth0",
+            area["field_vlan"],
+            "Ethernet0",
+            errors,
+        )
+
+        for index, (
+            sensor_name,
+            _sensor_ip,
+            _units,
+        ) in enumerate(
+            area["sensors"],
+            start=1,
+        ):
+            create_link(
+                lab,
+                sensor_name,
+                "eth0",
+                area["field_vlan"],
+                f"Ethernet{index}",
+                errors,
+            )
+
+        create_link(
+            lab,
+            area["plc"],
+            "eth1",
+            "ops-switch",
+            area["field_switch_core_port"],
             errors,
         )
 
@@ -811,7 +1048,11 @@ def create_scenario_links(
 # Start nodes
 # ---------------------------------------------------------------------------
 
-def start_node(lab, node_name, errors):
+def start_node(
+    lab,
+    node_name,
+    errors,
+):
     try:
         node = lab.get_node(node_name)
         node.get()
@@ -838,16 +1079,34 @@ def start_node(lab, node_name, errors):
         )
 
 
+def configure_kali(
+    lab,
+    node_name,
+    errors,
+):
+    logging.info(
+        "Skipping automated Kali configuration for '%s'.",
+        node_name,
+    )
+
+
 def start_scenario_nodes(
     lab,
     errors,
 ):
-    for plc in MANUFACTURING_PLCS:
+    for area in MANUFACTURING_AREAS:
         start_node(
             lab,
-            plc["name"],
+            area["plc"],
             errors,
         )
+
+        for sensor_name, _sensor_ip, _units in area["sensors"]:
+            start_node(
+                lab,
+                sensor_name,
+                errors,
+            )
 
     start_node(
         lab,
@@ -867,7 +1126,6 @@ def start_scenario_nodes(
         errors,
     )
 
-    # Kali is started, but intentionally not configured.
     start_node(
         lab,
         "KaliLinux-1",
@@ -898,6 +1156,10 @@ def build_project_on_server(
     logging.info(
         "GNS3 server version: %s",
         server.get_version(),
+    )
+
+    ensure_10_port_switch(
+        server_url
     )
 
     ensure_required_templates(
