@@ -503,7 +503,8 @@ def remove_existing_scenario_nodes(lab, errors):
         owned_names = managed_node_names()
 
         for node in list(lab.nodes):
-            if node.name not in owned_names:
+            node_name = node.name
+            if node_name not in owned_names:
                 continue
 
             status = getattr(node.status, "value", str(node.status)).lower()
@@ -511,7 +512,7 @@ def remove_existing_scenario_nodes(lab, errors):
                 node.stop()
 
             node.delete()
-            logging.info("Removed existing Module 3 node '%s'.", node.name)
+            logging.info("Removed existing Module 3 node '%s'.", node_name)
 
         lab.get()
 
