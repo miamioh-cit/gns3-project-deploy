@@ -30,6 +30,7 @@ COPY course-config/course_it_ot_convergence/gns3_water_treatment/plc_sim /app/co
 
 COPY scada/freshwater_treatment /app/scada/freshwater_treatment
 COPY scada/templates/diagrams /app/scada/templates/diagrams
+COPY kali/module3 /app/kali/module3
 # Optional: install system utilities
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
