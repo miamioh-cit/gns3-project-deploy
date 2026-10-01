@@ -308,6 +308,7 @@ def ensure_module3_kali_template(server, server_url):
     existing = templates_by_name.get(KALI_TEMPLATE)
 
     expected = {
+        "platform": source.get("platform") or "x86_64",
         "create_config_disk": True,
         "hdd_disk_image": KALI_STARTUP_CONFIG,
         "hdd_disk_interface": "ide",
