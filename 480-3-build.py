@@ -309,7 +309,8 @@ def ensure_module3_kali_template(server, server_url):
 
     expected = {
         "create_config_disk": True,
-        "startup_config": KALI_STARTUP_CONFIG,
+        "hdd_disk_image": KALI_STARTUP_CONFIG,
+        "hdd_disk_interface": "ide",
         "linked_clone": True,
     }
 
@@ -380,7 +381,8 @@ def ensure_module3_kali_template(server, server_url):
         "ram": source.get("ram", 4096),
         "linked_clone": True,
         "create_config_disk": True,
-        "startup_config": KALI_STARTUP_CONFIG,
+        "hdd_disk_image": KALI_STARTUP_CONFIG,
+        "hdd_disk_interface": "ide",
     }
 
     response = requests.post(
