@@ -7,7 +7,6 @@ pipeline {
         FRESHWATER_SCADA_IMAGE = 'evankunkel/generic-scada-freshwater:latest'
         TRAFFIC_SCADA_IMAGE = 'evankunkel/generic-scada-traffic:latest'
         MANAFACTURING_SCADA_IMAGE = 'evankunkel/generic-scada-manafacturing:latest'
-        MODULE3_KALI_IMAGE = 'evankunkel/module3-kali:module3-v1'
     }
 
     stages {
@@ -223,14 +222,6 @@ pipeline {
                             -f scada/traffic/Dockerfile \
                             .
 
-                        echo "🐳 Building Module 3 Kali image..."
-
-                        docker build \
-                            --no-cache \
-                            -t ${MODULE3_KALI_IMAGE} \
-                            -f kali/module3/Dockerfile \
-                            .
-
                         echo "🔐 Logging into Docker Hub..."
 
                         echo "\${DOCKER_TOKEN}" | docker login \
@@ -240,10 +231,6 @@ pipeline {
                         echo "🚀 Pushing traffic SCADA image..."
 
                         docker push evankunkel/generic-scada-traffic:latest
-
-                        echo "🚀 Pushing Module 3 Kali image..."
-
-                        docker push ${MODULE3_KALI_IMAGE}
 
                         echo "🔒 Logging out of Docker Hub..."
 
