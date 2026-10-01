@@ -28,8 +28,7 @@ OPERATIONS_NETMASK = "255.255.255.0"
 
 CORE_SWITCH_TEMPLATE = "Ethernet-Switch-10P"
 EDGE_SWITCH_TEMPLATE = "Ethernet switch"
-KALI_TEMPLATE = "module3-kali"
-MODULE3_KALI_IMAGE = "evankunkel/module3-kali:module3-v1"
+KALI_TEMPLATE = "Kali Linux"
 
 TRAFFIC_SCADA_TEMPLATE = "generic-scada-traffic"
 TRAFFIC_SCADA_IMAGE = (
@@ -81,18 +80,6 @@ REQUIRED_TEMPLATES = [
         "image": "wtaylor8/generic-hmi:latest",
         "adapters": 5,
         "console_type": "telnet",
-        "default_name_format": "{name}-{0}",
-        "compute_id": "local",
-        "symbol": ":/symbols/docker_guest.svg",
-    },
-    {
-        "name": KALI_TEMPLATE,
-        "template_type": "docker",
-        "category": "guest",
-        "image": MODULE3_KALI_IMAGE,
-        "adapters": 1,
-        "console_type": "telnet",
-        "environment": "IP_ADDRESS=172.16.0.250\nPREFIX_LENGTH=24",
         "default_name_format": "{name}-{0}",
         "compute_id": "local",
         "symbol": ":/symbols/docker_guest.svg",
@@ -705,9 +692,8 @@ def start_node(lab, node_name, errors):
 
 
 def configure_kali(lab, node_name, errors):
-    # The custom module3-kali image applies its address from IP_ADDRESS.
     logging.info(
-        "Custom Kali image '%s' is preloaded with the Module 3 client.",
+        "Using the GNS3 Kali QEMU appliance for '%s'.",
         node_name,
     )
 
@@ -1055,16 +1041,6 @@ def set_scenario_environment(
         errors,
     )
 
-    set_docker_node_environment(
-        server_url,
-        lab,
-        "KaliLinux-1",
-        build_environment(
-            IP_ADDRESS=KALI_IP,
-            PREFIX_LENGTH=24,
-        ),
-        errors,
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -1230,7 +1206,7 @@ def create_scenario_links(
         "Core-Switch",
         "Ethernet8",
         "KaliLinux-1",
-        "eth0",
+        "Ethernet0",
         errors,
     )
 
