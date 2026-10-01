@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import io
 import logging
 import sys
+import zipfile
+from pathlib import Path
 
 import requests
 from gns3fy import Gns3Connector, Project
@@ -28,7 +31,14 @@ OPERATIONS_NETMASK = "255.255.255.0"
 
 CORE_SWITCH_TEMPLATE = "Ethernet-Switch-10P"
 EDGE_SWITCH_TEMPLATE = "Ethernet switch"
-KALI_TEMPLATE = "Kali Linux"
+KALI_SOURCE_TEMPLATE = "Kali Linux"
+KALI_TEMPLATE = "module3-kali-qemu"
+KALI_STARTUP_CONFIG = "module3-kali-config.zip"
+KALI_CONFIG_FILES = (
+    "module3_kali_authorized_write.py",
+    "module3_launch.sh",
+    "README.txt",
+)
 
 TRAFFIC_SCADA_TEMPLATE = "generic-scada-traffic"
 TRAFFIC_SCADA_IMAGE = (
@@ -228,6 +238,164 @@ def require_http_success(response, action):
             f"HTTP {response.status_code}: "
             f"{response.text}"
         )
+
+
+def build_kali_config_archive():
+    source_dir = Path(__file__).resolve().parent / "kali" / "module3"
+
+    archive_data = io.BytesIO()
+
+    with zipfile.ZipFile(
+        archive_data,
+        mode="w",
+        compression=zipfile.ZIP_DEFLATED,
+    ) as archive:
+        for filename in KALI_CONFIG_FILES:
+            source_file = source_dir / filename
+
+            if not source_file.is_file():
+                raise RuntimeError(
+                    f"Missing Module 3 Kali config file: {source_file}"
+                )
+
+            archive.writestr(
+                filename,
+                source_file.read_bytes(),
+            )
+
+    return archive_data.getvalue()
+
+
+def upload_kali_startup_config(server_url):
+    response = requests.post(
+        f"{server_url}/v2/compute/qemu/images/"
+        f"{KALI_STARTUP_CONFIG}",
+        data=build_kali_config_archive(),
+        headers={
+            "Content-Type": "application/octet-stream",
+        },
+        auth=(GNS3_USER, GNS3_PW),
+        timeout=30,
+    )
+
+    if response.status_code not in (200, 201, 204):
+        raise RuntimeError(
+            "Upload Module 3 Kali startup config failed: "
+            f"HTTP {response.status_code}: {response.text}"
+        )
+
+    logging.info(
+        "Uploaded Module 3 Kali config disk archive."
+    )
+
+
+def ensure_module3_kali_template(server, server_url):
+    available = server.get_templates()
+
+    templates_by_name = {
+        template["name"]: template
+        for template in available
+    }
+
+    source = templates_by_name.get(KALI_SOURCE_TEMPLATE)
+
+    if not source:
+        raise RuntimeError(
+            f"Required base template '{KALI_SOURCE_TEMPLATE}' "
+            "was not found."
+        )
+
+    existing = templates_by_name.get(KALI_TEMPLATE)
+
+    expected = {
+        "create_config_disk": True,
+        "startup_config": KALI_STARTUP_CONFIG,
+        "linked_clone": True,
+    }
+
+    if existing:
+        if existing.get("template_type") != "qemu":
+            raise RuntimeError(
+                f"Template '{KALI_TEMPLATE}' exists but is not "
+                "a QEMU VM."
+            )
+
+        changes = {
+            key: value
+            for key, value in expected.items()
+            if existing.get(key) != value
+        }
+
+        if not changes:
+            logging.info(
+                "Template '%s' is already up to date.",
+                KALI_TEMPLATE,
+            )
+            return
+
+        updated = dict(existing)
+        updated.update(changes)
+
+        response = requests.put(
+            f"{server_url}/v2/templates/"
+            f"{existing['template_id']}",
+            json=updated,
+            auth=(GNS3_USER, GNS3_PW),
+            timeout=30,
+        )
+        require_http_success(
+            response,
+            f"Update template '{KALI_TEMPLATE}'",
+        )
+        logging.info(
+            "Updated Module 3 Kali QEMU template."
+        )
+        return
+
+    definition = {
+        "name": KALI_TEMPLATE,
+        "template_type": "qemu",
+        "category": source.get("category", "guest"),
+        "compute_id": source.get("compute_id", "local"),
+        "default_name_format": source.get(
+            "default_name_format",
+            "{name}-{0}",
+        ),
+        "symbol": source.get(
+            "symbol",
+            ":/symbols/qemu_guest.svg",
+        ),
+        "hda_disk_image": source["hda_disk_image"],
+        "hda_disk_interface": source.get(
+            "hda_disk_interface",
+            "ide",
+        ),
+        "adapters": source.get("adapters", 1),
+        "adapter_type": source.get("adapter_type", "e1000"),
+        "port_name_format": source.get(
+            "port_name_format",
+            "Ethernet{0}",
+        ),
+        "console_type": source.get("console_type", "vnc"),
+        "ram": source.get("ram", 4096),
+        "linked_clone": True,
+        "create_config_disk": True,
+        "startup_config": KALI_STARTUP_CONFIG,
+    }
+
+    response = requests.post(
+        f"{server_url}/v2/templates",
+        json=definition,
+        auth=(GNS3_USER, GNS3_PW),
+        timeout=30,
+    )
+    require_http_success(
+        response,
+        f"Create template '{KALI_TEMPLATE}'",
+    )
+    logging.info(
+        "Created Module 3 Kali QEMU template."
+    )
 
 
 def ensure_10_port_switch(server_url):
@@ -693,7 +861,7 @@ def start_node(lab, node_name, errors):
 
 def configure_kali(lab, node_name, errors):
     logging.info(
-        "Using the GNS3 Kali QEMU appliance for '%s'.",
+        "Using Module 3 Kali with its preloaded config disk for '%s'.",
         node_name,
     )
 
@@ -1294,6 +1462,9 @@ def build_project_on_server(
     ensure_10_port_switch(
         server_url
     )
+
+    upload_kali_startup_config(server_url)
+    ensure_module3_kali_template(server, server_url)
 
     ensure_required_templates(
         server,
