@@ -28,7 +28,8 @@ OPERATIONS_NETMASK = "255.255.255.0"
 
 CORE_SWITCH_TEMPLATE = "Ethernet-Switch-10P"
 EDGE_SWITCH_TEMPLATE = "Ethernet switch"
-KALI_TEMPLATE = "Kali Linux"
+KALI_TEMPLATE = "module3-kali"
+MODULE3_KALI_IMAGE = "evankunkel/module3-kali:module3-v1"
 
 TRAFFIC_SCADA_TEMPLATE = "generic-scada-traffic"
 TRAFFIC_SCADA_IMAGE = (
@@ -80,6 +81,18 @@ REQUIRED_TEMPLATES = [
         "image": "wtaylor8/generic-hmi:latest",
         "adapters": 5,
         "console_type": "telnet",
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg",
+    },
+    {
+        "name": KALI_TEMPLATE,
+        "template_type": "docker",
+        "category": "guest",
+        "image": MODULE3_KALI_IMAGE,
+        "adapters": 1,
+        "console_type": "telnet",
+        "environment": "IP_ADDRESS=172.16.0.250\nPREFIX_LENGTH=24",
         "default_name_format": "{name}-{0}",
         "compute_id": "local",
         "symbol": ":/symbols/docker_guest.svg",
@@ -645,11 +658,9 @@ def start_node(lab, node_name, errors):
 
 
 def configure_kali(lab, node_name, errors):
-    # Kali is intentionally configured manually.
-    # gns3fy Node objects do not provide the execute() method used by
-    # the old automatic configuration attempt.
+    # The custom module3-kali image applies its address from IP_ADDRESS.
     logging.info(
-        "Skipping automated Kali configuration for '%s'.",
+        "Custom Kali image '%s' is preloaded with the Module 3 client.",
         node_name,
     )
 
@@ -997,6 +1008,17 @@ def set_scenario_environment(
         errors,
     )
 
+    set_docker_node_environment(
+        server_url,
+        lab,
+        "KaliLinux-1",
+        build_environment(
+            IP_ADDRESS=KALI_IP,
+            PREFIX_LENGTH=24,
+        ),
+        errors,
+    )
+
 
 # ---------------------------------------------------------------------------
 # Network configuration
@@ -1211,6 +1233,12 @@ def start_scenario_nodes(
     start_node(
         lab,
         "scada-server",
+        errors,
+    )
+
+    start_node(
+        lab,
+        "KaliLinux-1",
         errors,
     )
 
