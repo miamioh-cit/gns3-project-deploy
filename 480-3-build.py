@@ -356,6 +356,7 @@ def ensure_module3_kali_template(server, server_url):
     definition = {
         "name": KALI_TEMPLATE,
         "template_type": "qemu",
+        "platform": source.get("platform") or "x86_64",
         "category": source.get("category", "guest"),
         "compute_id": source.get("compute_id", "local"),
         "default_name_format": source.get(
