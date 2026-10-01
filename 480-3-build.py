@@ -473,6 +473,52 @@ def open_or_create_project(server, server_url):
     return lab
 
 
+def managed_node_names():
+    names = {
+        "Core-Switch",
+        "hmi-poller",
+        "historian",
+        "scada-server",
+        "KaliLinux-1",
+    }
+
+    for zone in TRAFFIC_ZONES:
+        names.update(
+            {
+                zone["field_vlan"],
+                zone["operations_vlan"],
+                zone["plc"],
+                zone["hmi"],
+            }
+        )
+        names.update(sensor_name for sensor_name, _sensor_ip in zone["sensors"])
+
+    return names
+
+
+def remove_existing_scenario_nodes(lab, errors):
+    """Remove only nodes owned by this scenario before a rebuild."""
+    try:
+        lab.get()
+        owned_names = managed_node_names()
+
+        for node in list(lab.nodes):
+            if node.name not in owned_names:
+                continue
+
+            status = getattr(node.status, "value", str(node.status)).lower()
+            if status == "started":
+                node.stop()
+
+            node.delete()
+            logging.info("Removed existing Module 3 node '%s'.", node.name)
+
+        lab.get()
+
+    except Exception as exc:
+        errors.append(f"Remove existing Module 3 nodes failed: {exc}")
+
+
 def create_node(
     lab,
     name,
@@ -1183,7 +1229,7 @@ def create_scenario_links(
         "Core-Switch",
         "Ethernet8",
         "KaliLinux-1",
-        "Ethernet0",
+        "eth0",
         errors,
     )
 
@@ -1281,6 +1327,14 @@ def build_project_on_server(
         server,
         server_url,
     )
+
+    remove_existing_scenario_nodes(
+        lab,
+        errors,
+    )
+
+    if errors:
+        raise RuntimeError("\n".join(errors))
 
     create_scenario_nodes(
         server_url,
