@@ -73,17 +73,6 @@ pipeline {
             }
         }
 
-        stage('Verify Course Configuration') {
-            steps {
-                sh """
-                    test -f course-config/course_it_ot_convergence/gns3_water_treatment/deploy_gns3_course.py
-                    test -d course-config/course_it_ot_convergence/gns3_water_treatment/configs
-                    test -d course-config/course_it_ot_convergence/gns3_water_treatment/plc_sim
-                """
-
-                echo 'Course configuration verified.'
-            }
-        }
 
         stage('Build Selected SCADA Images') {
             when {
