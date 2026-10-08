@@ -18,6 +18,25 @@ pipeline {
                     branch: 'main',
                     credentialsId: 'Backstage-GNS3-Project-Deploy'
                 )
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'it-ot-security-course',
+                        usernameVariable: 'COURSE_USER',
+                        passwordVariable: 'COURSE_PAT'
+                    )
+                ]) {
+                    sh """
+                        rm -rf course-config
+
+                        git clone \\
+                            --depth 1 \\
+                            --no-tags \\
+                            --branch main \\
+                            https://\${COURSE_USER}:\${COURSE_PAT}@github.com/kunkelec-stack/it-ot-security-course.git \\
+                            course-config
+                    """
+                }
             }
         }
 
@@ -27,10 +46,9 @@ pipeline {
                     writeFile file: 'datastore', text: "${params.DATASTORE}"
                     writeFile file: 'project-id', text: "${params.PROJECT_ID}"
 
-                    echo 'Updated deployment files:'
-                    echo "  - Datastore: ${params.DATASTORE}"
-                    echo "  - Project IDs: ${params.PROJECT_ID}"
-                    echo "  - Target IP: ${params.IP_ADDRESS}"
+                    echo "Datastore: ${params.DATASTORE}"
+                    echo "Project IDs: ${params.PROJECT_ID}"
+                    echo "Target IP: ${params.IP_ADDRESS}"
 
                     withCredentials([
                         usernamePassword(
@@ -55,20 +73,32 @@ pipeline {
             }
         }
 
-        stage('Prepare and Deploy Selected Projects') {
+        stage('Verify Course Configuration') {
             steps {
-                script {
-                    // PROJECT_ID can contain one ID or several IDs, one per line.
-                    def projectIds = params.PROJECT_ID
+                sh """
+                    test -f course-config/course_it_ot_convergence/gns3_water_treatment/deploy_gns3_course.py
+                    test -d course-config/course_it_ot_convergence/gns3_water_treatment/configs
+                    test -d course-config/course_it_ot_convergence/gns3_water_treatment/plc_sim
+                """
+
+                echo 'Course configuration verified.'
+            }
+        }
+
+        stage('Build Selected SCADA Images') {
+            when {
+                expression {
+                    def customProjects = ['480-2', '480-3', '480-4']
+
+                    return params.PROJECT_ID
                         .readLines()
                         .collect { it.trim() }
-                        .findAll { it }
+                        .any { customProjects.contains(it) }
+                }
+            }
 
-                    if (!projectIds) {
-                        error('No project IDs were supplied.')
-                    }
-
-                    // Add new custom SCADA projects here instead of adding a new stage.
+            steps {
+                script {
                     def scadaProjects = [
                         '480-2': [
                             image: env.FRESHWATER_SCADA_IMAGE,
@@ -84,81 +114,50 @@ pipeline {
                         ]
                     ]
 
-                    def selectedScadaProjects = projectIds
+                    def selectedProjects = params.PROJECT_ID
+                        .readLines()
+                        .collect { it.trim() }
                         .findAll { scadaProjects.containsKey(it) }
                         .unique()
 
-                    echo "Selected projects: ${projectIds.join(', ')}"
-
-                    /*
-                     * The main Dockerfile always copies course-config, so this
-                     * repository must be cloned for every deployment—not just
-                     * 480 deployments.
-                     */
                     withCredentials([
                         usernamePassword(
-                            credentialsId: 'it-ot-security-course',
-                            usernameVariable: 'COURSE_USER',
-                            passwordVariable: 'COURSE_PAT'
+                            credentialsId: 'wtaylor8-dockerhub',
+                            usernameVariable: 'DOCKER_USERNAME',
+                            passwordVariable: 'DOCKER_TOKEN'
                         )
                     ]) {
                         sh """
-                            rm -rf course-config
-
-                            git clone \\
-                                --depth 1 \\
-                                --no-tags \\
-                                --branch main \\
-                                https://\${COURSE_USER}:\${COURSE_PAT}@github.com/kunkelec-stack/it-ot-security-course.git \\
-                                course-config
+                            echo "\${DOCKER_TOKEN}" | docker login \\
+                                --username "\${DOCKER_USERNAME}" \\
+                                --password-stdin
                         """
-                    }
 
-                    /*
-                     * Only build and push SCADA images for the selected custom
-                     * projects. Standard projects simply skip this block.
-                     */
-                    if (selectedScadaProjects) {
-                        echo "Preparing SCADA images for: ${selectedScadaProjects.join(', ')}"
+                        try {
+                            selectedProjects.each { projectId ->
+                                def config = scadaProjects[projectId]
 
-                        withCredentials([
-                            usernamePassword(
-                                credentialsId: 'wtaylor8-dockerhub',
-                                usernameVariable: 'DOCKER_USERNAME',
-                                passwordVariable: 'DOCKER_TOKEN'
-                            )
-                        ]) {
-                            sh """
-                                echo "\${DOCKER_TOKEN}" | docker login \\
-                                    --username "\${DOCKER_USERNAME}" \\
-                                    --password-stdin
-                            """
+                                echo "Building and pushing SCADA image for ${projectId}"
 
-                            try {
-                                selectedScadaProjects.each { projectId ->
-                                    def config = scadaProjects[projectId]
+                                sh """
+                                    docker build --no-cache \\
+                                        -t ${config.image} \\
+                                        -f ${config.dockerfile} .
 
-                                    echo "Building and pushing SCADA image for ${projectId}"
-
-                                    sh """
-                                        docker build \\
-                                            --no-cache \\
-                                            -t ${config.image} \\
-                                            -f ${config.dockerfile} \\
-                                            .
-
-                                        docker push ${config.image}
-                                    """
-                                }
-                            } finally {
-                                sh 'docker logout || true'
+                                    docker push ${config.image}
+                                """
                             }
+                        } finally {
+                            sh 'docker logout || true'
                         }
-                    } else {
-                        echo 'No custom SCADA images are needed for the selected projects.'
                     }
+                }
+            }
+        }
 
-                    // One shared deployment image and one shared runner.
+        stage('Build Project') {
+            steps {
+                script {
                     sh 'docker builder prune -f || true'
                     sh "docker build --no-cache -t ${env.IMAGE_NAME} ."
 
@@ -181,6 +180,10 @@ pipeline {
 
         failure {
             echo 'GNS3 project deployment failed.'
+        }
+
+        always {
+            sh 'docker logout || true'
         }
     }
 }
