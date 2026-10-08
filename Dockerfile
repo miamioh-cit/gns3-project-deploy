@@ -20,14 +20,13 @@ COPY 480-1-build.py /app/
 COPY 480-2-build.py /app/
 COPY 480-3-build.py /app/
 COPY 480-4-build.py /app/
+COPY 480-5-build.py /app/
 COPY requirements.txt /app/
 COPY project-id /app/
 COPY datastore /app/
 # Explicitly rename deploy_gns3_course.py to deploy-gns3-course.py upon copying
-COPY course-config/course_it_ot_convergence/gns3_water_treatment/deploy_gns3_course.py /app/course/deploy-gns3-course.py
-COPY course-config/course_it_ot_convergence/gns3_water_treatment/configs /app/course/configs
-COPY course-config/course_it_ot_convergence/gns3_water_treatment/plc_sim /app/course/plc_sim
 
+# Copy the scada diagrams
 COPY scada/freshwater_treatment /app/scada/freshwater_treatment
 COPY scada/templates/diagrams /app/scada/templates/diagrams
 # Optional: install system utilities
