@@ -23,8 +23,8 @@ The firewall has one physical 802.1Q trunk to the core switch. Its eth0.10,
 eth0.20, eth0.30, eth0.40, and eth0.50 subinterfaces provide the five zone
 gateways while every endpoint remains on a separate access port.
 
-The Lab 5 SCADA diagram is installed into the standard generic SCADA image at
-node startup, so it does not depend on a Jenkins-built custom image.
+The Lab 5 SCADA image is built and pushed by the existing Jenkins SCADA-image
+stage before this deployment script runs.
 
 Zeek and Suricata each use two interfaces:
     * eth0: monitoring VLAN 50 management attachment
@@ -40,7 +40,6 @@ and re-applies the template, network, firewall, and sensor configuration.
 
 from __future__ import annotations
 
-import base64
 import logging
 import shlex
 import sys
@@ -107,34 +106,7 @@ ZEEK_TEMPLATE = "Zeek"
 SURICATA_TEMPLATE = "Suricata"
 
 FIREWALL_IMAGE = "nicolaka/netshoot:latest"
-SCADA_IMAGE = "wtaylor8/generic-scada:latest"
-
-# These assets are staged into the deployment image by Dockerfile. The
-# per-node SCADA startup command installs them before the generic SCADA app
-# starts, so Lab 5 needs no Jenkins-built custom image.
-# The existing deployment Dockerfile already copies this directory into
-# /app, so the Lab 5 assets reach the builder without a Dockerfile/Jenkins
-# change. The node startup command installs them in the generic SCADA image.
-SCADA_ASSET_ROOT = (
-    Path(__file__).resolve().parent
-    / "scada"
-    / "templates"
-    / "diagrams"
-)
-SCADA_ASSET_FILES = (
-    (
-        "electrical_grid_diagrams.yaml",
-        "/app/scenarios/electrical_grid/diagrams.yaml",
-    ),
-    (
-        "electrical_grid_base.html",
-        "/app/scada/templates/diagram_base.html",
-    ),
-    (
-        "electrical_grid_overview.html",
-        "/app/scada/templates/diagrams/electrical_grid_overview.html",
-    ),
-)
+SCADA_IMAGE = "evankunkel/generic-scada-electrical-grid:latest"
 ZEEK_IMAGE = "zeek/zeek:latest"
 SURICATA_IMAGE = "jasonish/suricata:latest"
 
@@ -1181,42 +1153,6 @@ def firewall_start_command() -> str:
     )
 
 
-def scada_start_command() -> str:
-    """Install Lab 5's diagram assets, then run the normal SCADA startup."""
-    commands = [
-        (
-            "mkdir -p /app/scenarios/electrical_grid "
-            "/app/scada/templates/diagrams"
-        ),
-    ]
-
-    for relative_path, container_path in SCADA_ASSET_FILES:
-        asset_path = SCADA_ASSET_ROOT / relative_path
-
-        if not asset_path.is_file():
-            raise RuntimeError(
-                f"Required SCADA asset is missing: {asset_path}"
-            )
-
-        encoded = base64.b64encode(
-            asset_path.read_bytes()
-        ).decode("ascii")
-        commands.append(
-            f"printf %s {encoded} | base64 -d > {container_path}"
-        )
-
-    commands.extend(
-        [
-            "/app/autoconfig.py scada",
-            "exec python3 -m scada",
-        ]
-    )
-
-    return "sh -c " + shlex.quote(
-        "; ".join(commands)
-    )
-
-
 def sensor_start_command(
     sensor: str,
     management_ip: str,
@@ -1439,14 +1375,6 @@ def set_scenario_environments(
         scada_environment(),
         errors,
     )
-    set_node_start_command(
-        server_url,
-        lab,
-        "scada-server",
-        scada_start_command(),
-        errors,
-    )
-
     set_docker_node_environment(
         server_url,
         lab,
