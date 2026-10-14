@@ -6,19 +6,25 @@ The topology is intentionally segmented and enforced, not merely labeled:
 
     VLAN 10  Enterprise
     VLAN 20  DMZ
-    VLAN 30  Operations (HMI / collector)
+    VLAN 30  Operations (HMI / collector / SCADA)
     VLAN 40  Control (electrical-grid PLCs)
     VLAN 50  Monitoring (Zeek and Suricata management)
 
-The only routed Modbus/TCP path is:
+The only routed Modbus/TCP paths are explicit operations-to-control flows:
 
-    hmi-collector (10.50.30.10)
-        -> ot-firewall
-        -> PLCs (10.50.40.11-13), TCP/502
+    hmi-collector (10.50.30.10) -> PLCs (10.50.40.11-13), TCP/502
+    scada-server  (10.50.30.200) -> PLCs (10.50.40.11-13), TCP/502
 
-The firewall defaults to DROP for forwarded traffic and permits only that
-new TCP/502 flow plus established replies. Enterprise, DMZ, and monitoring
+The firewall defaults to DROP for forwarded traffic and permits only those
+TCP/502 flows plus established replies. Enterprise, DMZ, and monitoring
 hosts therefore cannot initiate Modbus/TCP traffic to the control VLAN.
+
+The firewall has one physical 802.1Q trunk to the core switch. Its eth0.10,
+eth0.20, eth0.30, eth0.40, and eth0.50 subinterfaces provide the five zone
+gateways while every endpoint remains on a separate access port.
+
+The Lab 5 SCADA diagram is installed into the standard generic SCADA image at
+node startup, so it does not depend on a Jenkins-built custom image.
 
 Zeek and Suricata each use two interfaces:
     * eth0: monitoring VLAN 50 management attachment
@@ -34,6 +40,7 @@ and re-applies the template, network, firewall, and sensor configuration.
 
 from __future__ import annotations
 
+import base64
 import logging
 import shlex
 import sys
@@ -85,6 +92,7 @@ FIREWALL_MONITORING_IP = "10.50.50.1"
 ENTERPRISE_HOST_IP = "10.50.10.10"
 DMZ_HOST_IP = "10.50.20.10"
 HMI_IP = "10.50.30.10"
+SCADA_IP = "10.50.30.200"
 ZEEK_MANAGEMENT_IP = "10.50.50.10"
 SURICATA_MANAGEMENT_IP = "10.50.50.11"
 
@@ -94,10 +102,39 @@ FIELD_SWITCH_TEMPLATE = "Ethernet-Switch-10P"
 CONTROL_TAP_TEMPLATE = "Ethernet hub"
 
 FIREWALL_TEMPLATE = "Purdue-OT-Firewall"
+SCADA_TEMPLATE = "generic-scada-electrical-grid"
 ZEEK_TEMPLATE = "Zeek"
 SURICATA_TEMPLATE = "Suricata"
 
 FIREWALL_IMAGE = "nicolaka/netshoot:latest"
+SCADA_IMAGE = "wtaylor8/generic-scada:latest"
+
+# These assets are staged into the deployment image by Dockerfile. The
+# per-node SCADA startup command installs them before the generic SCADA app
+# starts, so Lab 5 needs no Jenkins-built custom image.
+# The existing deployment Dockerfile already copies this directory into
+# /app, so the Lab 5 assets reach the builder without a Dockerfile/Jenkins
+# change. The node startup command installs them in the generic SCADA image.
+SCADA_ASSET_ROOT = (
+    Path(__file__).resolve().parent
+    / "scada"
+    / "templates"
+    / "diagrams"
+)
+SCADA_ASSET_FILES = (
+    (
+        "electrical_grid_diagrams.yaml",
+        "/app/scenarios/electrical_grid/diagrams.yaml",
+    ),
+    (
+        "electrical_grid_base.html",
+        "/app/scada/templates/diagram_base.html",
+    ),
+    (
+        "electrical_grid_overview.html",
+        "/app/scada/templates/diagrams/electrical_grid_overview.html",
+    ),
+)
 ZEEK_IMAGE = "zeek/zeek:latest"
 SURICATA_IMAGE = "jasonish/suricata:latest"
 
@@ -206,8 +243,22 @@ FIREWALL_TEMPLATE_DEFINITION = {
     "template_type": "docker",
     "category": "guest",
     "image": FIREWALL_IMAGE,
-    "adapters": 5,
+    # One physical NIC carries the tagged 802.1Q core trunk.
+    "adapters": 1,
     "console_type": "telnet",
+    "start_command": "",
+    "default_name_format": "{name}-{0}",
+    "compute_id": "local",
+    "symbol": ":/symbols/docker_guest.svg",
+}
+
+SCADA_TEMPLATE_DEFINITION = {
+    "name": SCADA_TEMPLATE,
+    "template_type": "docker",
+    "category": "guest",
+    "image": SCADA_IMAGE,
+    "adapters": 11,
+    "console_type": "http",
     "start_command": "",
     "default_name_format": "{name}-{0}",
     "compute_id": "local",
@@ -408,7 +459,16 @@ def update_template_fields(
 def switch_template_definition(
     name: str,
     vlan_by_port: list[int],
+    trunk_ports: dict[int, int] | None = None,
 ) -> dict:
+    """Create a built-in Ethernet-switch template with access and trunk ports.
+
+    A GNS3 dot1q port is an 802.1Q trunk. Its VLAN value is the native VLAN,
+    so VLAN 1 is reserved as unused native traffic and every lab-zone VLAN is
+    transmitted tagged on the firewall uplink.
+    """
+    trunk_ports = trunk_ports or {}
+
     return {
         "name": name,
         "template_type": "ethernet_switch",
@@ -421,8 +481,12 @@ def switch_template_definition(
             {
                 "name": f"Ethernet{port_number}",
                 "port_number": port_number,
-                "type": "access",
-                "vlan": vlan,
+                "type": (
+                    "dot1q"
+                    if port_number in trunk_ports
+                    else "access"
+                ),
+                "vlan": trunk_ports.get(port_number, vlan),
             }
             for port_number, vlan in enumerate(vlan_by_port)
         ],
@@ -449,19 +513,20 @@ def ensure_purdue_switch_templates(server_url: str) -> None:
         switch_template_definition(
             CORE_SWITCH_TEMPLATE,
             [
-                ENTERPRISE_VLAN,
-                ENTERPRISE_VLAN,
-                DMZ_VLAN,
-                DMZ_VLAN,
-                OPERATIONS_VLAN,
-                OPERATIONS_VLAN,
-                CONTROL_VLAN,
-                CONTROL_VLAN,
+                1,                 # Ethernet0: firewall trunk native VLAN
+                ENTERPRISE_VLAN,   # Ethernet1: enterprise workstation
+                DMZ_VLAN,          # Ethernet2: DMZ jump host
+                OPERATIONS_VLAN,   # Ethernet3: HMI / collector
+                OPERATIONS_VLAN,   # Ethernet4: SCADA server
+                CONTROL_VLAN,      # Ethernet5: passive control TAP
+                MONITORING_VLAN,   # Ethernet6: Zeek management
+                MONITORING_VLAN,   # Ethernet7: Suricata management
                 MONITORING_VLAN,
                 MONITORING_VLAN,
                 MONITORING_VLAN,
                 MONITORING_VLAN,
             ],
+            trunk_ports={0: 1},
         ),
         switch_template_definition(
             CONTROL_SWITCH_TEMPLATE,
@@ -576,6 +641,10 @@ def ensure_required_templates(server_url: str) -> None:
         server_url,
         FIREWALL_TEMPLATE_DEFINITION,
     )
+    ensure_owned_docker_template(
+        server_url,
+        SCADA_TEMPLATE_DEFINITION,
+    )
 
     # The lab calls for Zeek and Suricata Docker templates. If the
     # instructor already supplied either template, preserve its image and
@@ -688,6 +757,7 @@ def managed_node_names() -> set[str]:
         "enterprise-workstation",
         "dmz-jump-host",
         "hmi-collector",
+        "scada-server",
         "zeek-sensor",
         "suricata-sensor",
     }
@@ -919,6 +989,21 @@ def hmi_environment() -> str:
     )
 
 
+def scada_environment() -> str:
+    """Return the SCADA server's operations-side configuration.
+
+    The application discovers the PLC service addresses in the control VLAN;
+    the firewall permits this one dashboard source over TCP/502 only.
+    """
+    return build_environment(
+        SCENARIO=SCENARIO,
+        SCADA_SUBNETS=CONTROL_SUBNET,
+        SCADA_DIAGRAM_CONFIG="electrical_grid/diagrams.yaml",
+        IP_ADDRESS=SCADA_IP,
+        NETMASK=NETMASK,
+    )
+
+
 def passive_endpoint_environment(
     role: str,
     ip_address: str,
@@ -1040,22 +1125,31 @@ def configure_interfaces(
 
 
 def firewall_start_command() -> str:
+    """Configure the single physical 802.1Q firewall trunk and policy."""
     interface_ips = [
-        ("eth0", FIREWALL_ENTERPRISE_IP),
-        ("eth1", FIREWALL_DMZ_IP),
-        ("eth2", FIREWALL_OPERATIONS_IP),
-        ("eth3", FIREWALL_CONTROL_IP),
-        ("eth4", FIREWALL_MONITORING_IP),
+        (ENTERPRISE_VLAN, FIREWALL_ENTERPRISE_IP),
+        (DMZ_VLAN, FIREWALL_DMZ_IP),
+        (OPERATIONS_VLAN, FIREWALL_OPERATIONS_IP),
+        (CONTROL_VLAN, FIREWALL_CONTROL_IP),
+        (MONITORING_VLAN, FIREWALL_MONITORING_IP),
     ]
 
-    commands: list[str] = []
+    commands = [
+        "ip link set eth0 up",
+        "ip addr flush dev eth0",
+    ]
 
-    for interface, ip_address in interface_ips:
+    for vlan, ip_address in interface_ips:
+        subinterface = f"eth0.{vlan}"
         commands.extend(
             [
-                f"ip link set {interface} up",
-                f"ip addr flush dev {interface}",
-                f"ip addr add {ip_address}/24 dev {interface}",
+                f"ip link delete {subinterface} 2>/dev/null || true",
+                (
+                    f"ip link add link eth0 name {subinterface} "
+                    f"type vlan id {vlan}"
+                ),
+                f"ip link set {subinterface} up",
+                f"ip addr add {ip_address}/24 dev {subinterface}",
             ]
         )
 
@@ -1069,11 +1163,52 @@ def firewall_start_command() -> str:
                 "-m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT"
             ),
             (
-                "iptables -A FORWARD -i eth2 -o eth3 "
+                "iptables -A FORWARD -i eth0.30 -o eth0.40 "
                 f"-p tcp -s {HMI_IP} -d {CONTROL_SUBNET} "
                 "--dport 502 -m conntrack --ctstate NEW -j ACCEPT"
             ),
+            (
+                "iptables -A FORWARD -i eth0.30 -o eth0.40 "
+                f"-p tcp -s {SCADA_IP} -d {CONTROL_SUBNET} "
+                "--dport 502 -m conntrack --ctstate NEW -j ACCEPT"
+            ),
             "exec tail -f /dev/null",
+        ]
+    )
+
+    return "sh -c " + shlex.quote(
+        "; ".join(commands)
+    )
+
+
+def scada_start_command() -> str:
+    """Install Lab 5's diagram assets, then run the normal SCADA startup."""
+    commands = [
+        (
+            "mkdir -p /app/scenarios/electrical_grid "
+            "/app/scada/templates/diagrams"
+        ),
+    ]
+
+    for relative_path, container_path in SCADA_ASSET_FILES:
+        asset_path = SCADA_ASSET_ROOT / relative_path
+
+        if not asset_path.is_file():
+            raise RuntimeError(
+                f"Required SCADA asset is missing: {asset_path}"
+            )
+
+        encoded = base64.b64encode(
+            asset_path.read_bytes()
+        ).decode("ascii")
+        commands.append(
+            f"printf %s {encoded} | base64 -d > {container_path}"
+        )
+
+    commands.extend(
+        [
+            "/app/autoconfig.py scada",
+            "exec python3 -m scada",
         ]
     )
 
@@ -1201,6 +1336,15 @@ def create_scenario_nodes(
 
     create_node(
         lab,
+        "scada-server",
+        SCADA_TEMPLATE,
+        -300,
+        310,
+        errors,
+    )
+
+    create_node(
+        lab,
         "ot-firewall",
         FIREWALL_TEMPLATE,
         300,
@@ -1285,6 +1429,21 @@ def set_scenario_environments(
         lab,
         "hmi-collector",
         hmi_environment(),
+        errors,
+    )
+
+    set_docker_node_environment(
+        server_url,
+        lab,
+        "scada-server",
+        scada_environment(),
+        errors,
+    )
+    set_node_start_command(
+        server_url,
+        lab,
+        "scada-server",
+        scada_start_command(),
         errors,
     )
 
@@ -1379,6 +1538,16 @@ def configure_scenario_nodes(
 
     configure_interfaces(
         lab,
+        "scada-server",
+        single_interface_config(
+            SCADA_IP,
+            FIREWALL_OPERATIONS_IP,
+        ),
+        errors,
+    )
+
+    configure_interfaces(
+        lab,
         "enterprise-workstation",
         single_interface_config(
             ENTERPRISE_HOST_IP,
@@ -1462,25 +1631,26 @@ def create_scenario_links(
                 errors,
             )
 
-    # VLAN 10: Enterprise endpoint <-> firewall enterprise interface.
-    create_link(
-        lab,
-        "enterprise-workstation",
-        "eth0",
-        "vlan-core-switch",
-        "Ethernet0",
-        errors,
-    )
+    # One real 802.1Q trunk carries all Purdue VLANs to the firewall. The
+    # core's Ethernet0 port is dot1q/native VLAN 1; lab traffic is tagged.
     create_link(
         lab,
         "ot-firewall",
         "eth0",
         "vlan-core-switch",
-        "Ethernet1",
+        "Ethernet0",
         errors,
     )
 
-    # VLAN 20: DMZ endpoint <-> firewall DMZ interface.
+    # Access ports remain untagged at the endpoints.
+    create_link(
+        lab,
+        "enterprise-workstation",
+        "eth0",
+        "vlan-core-switch",
+        "Ethernet1",
+        errors,
+    )
     create_link(
         lab,
         "dmz-jump-host",
@@ -1491,46 +1661,29 @@ def create_scenario_links(
     )
     create_link(
         lab,
-        "ot-firewall",
-        "eth1",
+        "hmi-collector",
+        "eth0",
         "vlan-core-switch",
         "Ethernet3",
         errors,
     )
-
-    # VLAN 30: Operations HMI/collector <-> firewall operations interface.
     create_link(
         lab,
-        "hmi-collector",
+        "scada-server",
         "eth0",
         "vlan-core-switch",
         "Ethernet4",
         errors,
     )
-    create_link(
-        lab,
-        "ot-firewall",
-        "eth2",
-        "vlan-core-switch",
-        "Ethernet5",
-        errors,
-    )
 
-    # VLAN 40: firewall -> passive TAP -> dedicated control switch -> PLCs.
-    create_link(
-        lab,
-        "ot-firewall",
-        "eth3",
-        "vlan-core-switch",
-        "Ethernet6",
-        errors,
-    )
+    # VLAN 40 is an access port between the core and passive TAP. The TAP
+    # copies approved Modbus traffic but is not an inline control device.
     create_link(
         lab,
         "control-modbus-tap",
         "Ethernet0",
         "vlan-core-switch",
-        "Ethernet7",
+        "Ethernet5",
         errors,
     )
     create_link(
@@ -1555,22 +1708,13 @@ def create_scenario_links(
             errors,
         )
 
-    # VLAN 50 management attaches each sensor to the firewall but the
-    # firewall policy does not forward it into the control zone.
-    create_link(
-        lab,
-        "ot-firewall",
-        "eth4",
-        "vlan-core-switch",
-        "Ethernet8",
-        errors,
-    )
+    # Monitoring-management access ports. Their routing to Control is denied.
     create_link(
         lab,
         "zeek-sensor",
         "eth0",
         "vlan-core-switch",
-        "Ethernet9",
+        "Ethernet6",
         errors,
     )
     create_link(
@@ -1578,12 +1722,11 @@ def create_scenario_links(
         "suricata-sensor",
         "eth0",
         "vlan-core-switch",
-        "Ethernet10",
+        "Ethernet7",
         errors,
     )
 
-    # Passive-only sensor interfaces receive the hub's copy of approved
-    # HMI-to-PLC Modbus traffic; they are not forwarding interfaces.
+    # Passive-only NICs receive copied VLAN-40 traffic at the hub.
     create_link(
         lab,
         "zeek-sensor",
@@ -1702,6 +1845,11 @@ def start_scenario_nodes(
         "hmi-collector",
         errors,
     )
+    start_node(
+        lab,
+        "scada-server",
+        errors,
+    )
 
 
 def verify_topology(
@@ -1731,12 +1879,13 @@ def verify_topology(
         )
         response.raise_for_status()
 
-        # This project creates 26 links. Check for at least that many to
-        # detect a partial GNS3 API failure without deleting user-added links.
-        if len(response.json()) < 26:
+        # This project creates 23 links: 9 field links plus 14 Purdue,
+        # SCADA, and passive-monitoring links. Check for at least that many
+        # without deleting user-added links.
+        if len(response.json()) < 23:
             errors.append(
                 "Topology link verification failed: expected at least "
-                f"26 links, found {len(response.json())}."
+                f"23 links, found {len(response.json())}."
             )
 
     except Exception as exc:
@@ -1868,9 +2017,10 @@ def build_project_on_server(
     raise_if_errors(server_url, errors)
 
     logging.info(
-        "Allowed Modbus path: hmi-collector (%s) -> %s "
-        "over TCP/502 only.",
+        "Allowed Modbus paths: hmi-collector (%s) and scada-server (%s) "
+        "-> %s over TCP/502 only.",
         HMI_IP,
+        SCADA_IP,
         ", ".join(
             area["control_ip"]
             for area in GRID_AREAS
