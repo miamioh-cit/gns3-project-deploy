@@ -8,6 +8,7 @@ pipeline {
         FRESHWATER_SCADA_IMAGE = 'evankunkel/generic-scada-freshwater:latest'
         TRAFFIC_SCADA_IMAGE = 'evankunkel/generic-scada-traffic:latest'
         MANAFACTURING_SCADA_IMAGE = 'evankunkel/generic-scada-manafacturing:latest'
+        ELECTRICAL_GRID_SCADA_IMAGE = 'evankunkel/generic-scada-electrical-grid:latest'
     }
 
     stages {
@@ -77,7 +78,7 @@ pipeline {
         stage('Build Selected SCADA Images') {
             when {
                 expression {
-                    def customProjects = ['480-2', '480-3', '480-4']
+                    def customProjects = ['480-2', '480-3', '480-4', '480-5']
 
                     return params.PROJECT_ID
                         .readLines()
@@ -100,6 +101,10 @@ pipeline {
                         '480-4': [
                             image: env.MANAFACTURING_SCADA_IMAGE,
                             dockerfile: 'scada/manufacturing/Dockerfile'
+                        ],
+                        '480-5': [
+                            image: env.ELECTRICAL_GRID_SCADA_IMAGE,
+                            dockerfile: 'scada/electrical_grid/Dockerfile'
                         ]
                     ]
 
