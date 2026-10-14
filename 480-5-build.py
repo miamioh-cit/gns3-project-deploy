@@ -100,11 +100,9 @@ CONTROL_SWITCH_TEMPLATE = "Purdue-Control-VLAN40-Switch"
 FIELD_SWITCH_TEMPLATE = "Ethernet-Switch-10P"
 CONTROL_TAP_TEMPLATE = "Ethernet hub"
 
-# The core switch is the layout anchor. All Lab 5 node positions are
-# expressed as offsets from this coordinate so the whole topology remains
-# readable at the normal GNS3 zoom level.
-CORE_SWITCH_X = 11
-CORE_SWITCH_Y = -373
+# Preserve the original Lab 5 visual arrangement and move every managed
+# node upward together so the full topology fits at the normal GNS3 zoom.
+LAYOUT_Y_OFFSET = -240
 
 FIREWALL_TEMPLATE = "Purdue-OT-Firewall"
 SCADA_TEMPLATE = "generic-scada-electrical-grid"
@@ -1199,23 +1197,12 @@ def sensor_start_command(
 # Node creation, configuration, and links
 # ---------------------------------------------------------------------------
 
-def core_relative_position(
-    x_offset: int,
-    y_offset: int,
-) -> tuple[int, int]:
-    """Return a node position relative to the fixed core-switch anchor."""
-    return (
-        CORE_SWITCH_X + x_offset,
-        CORE_SWITCH_Y + y_offset,
-    )
-
-
 def create_scenario_nodes(
     lab: Project,
     errors: list[str],
 ) -> None:
     for area in GRID_AREAS:
-        area_x = area["x"]
+        x = area["x"]
 
         for index, (
             sensor_name,
@@ -1224,36 +1211,30 @@ def create_scenario_nodes(
             _units,
             _data_type,
         ) in enumerate(area["sensors"]):
-            x, y = core_relative_position(
-                area_x - 90 + index * 120,
-                375,
-            )
             create_node(
                 lab,
                 sensor_name,
                 "generic-sensor",
-                x,
-                y,
+                x - 90 + index * 120,
+                440 + LAYOUT_Y_OFFSET,
                 errors,
             )
 
-        x, y = core_relative_position(area_x + 45, 500)
         create_node(
             lab,
             area["field_switch"],
             FIELD_SWITCH_TEMPLATE,
-            x,
-            y,
+            x + 45,
+            575 + LAYOUT_Y_OFFSET,
             errors,
         )
 
-        x, y = core_relative_position(area_x + 45, 630)
         create_node(
             lab,
             area["plc"],
             "generic-plc",
-            x,
-            y,
+            x + 45,
+            725 + LAYOUT_Y_OFFSET,
             errors,
         )
 
@@ -1261,102 +1242,91 @@ def create_scenario_nodes(
         lab,
         "vlan-core-switch",
         CORE_SWITCH_TEMPLATE,
-        CORE_SWITCH_X,
-        CORE_SWITCH_Y,
+        0,
+        -20 + LAYOUT_Y_OFFSET,
         errors,
     )
 
-    x, y = core_relative_position(-700, 200)
     create_node(
         lab,
         "enterprise-workstation",
         "generic-hmi",
-        x,
-        y,
+        -700,
+        -180 + LAYOUT_Y_OFFSET,
         errors,
     )
 
-    x, y = core_relative_position(-700, 360)
     create_node(
         lab,
         "dmz-jump-host",
         "generic-hmi",
-        x,
-        y,
+        -700,
+        10 + LAYOUT_Y_OFFSET,
         errors,
     )
 
-    x, y = core_relative_position(-300, 345)
     create_node(
         lab,
         "hmi-collector",
         "generic-hmi",
-        x,
-        y,
+        -300,
+        150 + LAYOUT_Y_OFFSET,
         errors,
     )
 
-    x, y = core_relative_position(-300, 485)
     create_node(
         lab,
         "scada-server",
         SCADA_TEMPLATE,
-        x,
-        y,
+        -300,
+        310 + LAYOUT_Y_OFFSET,
         errors,
     )
 
-    x, y = core_relative_position(300, 205)
     create_node(
         lab,
         "ot-firewall",
         FIREWALL_TEMPLATE,
-        x,
-        y,
+        300,
+        20 + LAYOUT_Y_OFFSET,
         errors,
     )
 
-    x, y = core_relative_position(265, 420)
     create_node(
         lab,
         "control-modbus-tap",
         CONTROL_TAP_TEMPLATE,
-        x,
-        y,
+        265,
+        280 + LAYOUT_Y_OFFSET,
         errors,
     )
 
-    x, y = core_relative_position(265, 535)
     create_node(
         lab,
         "control-vlan40-switch",
         CONTROL_SWITCH_TEMPLATE,
-        x,
-        y,
+        265,
+        450 + LAYOUT_Y_OFFSET,
         errors,
     )
 
-    x, y = core_relative_position(650, 345)
     create_node(
         lab,
         "zeek-sensor",
         ZEEK_TEMPLATE,
-        x,
-        y,
+        650,
+        175 + LAYOUT_Y_OFFSET,
         errors,
     )
 
-    x, y = core_relative_position(650, 490)
     create_node(
         lab,
         "suricata-sensor",
         SURICATA_TEMPLATE,
-        x,
-        y,
+        650,
+        330 + LAYOUT_Y_OFFSET,
         errors,
     )
-
-
 def set_scenario_environments(
     server_url: str,
     lab: Project,
