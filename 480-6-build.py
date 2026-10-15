@@ -55,6 +55,9 @@ RAIL_PLC_TEMPLATE = "generic-plc"
 RAIL_HMI_TEMPLATE = "generic-hmi"
 ZEEK_TEMPLATE = "Zeek"
 SURICATA_TEMPLATE = "Suricata"
+SCADA_TEMPLATE = "generic-scada"
+SCADA_IP = "10.60.30.200"
+KALI_IP = "10.60.30.250"
 
 RAIL_AREAS = [
     {
@@ -140,8 +143,8 @@ def validate_configuration() -> list[str]:
         failures.append("At least two railroad PLCs are required for the monitored path.")
     if any(not area["plc_ops_ip"].startswith("10.60.30.") for area in RAIL_AREAS):
         failures.append("Every railroad PLC must use the monitored operations subnet.")
-    if len({HMI_IP, HISTORIAN_IP, ZEEK_IP, SURICATA_IP, *(area["plc_ops_ip"] for area in RAIL_AREAS)}) != 8:
-        failures.append("HMI, historian, PLC, and monitoring sensor addresses must be unique.")
+    if len({HMI_IP, HISTORIAN_IP, SCADA_IP, KALI_IP, ZEEK_IP, SURICATA_IP, *(area["plc_ops_ip"] for area in RAIL_AREAS)}) != 10:
+        failures.append("Operations, PLC, and monitoring sensor addresses must be unique.")
     if not plc_targets():
         failures.append("HMI and historian must have named Modbus targets.")
     return failures
@@ -179,6 +182,18 @@ REQUIRED_TEMPLATES = [
         "image": "wtaylor8/generic-hmi:latest",
         "adapters": 5,
         "console_type": "telnet",
+        "environment": f"SCENARIO={SCENARIO}",
+        "default_name_format": "{name}-{0}",
+        "compute_id": "local",
+        "symbol": ":/symbols/docker_guest.svg",
+    },
+    {
+        "name": SCADA_TEMPLATE,
+        "template_type": "docker",
+        "category": "guest",
+        "image": "wtaylor8/generic-scada:latest",
+        "adapters": 11,
+        "console_type": "http",
         "environment": f"SCENARIO={SCENARIO}",
         "default_name_format": "{name}-{0}",
         "compute_id": "local",
@@ -293,6 +308,7 @@ def ensure_required_templates(server: Gns3Connector, server_url: str) -> None:
             if expected["name"] in {
                 ZEEK_TEMPLATE,
                 SURICATA_TEMPLATE,
+                SCADA_TEMPLATE,
                 RAIL_SENSOR_TEMPLATE,
                 RAIL_PLC_TEMPLATE,
                 RAIL_HMI_TEMPLATE,
@@ -323,7 +339,8 @@ def open_or_create_project(server: Gns3Connector) -> Project:
 def node_names() -> set[str]:
     names = {
         "railroad-monitored-switch", "railroad-modbus-tap",
-        "railroad-hmi", "railroad-historian", "zeek-sensor", "suricata-sensor",
+        "railroad-hmi", "railroad-historian", "railroad-scada",
+        "KaliLinux-1", "zeek-sensor", "suricata-sensor",
     }
     for area in RAIL_AREAS:
         names.update({area["field_switch"], area["plc"]})
@@ -362,9 +379,11 @@ def create_nodes(project: Project) -> None:
     create_node(project, "railroad-monitored-switch", CORE_SWITCH_TEMPLATE, 0, 95)
     create_node(project, "railroad-hmi", RAIL_HMI_TEMPLATE, -290, 250)
     create_node(project, "railroad-historian", RAIL_HMI_TEMPLATE, -90, 250)
+    create_node(project, "railroad-scada", SCADA_TEMPLATE, -300, 430)
     create_node(project, "railroad-modbus-tap", PASSIVE_TAP_TEMPLATE, 0, 180)
     create_node(project, "zeek-sensor", ZEEK_TEMPLATE, 180, 250)
     create_node(project, "suricata-sensor", SURICATA_TEMPLATE, 400, 250)
+    create_node(project, "KaliLinux-1", "Kali Linux", 570, 430)
 
 
 def set_node_property(
@@ -463,6 +482,18 @@ def apply_environments(server_url: str, project: Project) -> None:
             )
     set_environment(server_url, project, "railroad-hmi", environment(SCENARIO=SCENARIO, NODE_MODE="hmi", IP_ADDRESS=HMI_IP, NETMASK=NETMASK, PLC_TARGETS=plc_targets()))
     set_environment(server_url, project, "railroad-historian", environment(SCENARIO=SCENARIO, NODE_MODE="historian", IP_ADDRESS=HISTORIAN_IP, NETMASK=NETMASK, PLC_TARGETS=plc_targets()))
+    set_environment(
+        server_url,
+        project,
+        "railroad-scada",
+        environment(
+            SCENARIO=SCENARIO,
+            NODE_MODE="scada",
+            IP_ADDRESS=SCADA_IP,
+            NETMASK=NETMASK,
+            SCADA_SUBNETS=OPERATIONS_SUBNET,
+        ),
+    )
     set_start_command(
         server_url,
         project,
@@ -482,7 +513,11 @@ def configure_nodes(project: Project) -> None:
         configure_interfaces(project, area["plc"], interfaces([(area["field_ip"], NETMASK), (area["plc_ops_ip"], NETMASK)]))
         for name, address, *_rest in area["sensors"]:
             configure_interfaces(project, name, interfaces([(address, NETMASK)]))
-    for name, address in (("railroad-hmi", HMI_IP), ("railroad-historian", HISTORIAN_IP)):
+    for name, address in (
+        ("railroad-hmi", HMI_IP),
+        ("railroad-historian", HISTORIAN_IP),
+        ("railroad-scada", SCADA_IP),
+    ):
         configure_interfaces(project, name, interfaces([(address, NETMASK)]))
 
 
@@ -510,6 +545,8 @@ def create_links(project: Project) -> None:
     # address and receives the copied Modbus frames from the passive TAP.
     create_link(project, "zeek-sensor", "eth0", "railroad-monitored-switch", "Ethernet3")
     create_link(project, "suricata-sensor", "eth0", "railroad-monitored-switch", "Ethernet4")
+    create_link(project, "railroad-scada", "eth0", "railroad-monitored-switch", "Ethernet5")
+    create_link(project, "KaliLinux-1", "Ethernet0", "railroad-monitored-switch", "Ethernet6")
     create_link(project, "zeek-sensor", "eth1", "railroad-modbus-tap", "Ethernet5")
     create_link(project, "suricata-sensor", "eth1", "railroad-modbus-tap", "Ethernet6")
 
@@ -527,7 +564,15 @@ def start_nodes(project: Project) -> None:
             start_node(project, sensor)
         start_node(project, area["plc"])
     # Start passive visibility before HMI/historian polling begins.
-    for name in ("railroad-modbus-tap", "zeek-sensor", "suricata-sensor", "railroad-hmi", "railroad-historian"):
+    for name in (
+        "railroad-modbus-tap",
+        "zeek-sensor",
+        "suricata-sensor",
+        "railroad-hmi",
+        "railroad-historian",
+        "railroad-scada",
+        "KaliLinux-1",
+    ):
         start_node(project, name)
 
 
