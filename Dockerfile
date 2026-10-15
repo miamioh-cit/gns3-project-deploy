@@ -21,6 +21,7 @@ COPY 480-2-build.py /app/
 COPY 480-3-build.py /app/
 COPY 480-4-build.py /app/
 COPY 480-5-build.py /app/
+COPY 480-6-build.py /app/ 
 COPY requirements.txt /app/
 COPY project-id /app/
 COPY datastore /app/
