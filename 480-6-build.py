@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import shlex
 import sys
 from pathlib import Path
 
@@ -33,24 +34,27 @@ except ImportError:  # Lets --validate run without deployment dependencies.
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 LAB_NAME = "Module 6 - Railroad Control - Monitoring"
-SCENARIO = "railroad_control"
+SCENARIO = "railroad-control"
 BASE_IP = "http://10.48.229."
 DATASTORE_FILE = "datastore"
 GNS3_USER = "gns3"
 GNS3_PASSWORD = "gns3"
 
-OPERATIONS_SUBNET = "10.60.1.0/24"
+OPERATIONS_SUBNET = "10.60.30.0/24"
+MONITORING_SUBNET = "10.60.50.0/24"
 NETMASK = "255.255.255.0"
-HMI_IP = "10.60.1.10"
-HISTORIAN_IP = "10.60.1.20"
-KALI_IP = "10.60.1.250"
-ZEEK_IP = "10.60.1.50"
-SURICATA_IP = "10.60.1.51"
+HMI_IP = "10.60.30.10"
+HISTORIAN_IP = "10.60.30.20"
+ZEEK_IP = "10.60.50.10"
+SURICATA_IP = "10.60.50.11"
 
 CORE_SWITCH_TEMPLATE = "Ethernet-Switch-10P"
-RAIL_SENSOR_TEMPLATE = "railroad-sensor"
-RAIL_PLC_TEMPLATE = "railroad-plc"
-RAIL_HMI_TEMPLATE = "railroad-hmi"
+PASSIVE_TAP_TEMPLATE = "Ethernet hub"
+RAIL_SENSOR_TEMPLATE = "generic-sensor"
+RAIL_PLC_TEMPLATE = "generic-plc"
+RAIL_HMI_TEMPLATE = "generic-hmi"
+ZEEK_TEMPLATE = "Zeek"
+SURICATA_TEMPLATE = "Suricata"
 
 RAIL_AREAS = [
     {
@@ -59,7 +63,7 @@ RAIL_AREAS = [
         "field_subnet": "192.168.61.0/24",
         "field_ip": "192.168.61.5",
         "plc": "plc-interlocking",
-        "plc_ops_ip": "10.60.1.31",
+        "plc_ops_ip": "10.60.30.31",
         "x": -550,
         "sensors": [
             ("TRACK-101", "192.168.61.1", "TRACK-101", "occupied", "float"),
@@ -72,7 +76,7 @@ RAIL_AREAS = [
         "field_subnet": "192.168.62.0/24",
         "field_ip": "192.168.62.5",
         "plc": "plc-crossing",
-        "plc_ops_ip": "10.60.1.32",
+        "plc_ops_ip": "10.60.30.32",
         "x": -180,
         "sensors": [
             ("GATE-201", "192.168.62.1", "GATE-201", "state", "float"),
@@ -85,7 +89,7 @@ RAIL_AREAS = [
         "field_subnet": "192.168.63.0/24",
         "field_ip": "192.168.63.5",
         "plc": "plc-yard",
-        "plc_ops_ip": "10.60.1.33",
+        "plc_ops_ip": "10.60.30.33",
         "x": 180,
         "sensors": [
             ("SWITCH-301", "192.168.63.1", "SWITCH-301", "position", "float"),
@@ -98,7 +102,7 @@ RAIL_AREAS = [
         "field_subnet": "192.168.64.0/24",
         "field_ip": "192.168.64.5",
         "plc": "plc-dispatch",
-        "plc_ops_ip": "10.60.1.34",
+        "plc_ops_ip": "10.60.30.34",
         "x": 550,
         "sensors": [
             ("ROUTE-401", "192.168.64.1", "ROUTE-401", "state", "float"),
@@ -134,10 +138,10 @@ def validate_configuration() -> list[str]:
     failures: list[str] = []
     if len(RAIL_AREAS) < 2:
         failures.append("At least two railroad PLCs are required for the monitored path.")
-    if any(not area["plc_ops_ip"].startswith("10.60.1.") for area in RAIL_AREAS):
+    if any(not area["plc_ops_ip"].startswith("10.60.30.") for area in RAIL_AREAS):
         failures.append("Every railroad PLC must use the monitored operations subnet.")
-    if HMI_IP == ZEEK_IP or HMI_IP == SURICATA_IP or ZEEK_IP == SURICATA_IP:
-        failures.append("HMI and monitoring sensor addresses must be unique.")
+    if len({HMI_IP, HISTORIAN_IP, ZEEK_IP, SURICATA_IP, *(area["plc_ops_ip"] for area in RAIL_AREAS)}) != 8:
+        failures.append("HMI, historian, PLC, and monitoring sensor addresses must be unique.")
     if not plc_targets():
         failures.append("HMI and historian must have named Modbus targets.")
     return failures
@@ -181,7 +185,7 @@ REQUIRED_TEMPLATES = [
         "symbol": ":/symbols/docker_guest.svg",
     },
     {
-        "name": "zeek-sensor",
+        "name": ZEEK_TEMPLATE,
         "template_type": "docker",
         "category": "guest",
         "image": "zeek/zeek:latest",
@@ -193,7 +197,7 @@ REQUIRED_TEMPLATES = [
         "symbol": ":/symbols/docker_guest.svg",
     },
     {
-        "name": "suricata-sensor",
+        "name": SURICATA_TEMPLATE,
         "template_type": "docker",
         "category": "guest",
         "image": "jasonish/suricata:latest",
@@ -286,8 +290,14 @@ def ensure_required_templates(server: Gns3Connector, server_url: str) -> None:
     for expected in REQUIRED_TEMPLATES:
         current = existing.get(expected["name"])
         if current:
-            if expected["name"] in {"zeek-sensor", "suricata-sensor"}:
-                logging.info("Using existing instructor monitoring template '%s'.", expected["name"])
+            if expected["name"] in {
+                ZEEK_TEMPLATE,
+                SURICATA_TEMPLATE,
+                RAIL_SENSOR_TEMPLATE,
+                RAIL_PLC_TEMPLATE,
+                RAIL_HMI_TEMPLATE,
+            }:
+                logging.info("Using existing shared template '%s'.", expected["name"])
             else:
                 update_template(server_url, current, expected)
             continue
@@ -312,8 +322,8 @@ def open_or_create_project(server: Gns3Connector) -> Project:
 
 def node_names() -> set[str]:
     names = {
-        "railroad-monitored-switch", "railroad-hmi", "railroad-historian",
-        "KaliLinux-1", "zeek-sensor", "suricata-sensor",
+        "railroad-monitored-switch", "railroad-modbus-tap",
+        "railroad-hmi", "railroad-historian", "zeek-sensor", "suricata-sensor",
     }
     for area in RAIL_AREAS:
         names.update({area["field_switch"], area["plc"]})
@@ -352,23 +362,42 @@ def create_nodes(project: Project) -> None:
     create_node(project, "railroad-monitored-switch", CORE_SWITCH_TEMPLATE, 0, 95)
     create_node(project, "railroad-hmi", RAIL_HMI_TEMPLATE, -290, 250)
     create_node(project, "railroad-historian", RAIL_HMI_TEMPLATE, -90, 250)
-    create_node(project, "zeek-sensor", "zeek-sensor", 145, 250)
-    create_node(project, "suricata-sensor", "suricata-sensor", 340, 250)
-    create_node(project, "KaliLinux-1", "Kali Linux", 550, 250)
+    create_node(project, "railroad-modbus-tap", PASSIVE_TAP_TEMPLATE, 0, 180)
+    create_node(project, "zeek-sensor", ZEEK_TEMPLATE, 180, 250)
+    create_node(project, "suricata-sensor", SURICATA_TEMPLATE, 400, 250)
 
 
-def set_environment(server_url: str, project: Project, name: str, value: str) -> None:
+def set_node_property(
+    server_url: str,
+    project: Project,
+    name: str,
+    property_name: str,
+    value: str,
+) -> None:
     node = project.get_node(name)
     node.get()
     endpoint = f"{server_url}/v2/projects/{project.project_id}/nodes/{node.node_id}"
     response = requests.get(endpoint, auth=(GNS3_USER, GNS3_PASSWORD), timeout=30)
     response.raise_for_status()
     properties = dict(response.json().get("properties") or {})
-    properties["environment"] = value
+    properties[property_name] = value
     require_success(
-        requests.put(endpoint, json={"properties": properties}, auth=(GNS3_USER, GNS3_PASSWORD), timeout=30),
-        f"set environment for '{name}'",
+        requests.put(
+            endpoint,
+            json={"properties": properties},
+            auth=(GNS3_USER, GNS3_PASSWORD),
+            timeout=30,
+        ),
+        f"set {property_name} for '{name}'",
     )
+
+
+def set_environment(server_url: str, project: Project, name: str, value: str) -> None:
+    set_node_property(server_url, project, name, "environment", value)
+
+
+def set_start_command(server_url: str, project: Project, name: str, value: str) -> None:
+    set_node_property(server_url, project, name, "start_command", value)
 
 
 def interfaces(entries: list[tuple[str, str]]) -> str:
@@ -397,6 +426,32 @@ def plc_environment(area: dict) -> str:
         PLC_CONTROL_SUBNET=OPERATIONS_SUBNET,
     )
 
+def sensor_start_command(tool: str, management_ip: str) -> str:
+    """Configure management on eth0 and capture passively on eth1."""
+    commands = [
+        "ip link set eth0 up || true",
+        f"ip addr replace {management_ip}/24 dev eth0 || true",
+        "ip link set eth1 up || true",
+        "ip addr flush dev eth1 || true",
+        "ip link set eth1 promisc on || true",
+    ]
+    if tool == "zeek":
+        commands.extend(
+            [
+                "mkdir -p /var/log/zeek",
+                "cd /var/log/zeek",
+                "exec zeek -C -i eth1",
+            ]
+        )
+    else:
+        commands.extend(
+            [
+                "mkdir -p /var/log/suricata",
+                "exec suricata -i eth1 -l /var/log/suricata",
+            ]
+        )
+    return "sh -c " + shlex.quote("; ".join(commands))
+
 
 def apply_environments(server_url: str, project: Project) -> None:
     for area in RAIL_AREAS:
@@ -408,8 +463,18 @@ def apply_environments(server_url: str, project: Project) -> None:
             )
     set_environment(server_url, project, "railroad-hmi", environment(SCENARIO=SCENARIO, NODE_MODE="hmi", IP_ADDRESS=HMI_IP, NETMASK=NETMASK, PLC_TARGETS=plc_targets()))
     set_environment(server_url, project, "railroad-historian", environment(SCENARIO=SCENARIO, NODE_MODE="historian", IP_ADDRESS=HISTORIAN_IP, NETMASK=NETMASK, PLC_TARGETS=plc_targets()))
-    set_environment(server_url, project, "zeek-sensor", environment(SCENARIO=SCENARIO, SENSOR_MODE="passive", SENSOR_TOOL="zeek", CAPTURE_INTERFACE="eth0", MONITORED_SUBNET=OPERATIONS_SUBNET, MONITORED_PORT=502, IP_ADDRESS=ZEEK_IP, NETMASK=NETMASK))
-    set_environment(server_url, project, "suricata-sensor", environment(SCENARIO=SCENARIO, SENSOR_MODE="passive", SENSOR_TOOL="suricata", CAPTURE_INTERFACE="eth0", MONITORED_SUBNET=OPERATIONS_SUBNET, MONITORED_PORT=502, IP_ADDRESS=SURICATA_IP, NETMASK=NETMASK))
+    set_start_command(
+        server_url,
+        project,
+        "zeek-sensor",
+        sensor_start_command("zeek", ZEEK_IP),
+    )
+    set_start_command(
+        server_url,
+        project,
+        "suricata-sensor",
+        sensor_start_command("suricata", SURICATA_IP),
+    )
 
 
 def configure_nodes(project: Project) -> None:
@@ -417,7 +482,7 @@ def configure_nodes(project: Project) -> None:
         configure_interfaces(project, area["plc"], interfaces([(area["field_ip"], NETMASK), (area["plc_ops_ip"], NETMASK)]))
         for name, address, *_rest in area["sensors"]:
             configure_interfaces(project, name, interfaces([(address, NETMASK)]))
-    for name, address in (("railroad-hmi", HMI_IP), ("railroad-historian", HISTORIAN_IP), ("zeek-sensor", ZEEK_IP), ("suricata-sensor", SURICATA_IP), ("KaliLinux-1", KALI_IP)):
+    for name, address in (("railroad-hmi", HMI_IP), ("railroad-historian", HISTORIAN_IP)):
         configure_interfaces(project, name, interfaces([(address, NETMASK)]))
 
 
@@ -429,18 +494,24 @@ def create_link(project: Project, left: str, left_port: str, right: str, right_p
 
 
 def create_links(project: Project) -> None:
-    for index, area in enumerate(RAIL_AREAS):
+    for area in RAIL_AREAS:
         create_link(project, area["plc"], "eth0", area["field_switch"], "Ethernet0")
         for port, (sensor, *_rest) in enumerate(area["sensors"], start=1):
             create_link(project, sensor, "eth0", area["field_switch"], f"Ethernet{port}")
-        create_link(project, area["plc"], "eth1", "railroad-monitored-switch", f"Ethernet{index}")
-    create_link(project, "railroad-hmi", "eth0", "railroad-monitored-switch", "Ethernet4")
-    create_link(project, "railroad-historian", "eth0", "railroad-monitored-switch", "Ethernet5")
-    # These passive interfaces are intentionally on the monitored segment and
-    # are not placed between the HMI/historian and any PLC.
-    create_link(project, "zeek-sensor", "eth0", "railroad-monitored-switch", "Ethernet6")
-    create_link(project, "suricata-sensor", "eth0", "railroad-monitored-switch", "Ethernet7")
-    create_link(project, "KaliLinux-1", "Ethernet0", "railroad-monitored-switch", "Ethernet8")
+
+    # The Ethernet hub is a passive TAP. HMI/historian Modbus requests must
+    # cross it before reaching a PLC, so both sensor NICs receive copies.
+    create_link(project, "railroad-hmi", "eth0", "railroad-monitored-switch", "Ethernet0")
+    create_link(project, "railroad-historian", "eth0", "railroad-monitored-switch", "Ethernet1")
+    create_link(project, "railroad-modbus-tap", "Ethernet0", "railroad-monitored-switch", "Ethernet2")
+    for port, area in enumerate(RAIL_AREAS, start=1):
+        create_link(project, area["plc"], "eth1", "railroad-modbus-tap", f"Ethernet{port}")
+    # eth0 is the Monitoring-zone management interface.  eth1 has no IP
+    # address and receives the copied Modbus frames from the passive TAP.
+    create_link(project, "zeek-sensor", "eth0", "railroad-monitored-switch", "Ethernet3")
+    create_link(project, "suricata-sensor", "eth0", "railroad-monitored-switch", "Ethernet4")
+    create_link(project, "zeek-sensor", "eth1", "railroad-modbus-tap", "Ethernet5")
+    create_link(project, "suricata-sensor", "eth1", "railroad-modbus-tap", "Ethernet6")
 
 
 def start_node(project: Project, name: str) -> None:
@@ -455,8 +526,8 @@ def start_nodes(project: Project) -> None:
         for sensor, *_rest in area["sensors"]:
             start_node(project, sensor)
         start_node(project, area["plc"])
-    # HMI and historian start before monitoring evidence is collected.
-    for name in ("railroad-hmi", "railroad-historian", "zeek-sensor", "suricata-sensor", "KaliLinux-1"):
+    # Start passive visibility before HMI/historian polling begins.
+    for name in ("railroad-modbus-tap", "zeek-sensor", "suricata-sensor", "railroad-hmi", "railroad-historian"):
         start_node(project, name)
 
 
@@ -477,7 +548,7 @@ def build_project(server_url: str) -> None:
     create_links(project)
     start_nodes(project)
     project.links_summary()
-    logging.info("%s is ready. Capture the HMI/historian-to-PLC link or configure the instructor's mirror feed for evidence.", LAB_NAME)
+    logging.info("%s is ready. The passive TAP copies the HMI/historian-to-PLC Modbus path to Zeek and Suricata.", LAB_NAME)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -512,4 +583,6 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
 
