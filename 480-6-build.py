@@ -14,6 +14,7 @@ HMI/historian-to-PLC path.  Sensors are never an inline control hop.
 from __future__ import annotations
 
 import argparse
+import ipaddress
 import logging
 import shlex
 import sys
@@ -58,6 +59,12 @@ SURICATA_TEMPLATE = "Suricata"
 SCADA_TEMPLATE = "generic-scada"
 SCADA_IP = "10.60.30.200"
 KALI_IP = "10.60.30.250"
+
+# All three application nodes can legitimately poll PLCs. The baseline is
+# read-only: writes from any source require operational review.
+APPROVED_MODBUS_CLIENTS = (HMI_IP, HISTORIAN_IP, SCADA_IP)
+SURICATA_CONFIG = "/etc/suricata/suricata.yaml"
+SURICATA_RULE_PATH = "/var/log/suricata/railroad-modbus.rules"
 
 RAIL_AREAS = [
     {
@@ -136,6 +143,16 @@ def plc_targets() -> str:
     )
 
 
+def detection_rules() -> str:
+    clients = "[" + ",".join(APPROVED_MODBUS_CLIENTS) + "]"
+    plcs = "[" + ",".join(area["plc_ops_ip"] for area in RAIL_AREAS) + "]"
+    return "\n".join((
+        '# Baseline: HMI, historian and SCADA read; all writes require review.',
+        f'alert modbus any any -> {plcs} 502 (msg:"Railroad lab unexpected Modbus write"; flow:to_server,established; modbus: access write; classtype:policy-violation; sid:4806001; rev:1;)',
+        f'alert tcp !{clients} any -> {plcs} 502 (msg:"Railroad lab unapproved Modbus client connection attempt"; flags:S; flow:stateless; classtype:policy-violation; sid:4806010; rev:1;)',
+    )) + "\n"
+
+
 def validate_configuration() -> list[str]:
     """Check the lab's measurable topology requirements without GNS3 access."""
     failures: list[str] = []
@@ -147,6 +164,14 @@ def validate_configuration() -> list[str]:
         failures.append("Operations, PLC, and monitoring sensor addresses must be unique.")
     if not plc_targets():
         failures.append("HMI and historian must have named Modbus targets.")
+    ops = ipaddress.ip_network(OPERATIONS_SUBNET)
+    if len(set(APPROVED_MODBUS_CLIENTS)) != len(APPROVED_MODBUS_CLIENTS):
+        failures.append("Approved Modbus clients must be unique.")
+    for address in (*APPROVED_MODBUS_CLIENTS, KALI_IP, *(area['plc_ops_ip'] for area in RAIL_AREAS)):
+        if ipaddress.ip_address(address) not in ops:
+            failures.append(f"{address} must be in the monitored operations subnet.")
+    if KALI_IP in APPROVED_MODBUS_CLIENTS:
+        failures.append("The optional test workstation must not be an approved polling client.")
     return failures
 
 
@@ -204,6 +229,7 @@ REQUIRED_TEMPLATES = [
         "template_type": "docker",
         "category": "guest",
         "image": "zeek/zeek:latest",
+        "extra_volumes": ["/var/log/zeek"],
         "adapters": 5,
         "console_type": "telnet",
         "environment": "SENSOR_MODE=passive\nSENSOR_TOOL=zeek",
@@ -216,6 +242,7 @@ REQUIRED_TEMPLATES = [
         "template_type": "docker",
         "category": "guest",
         "image": "jasonish/suricata:latest",
+        "extra_volumes": ["/var/log/suricata"],
         "adapters": 5,
         "console_type": "telnet",
         "environment": "SENSOR_MODE=passive\nSENSOR_TOOL=suricata",
@@ -302,6 +329,19 @@ def update_template(server_url: str, current: dict, expected: dict) -> None:
 
 def ensure_required_templates(server: Gns3Connector, server_url: str) -> None:
     existing = {item["name"]: item for item in server.get_templates()}
+    # Inspect before project cleanup. Never silently rewrite a shared image.
+    for expected in REQUIRED_TEMPLATES:
+        current = existing.get(expected["name"])
+        if not current:
+            continue
+        minimum = 2 if expected["name"] in {RAIL_PLC_TEMPLATE, ZEEK_TEMPLATE, SURICATA_TEMPLATE} else 1
+        if current.get("template_type") != "docker" or int(current.get("adapters") or 0) < minimum:
+            raise RuntimeError(
+                f"Template '{expected['name']}' must be Docker with at least {minimum} adapters; "
+                "correct the shared template before rebuilding. Existing project nodes have not been removed."
+            )
+    if "Kali Linux" not in existing:
+        raise RuntimeError("Required optional-test workstation template 'Kali Linux' is missing; existing project nodes have not been removed.")
     for expected in REQUIRED_TEMPLATES:
         current = existing.get(expected["name"])
         if current:
@@ -447,12 +487,16 @@ def plc_environment(area: dict) -> str:
 
 def sensor_start_command(tool: str, management_ip: str) -> str:
     """Configure management on eth0 and capture passively on eth1."""
+    if tool not in {"zeek", "suricata"}:
+        raise ValueError(f"Unknown monitoring tool: {tool}")
     commands = [
-        "ip link set eth0 up || true",
-        f"ip addr replace {management_ip}/24 dev eth0 || true",
-        "ip link set eth1 up || true",
-        "ip addr flush dev eth1 || true",
-        "ip link set eth1 promisc on || true",
+        "set -eu",
+        "command -v ip >/dev/null",
+        "ip link set eth0 up",
+        f"ip addr replace {management_ip}/24 dev eth0",
+        "ip link set eth1 up",
+        "ip addr flush dev eth1",
+        "ip link set eth1 promisc on",
     ]
     if tool == "zeek":
         commands.extend(
@@ -466,7 +510,9 @@ def sensor_start_command(tool: str, management_ip: str) -> str:
         commands.extend(
             [
                 "mkdir -p /var/log/suricata",
-                "exec suricata -i eth1 -l /var/log/suricata",
+                f"printf '%s' {shlex.quote(detection_rules())} > {SURICATA_RULE_PATH}",
+                f"suricata -T -c {SURICATA_CONFIG} -S {SURICATA_RULE_PATH} --set app-layer.protocols.modbus.enabled=yes -l /var/log/suricata",
+                f"exec suricata -c {SURICATA_CONFIG} -S {SURICATA_RULE_PATH} --set app-layer.protocols.modbus.enabled=yes -k none -i eth1 -l /var/log/suricata",
             ]
         )
     return "sh -c " + shlex.quote("; ".join(commands))
@@ -593,18 +639,24 @@ def build_project(server_url: str) -> None:
     create_links(project)
     start_nodes(project)
     project.links_summary()
-    logging.info("%s is ready. The passive TAP copies the HMI/historian-to-PLC Modbus path to Zeek and Suricata.", LAB_NAME)
+    logging.info("%s topology created. The passive TAP is connected to the HMI/historian-to-PLC Modbus path and both sensors.", LAB_NAME)
+    logging.info("Topology start requests completed; verify live polling and sensor output before collecting lab evidence.")
+    logging.info("Configure Kali's actual guest NIC manually as %s/24; the builder cannot configure a QEMU guest via Docker interfaces files.", KALI_IP)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--validate", action="store_true", help="validate the topology definition without contacting GNS3")
+    parser.add_argument("--print-rules", action="store_true", help="print the railroad detection rules without contacting GNS3")
     args = parser.parse_args(argv)
     failures = validate_configuration()
     if failures:
         for failure in failures:
             logging.error("Configuration validation failed: %s", failure)
         return 1
+    if args.print_rules:
+        print(detection_rules(), end="")
+        return 0
     if args.validate:
         logging.info("480-6 railroad monitoring topology validation passed.")
         return 0
@@ -628,6 +680,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-
-
-
