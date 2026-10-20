@@ -9,6 +9,7 @@ pipeline {
         TRAFFIC_SCADA_IMAGE = 'evankunkel/generic-scada-traffic:latest'
         MANAFACTURING_SCADA_IMAGE = 'evankunkel/generic-scada-manafacturing:latest'
         ELECTRICAL_GRID_SCADA_IMAGE = 'evankunkel/generic-scada-electrical-grid:latest'
+        RAILROAD_SCADA_IMAGE = 'evankunkel/generic-scada-railroad-control:latest'
     }
 
     stages {
@@ -78,7 +79,7 @@ pipeline {
         stage('Build Selected SCADA Images') {
             when {
                 expression {
-                    def customProjects = ['480-2', '480-3', '480-4', '480-5']
+                    def customProjects = ['480-2', '480-3', '480-4', '480-5', '480-6']
 
                     return params.PROJECT_ID
                         .readLines()
@@ -105,6 +106,10 @@ pipeline {
                         '480-5': [
                             image: env.ELECTRICAL_GRID_SCADA_IMAGE,
                             dockerfile: 'scada/electrical_grid/Dockerfile'
+                        ],
+                        '480-6': [
+                            image: env.RAILROAD_SCADA_IMAGE,
+                            dockerfile: 'scada/tsec/Dockerfile'
                         ]
                     ]
 

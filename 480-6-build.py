@@ -56,7 +56,8 @@ RAIL_PLC_TEMPLATE = "generic-plc"
 RAIL_HMI_TEMPLATE = "generic-hmi"
 ZEEK_TEMPLATE = "Zeek"
 SURICATA_TEMPLATE = "Suricata"
-SCADA_TEMPLATE = "generic-scada"
+SCADA_TEMPLATE = "generic-scada-railroad-control"
+SCADA_IMAGE = "evankunkel/generic-scada-railroad-control:latest"
 SCADA_IP = "10.60.30.200"
 KALI_IP = "10.60.30.250"
 
@@ -216,7 +217,7 @@ REQUIRED_TEMPLATES = [
         "name": SCADA_TEMPLATE,
         "template_type": "docker",
         "category": "guest",
-        "image": "wtaylor8/generic-scada:latest",
+        "image": SCADA_IMAGE,
         "adapters": 11,
         "console_type": "http",
         "environment": f"SCENARIO={SCENARIO}",
@@ -345,6 +346,9 @@ def ensure_required_templates(server: Gns3Connector, server_url: str) -> None:
     for expected in REQUIRED_TEMPLATES:
         current = existing.get(expected["name"])
         if current:
+            if expected["name"] == SCADA_TEMPLATE:
+                update_template(server_url, current, expected)
+                continue
             if expected["name"] in {
                 ZEEK_TEMPLATE,
                 SURICATA_TEMPLATE,
@@ -538,6 +542,7 @@ def apply_environments(server_url: str, project: Project) -> None:
             IP_ADDRESS=SCADA_IP,
             NETMASK=NETMASK,
             SCADA_SUBNETS=OPERATIONS_SUBNET,
+            SCADA_DIAGRAM_CONFIG="tsec/diagrams.yaml",
         ),
     )
     set_start_command(

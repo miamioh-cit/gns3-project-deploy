@@ -1,0 +1,31 @@
+{% extends "diagram_base.html" %}
+{% block diagram %}
+<svg class="rail-svg" viewBox="0 0 1440 820" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="rail-title rail-desc">
+  <title id="rail-title">Railroad control telemetry overview</title><desc id="rail-desc">Four monitored areas with eight live tag readings from the railroad PLCs.</desc>
+  <text class="section-caption" x="30" y="36">FIELD TELEMETRY / LIVE STATE</text><text class="note" x="1410" y="36" text-anchor="end">HMI .10 · Historian .20 · SCADA .200</text>
+  <rect class="area-panel" x="24" y="58" width="684" height="330" rx="8"/><rect class="area-panel" x="732" y="58" width="684" height="330" rx="8"/>
+  <rect class="area-panel" x="24" y="408" width="684" height="330" rx="8"/><rect class="area-panel" x="732" y="408" width="684" height="330" rx="8"/>
+  <text class="area-title" x="48" y="95">01 / Interlocking</text><text class="area-meta" x="48" y="116">plc-interlocking · 10.60.30.31</text>
+  <path class="ties" d="M60 210H655"/><path class="track" d="M60 200H655M60 220H655M265 200L390 145H600"/><path id="track-interlocking" class="track-state" d="M60 210H655"/>
+  <rect class="equipment" x="515" y="130" width="95" height="40" rx="8"/><circle id="signal-red" class="signal-light" cx="535" cy="150" r="9"/><circle id="signal-amber" class="signal-light" cx="563" cy="150" r="9"/><circle id="signal-green" class="signal-light" cx="591" cy="150" r="9"/>
+  <g class="tag-card" id="box-TRACK-101"><rect x="48" y="270" width="300" height="94" rx="6"/><text class="tag" x="64" y="292">TRACK-101 / TRACK OCCUPANCY</text><text class="reading" id="val-TRACK-101" x="64" y="321">UNKNOWN</text><text class="quality" id="quality-TRACK-101" x="64" y="346">Waiting</text></g>
+  <g class="tag-card" id="box-SIGNAL-101"><rect x="366" y="270" width="318" height="94" rx="6"/><text class="tag" x="382" y="292">SIGNAL-101 / SIGNAL ASPECT</text><text class="reading" id="val-SIGNAL-101" x="382" y="321">UNKNOWN</text><text class="quality" id="quality-SIGNAL-101" x="382" y="346">Waiting</text></g>
+  <text class="area-title" x="756" y="95">02 / Crossing</text><text class="area-meta" x="756" y="116">plc-crossing · 10.60.30.32</text>
+  <path d="M1090 139V249" stroke="#233e50" stroke-width="80"/><path class="ties" d="M768 210H1370"/><path class="track" d="M768 200H1370M768 220H1370"/><path id="track-crossing" class="track-state" d="M768 210H1370"/>
+  <circle class="equipment" cx="790" cy="258" r="8"/><path id="crossing-gate" class="gate-arm" d="M790 258H930"/>
+  <g class="tag-card" id="box-GATE-201"><rect x="756" y="270" width="300" height="94" rx="6"/><text class="tag" x="772" y="292">GATE-201 / GATE STATE</text><text class="reading" id="val-GATE-201" x="772" y="321">UNKNOWN</text><text class="quality" id="quality-GATE-201" x="772" y="346">Waiting</text></g>
+  <g class="tag-card" id="box-APPROACH-201"><rect x="1074" y="270" width="318" height="94" rx="6"/><text class="tag" x="1090" y="292">APPROACH-201 / APPROACH OCCUPANCY</text><text class="reading" id="val-APPROACH-201" x="1090" y="321">UNKNOWN</text><text class="quality" id="quality-APPROACH-201" x="1090" y="346">Waiting</text></g>
+  <text class="area-title" x="48" y="445">03 / Yard</text><text class="area-meta" x="48" y="466">plc-yard · 10.60.30.33</text>
+  <path class="ties" d="M60 560H655"/><path class="track" d="M60 550H655M60 570H655M255 550L400 495H655"/><path id="track-yard" class="track-state" d="M60 560H655"/>
+  <text id="symbol-SWITCH-301" class="code" x="415" y="525">STATE UNKNOWN</text>
+  <g class="tag-card" id="box-SWITCH-301"><rect x="48" y="620" width="300" height="94" rx="6"/><text class="tag" x="64" y="642">SWITCH-301 / SWITCH POSITION</text><text class="reading" id="val-SWITCH-301" x="64" y="671">UNKNOWN</text><text class="quality" id="quality-SWITCH-301" x="64" y="696">Waiting</text></g>
+  <g class="tag-card" id="box-YARD-301"><rect x="366" y="620" width="318" height="94" rx="6"/><text class="tag" x="382" y="642">YARD-301 / YARD OCCUPANCY</text><text class="reading" id="val-YARD-301" x="382" y="671">UNKNOWN</text><text class="quality" id="quality-YARD-301" x="382" y="696">Waiting</text></g>
+  <text class="area-title" x="756" y="445">04 / Dispatch</text><text class="area-meta" x="756" y="466">plc-dispatch · 10.60.30.34</text>
+  <path class="ties" d="M768 560H1370"/><path class="track" d="M768 550H1370M768 570H1370"/><path id="track-dispatch" class="track-state" d="M768 560H1370"/>
+  <rect class="equipment" x="1070" y="487" width="230" height="42" rx="6"/><text id="symbol-ROUTE-401" class="code" x="1088" y="513">STATE UNKNOWN</text>
+  <g class="tag-card" id="box-ROUTE-401"><rect x="756" y="620" width="300" height="94" rx="6"/><text class="tag" x="772" y="642">ROUTE-401 / ROUTE STATE</text><text class="reading" id="val-ROUTE-401" x="772" y="671">UNKNOWN</text><text class="quality" id="quality-ROUTE-401" x="772" y="696">Waiting</text></g>
+  <g class="tag-card" id="box-OCCUPANCY-401"><rect x="1074" y="620" width="318" height="94" rx="6"/><text class="tag" x="1090" y="642">OCCUPANCY-401 / DISPATCH OCCUPANCY</text><text class="reading" id="val-OCCUPANCY-401" x="1090" y="671">UNKNOWN</text><text class="quality" id="quality-OCCUPANCY-401" x="1090" y="696">Waiting</text></g>
+  <path class="boundary" d="M40 763H1400"/><text class="note" x="40" y="789">Display convention: occupancy 0=clear, 1=occupied; gate 0=raised, 1=lowered; aspect 0=red, 1=amber, 2=green.</text>
+  <text class="note" x="40" y="807">Switch and route retain numeric codes. Confirm state conventions against the deployed scenario configuration.</text>
+</svg>
+{% endblock %}

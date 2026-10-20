@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Railroad Control · {{ area.name }}{% endblock %}
+{% block content %}
+<div class="rail-shell">
+  <header class="rail-header">
+    <div><p class="eyebrow">MODULE 06 / RAILROAD CONTROL</p><h1>Rail operations overview</h1><p class="rail-subtitle">Interlocking · Crossing · Yard · Dispatch</p></div>
+    <div class="rail-actions"><span id="feed-status" class="feed-pill" role="status" aria-live="polite">Waiting for telemetry</span><form method="POST" action="/rediscover"><button type="submit" class="btn btn-secondary">Rediscover PLCs</button></form></div>
+  </header>
+  <div class="rail-summary"><span>READ-ONLY MONITORING</span><span id="tag-count">0 / 8 tags reporting</span><span id="last-update">No successful update</span></div>
+  <div class="rail-diagram">{% block diagram %}{% endblock %}</div>
+  <footer class="rail-footer"><span><i class="key occupied"></i> Occupied / stop</span><span><i class="key clear"></i> Clear / reporting</span><span><i class="key unknown"></i> Unknown / stale</span><span>Modbus/TCP · 10.60.30.31–34:502</span></footer>
+</div>
+{% endblock %}
+{% block scripts %}
+<style>
+html,body{height:auto!important;min-height:100%;overflow:auto!important}.content{height:auto!important;overflow:visible!important;padding:0!important;background:#08121c}
+body{background:#08121c;color:#dce7ef}.rail-shell{max-width:1600px;margin:auto;padding:24px;font-family:Arial,Helvetica,sans-serif}.rail-header{display:flex;align-items:center;justify-content:space-between;gap:24px}.eyebrow{font:11px monospace;letter-spacing:2px;color:#6f99b5;margin:0 0 10px}.rail-header h1{font-size:30px;letter-spacing:-.7px;margin:0;color:#f0f6fa}.rail-subtitle{color:#8ca4b7;margin:10px 0}.rail-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.rail-actions form{margin:0}.feed-pill{border:1px solid #607488;border-radius:4px;padding:9px 12px;font-size:12px;background:#142332;color:#c3d1df}.feed-pill.live{border-color:#43baa0;color:#88e0c4}.feed-pill.partial{border-color:#c4a351;color:#f2cb7c}.feed-pill.offline{border-color:#ca7373;color:#ffadad}.rail-summary{display:flex;flex-wrap:wrap;gap:28px;border-block:1px solid #253b4c;padding:13px 0;margin:20px 0;font:11px monospace;color:#93acbe}.rail-summary span:first-child{color:#71c6e8}.rail-diagram{border:1px solid #2c4659;background:#0b1925;border-radius:8px;overflow-x:auto}.rail-svg{width:100%;min-width:760px;display:block}.rail-footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;padding:18px 0;color:#8fa9bd;font-size:11px}.key{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px}.occupied{background:#ef8585}.clear{background:#66d1b4}.unknown{background:#70869a}.rail-svg text{font-family:Arial,Helvetica,sans-serif}.area-panel{fill:#102332;stroke:#2e4d63}.area-title{fill:#e0ecf5;font-size:19px;font-weight:bold}.area-meta{fill:#7797b0;font-size:11px}.track{fill:none;stroke:#4c6d83;stroke-width:7;stroke-linecap:round}.ties{stroke:#284659;stroke-width:34;stroke-dasharray:3 13}.track-state{stroke:#6a8295;stroke-width:3;fill:none}.track-state.clear{stroke:#66d1b4}.track-state.occupied{stroke:#ef8585}.tag-card rect{fill:#0b1925;stroke:#345168}.tag-card .tag{fill:#93b5cc;font:11px monospace}.tag-card .reading{fill:#edf5fc;font-size:20px;font-weight:bold}.tag-card .quality{fill:#7d98ad;font-size:10px}.tag-card.stale .reading{fill:#7d98ad}.tag-card.invalid .quality{fill:#f2cb7c}.tag-card.alarm rect{stroke:#ef8585}.signal-light{fill:#2a4052;stroke:#688398;stroke-width:1}.equipment{fill:#172f41;stroke:#91aabb;stroke-width:2}.boundary{stroke:#36546b;stroke-dasharray:5 7;fill:none}.note{fill:#7898af;font-size:11px}.section-caption{fill:#a6c1d3;font-size:12px}.gate-arm{stroke:#6a8295;stroke-width:8;stroke-linecap:round}.gate-arm.raised{stroke:#66d1b4}.gate-arm.lowered{stroke:#ef8585}.rail-svg .code{fill:#dce7ef;font-size:13px;font-family:monospace}@media(max-width:800px){.rail-shell{padding:14px}.rail-header{align-items:flex-start;flex-direction:column}.rail-header h1{font-size:25px}.rail-summary{gap:14px}.rail-footer{justify-content:flex-start}}
+</style>
+<script>
+(() => {
+  'use strict';
+  const tags = ['TRACK-101','SIGNAL-101','GATE-201','APPROACH-201','SWITCH-301','YARD-301','ROUTE-401','OCCUPANCY-401'];
+  const ranges = {'TRACK-101':1,'SIGNAL-101':2,'GATE-201':1,'APPROACH-201':1,'SWITCH-301':2,'YARD-301':1,'ROUTE-401':2,'OCCUPANCY-401':1};
+  const occupancy = new Set(['TRACK-101','APPROACH-201','YARD-301','OCCUPANCY-401']);
+  let timer;
+  const byId = id => document.getElementById(id);
+  function read(info, tag) {
+    if (!info || typeof info !== 'object') return {value:null,quality:'Missing tag'};
+    const status = String(info.status || '').toLowerCase();
+    if (['stale','offline','unknown','error','disconnected'].includes(status)) return {value:null,quality:status};
+    const raw = info.value;
+    if (raw === null || raw === undefined || (typeof raw !== 'number' && typeof raw !== 'boolean')) return {value:null,quality:'No numeric reading'};
+    const value = Number(raw);
+    if (!Number.isFinite(value) || !Number.isInteger(value) || value < 0 || value > ranges[tag]) return {value:null,quality:'Invalid state code'};
+    return {value,quality:status || 'Reporting'};
+  }
+  function label(tag, value) {
+    if (value === null) return 'UNKNOWN';
+    if (occupancy.has(tag)) return value === 1 ? 'OCCUPIED' : 'CLEAR';
+    if (tag === 'GATE-201') return value === 1 ? 'LOWERED · 1' : 'RAISED · 0';
+    return 'CODE ' + value;
+  }
+  function drawEquipment(values) {
+    for (const [tag, id] of [['TRACK-101','track-interlocking'],['APPROACH-201','track-crossing'],['YARD-301','track-yard'],['OCCUPANCY-401','track-dispatch']]) {
+      const el = byId(id), value = values[tag];
+      if (el) el.setAttribute('class','track-state' + (value === null ? '' : value === 1 ? ' occupied' : ' clear'));
+    }
+    const aspect = values['SIGNAL-101'];
+    ['red','amber','green'].forEach((color,index) => {
+      const light = byId('signal-' + color);
+      if (light) light.style.fill = aspect === index ? ['#ef8585','#f2cb7c','#66d1b4'][index] : '#2a4052';
+    });
+    const gate = byId('crossing-gate'), state = values['GATE-201'];
+    if (gate) {
+      gate.setAttribute('class','gate-arm' + (state === null ? '' : state === 1 ? ' lowered' : ' raised'));
+      gate.setAttribute('transform',state === 0 ? 'rotate(-65 790 258)' : '');
+      gate.style.opacity = state === null ? '0.35' : '1';
+    }
+    for (const tag of ['SWITCH-301','ROUTE-401']) {
+      const el = byId('symbol-' + tag);
+      if (el) el.textContent = values[tag] === null ? 'STATE UNKNOWN' : 'STATE CODE ' + values[tag];
+    }
+  }
+  function render(data, failure, received = true) {
+    let count = 0;
+    const values = {};
+    tags.forEach(tag => {
+      const info = failure ? {value:null,status:'stale'} : data[tag];
+      const result = read(info,tag);
+      values[tag] = result.value;
+      if (result.value !== null) count++;
+      const card = byId('box-' + tag);
+      if (card) card.setAttribute('class','tag-card' + (result.value === null ? ' stale' : '') + (result.quality === 'Invalid state code' ? ' invalid' : '') + (occupancy.has(tag) && result.value === 1 ? ' alarm' : ''));
+      if (byId('val-' + tag)) byId('val-' + tag).textContent = label(tag,result.value);
+      if (byId('quality-' + tag)) byId('quality-' + tag).textContent = result.quality;
+    });
+    drawEquipment(values);
+    const status = byId('feed-status');
+    status.textContent = failure ? 'Telemetry unavailable' : count === 8 ? 'Telemetry reporting' : count ? 'Partial telemetry' : 'No valid telemetry';
+    status.className = 'feed-pill ' + (failure || !count ? 'offline' : count === 8 ? 'live' : 'partial');
+    byId('tag-count').textContent = count + ' / 8 tags reporting';
+    if (!failure && received) byId('last-update').textContent = 'API received ' + new Date().toLocaleTimeString();
+  }
+  async function poll() {
+    const controller = new AbortController();
+    const deadline = setTimeout(() => controller.abort(),4500);
+    try {
+      const response = await fetch('/api/sensors',{cache:'no-store',signal:controller.signal});
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const data = await response.json();
+      if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Invalid sensor payload');
+      render(data,false);
+    } catch (_) { render({},true); }
+    finally { clearTimeout(deadline); timer = setTimeout(poll,2000); }
+  }
+  window.addEventListener('pagehide',() => clearTimeout(timer));
+  render({},false,false);
+  poll();
+})();
+</script>
+{% endblock %}
