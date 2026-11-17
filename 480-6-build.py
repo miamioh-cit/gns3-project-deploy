@@ -150,7 +150,7 @@ def detection_rules() -> str:
     return "\n".join((
         '# Baseline: HMI, historian and SCADA read; all writes require review.',
         f'alert modbus any any -> {plcs} 502 (msg:"Railroad lab unexpected Modbus write"; flow:to_server,established; modbus: access write; classtype:policy-violation; sid:4806001; rev:1;)',
-        f'alert tcp !{clients} any -> {plcs} 502 (msg:"Railroad lab unapproved Modbus client connection attempt"; flags:S; flow:stateless; classtype:policy-violation; sid:4806010; rev:1;)',
+        f'alert tcp !{clients} any -> {plcs} 502 (msg:"Railroad lab unapproved Modbus client connection attempt"; flags:S; flow:to_server,stateless; classtype:policy-violation; sid:4806010; rev:1;)',
     )) + "\n"
 
 
@@ -220,6 +220,7 @@ REQUIRED_TEMPLATES = [
         "image": SCADA_IMAGE,
         "adapters": 11,
         "console_type": "http",
+        "console_http_port": 8080,
         "environment": f"SCENARIO={SCENARIO}",
         "default_name_format": "{name}-{0}",
         "compute_id": "local",
@@ -309,7 +310,7 @@ def update_template(server_url: str, current: dict, expected: dict) -> None:
     changed = {
         key: value
         for key, value in expected.items()
-        if key in {"template_type", "category", "image", "adapters", "console_type", "environment", "default_name_format", "compute_id", "symbol"}
+        if key in {"template_type", "category", "image", "adapters", "console_type", "console_http_port", "environment", "default_name_format", "compute_id", "symbol"}
         and current.get(key) != value
     }
     if not changed:
@@ -489,37 +490,54 @@ def plc_environment(area: dict) -> str:
         PLC_CONTROL_SUBNET=OPERATIONS_SUBNET,
     )
 
-def sensor_start_command(tool: str, management_ip: str) -> str:
-    """Configure management on eth0 and capture passively on eth1."""
+def sensor_start_script(tool: str, management_ip: str) -> str:
+    """Start passive monitoring separately from the interactive GNS3 console."""
     if tool not in {"zeek", "suricata"}:
         raise ValueError(f"Unknown monitoring tool: {tool}")
+    log_dir = f"/var/log/{tool}"
     commands = [
+        "#!/bin/sh",
         "set -eu",
-        "command -v ip >/dev/null",
-        "ip link set eth0 up",
-        f"ip addr replace {management_ip}/24 dev eth0",
-        "ip link set eth1 up",
-        "ip addr flush dev eth1",
-        "ip link set eth1 promisc on",
+        f"mkdir -p {log_dir}",
+        "echo 'Starting Module 6 monitoring and interactive console'",
+        "/gns3/bin/busybox ip link set eth0 up",
+        f"/gns3/bin/busybox ip addr replace {management_ip}/24 dev eth0",
+        "/gns3/bin/busybox ip link set eth1 up",
+        "/gns3/bin/busybox ip addr flush dev eth1",
+        "/gns3/bin/busybox ip link set eth1 promisc on",
     ]
     if tool == "zeek":
-        commands.extend(
-            [
-                "mkdir -p /var/log/zeek",
-                "cd /var/log/zeek",
-                "exec zeek -C -i eth1",
-            ]
-        )
+        commands.extend(["command -v zeek >/dev/null", f"cd {log_dir}"])
+        monitor = "zeek -C -i eth1"
     else:
-        commands.extend(
-            [
-                "mkdir -p /var/log/suricata",
-                f"printf '%s' {shlex.quote(detection_rules())} > {SURICATA_RULE_PATH}",
-                f"suricata -T -c {SURICATA_CONFIG} -S {SURICATA_RULE_PATH} --set app-layer.protocols.modbus.enabled=yes -l /var/log/suricata",
-                f"exec suricata -c {SURICATA_CONFIG} -S {SURICATA_RULE_PATH} --set app-layer.protocols.modbus.enabled=yes -k none -i eth1 -l /var/log/suricata",
-            ]
+        options = (
+            f"-c {SURICATA_CONFIG} -S {SURICATA_RULE_PATH} "
+            "--set app-layer.protocols.modbus.enabled=yes "
+            "--set unix-command.enabled=no -l /var/log/suricata"
         )
-    return "sh -c " + shlex.quote("; ".join(commands))
+        commands.extend([
+            f"printf '%s' {shlex.quote(detection_rules())} > {SURICATA_RULE_PATH}",
+            f"suricata -T {options}",
+        ])
+        monitor = f"suricata {options} -k none -i eth1"
+    commands.extend([
+        "(",
+        " trap '' INT QUIT",
+        f" exec /gns3/bin/busybox setsid {monitor}",
+        f") </dev/null >>{log_dir}/module6-startup.log 2>&1 &",
+        "monitor_pid=$!",
+        f'echo "$monitor_pid" > {log_dir}/module6-monitor.pid',
+        "/gns3/bin/busybox sleep 2",
+        'if ! kill -0 "$monitor_pid" 2>/dev/null; then',
+        f" echo 'Monitor failed to start. See {log_dir}/module6-startup.log'",
+        f" /gns3/bin/busybox tail -n 30 {log_dir}/module6-startup.log",
+        "else",
+        f' echo "Monitoring is running (PID $monitor_pid). Logs: {log_dir}"',
+        "fi",
+        "echo 'This is an interactive shell. Ctrl+C at this prompt will not stop monitoring.'",
+        "exec /gns3/bin/busybox sh -i",
+    ])
+    return "\n".join(commands) + "\n"
 
 
 def apply_environments(server_url: str, project: Project) -> None:
@@ -530,8 +548,8 @@ def apply_environments(server_url: str, project: Project) -> None:
                 server_url, project, name,
                 environment(SCENARIO=SCENARIO, TAG=tag, SIMULATION=SENSOR_SIMULATION[tag], UNITS=units, DATA_TYPE=data_type, IP_ADDRESS=address, NETMASK=NETMASK, FIELD_SUBNET=area["field_subnet"]),
             )
-    set_environment(server_url, project, "railroad-hmi", environment(SCENARIO=SCENARIO, NODE_MODE="hmi", IP_ADDRESS=HMI_IP, NETMASK=NETMASK, PLC_TARGETS=plc_targets()))
-    set_environment(server_url, project, "railroad-historian", environment(SCENARIO=SCENARIO, NODE_MODE="historian", IP_ADDRESS=HISTORIAN_IP, NETMASK=NETMASK, PLC_TARGETS=plc_targets()))
+    set_environment(server_url, project, "railroad-hmi", environment(SCENARIO=SCENARIO, NODE_MODE="hmi", IP_ADDRESS=HMI_IP, NETMASK=NETMASK, PLC_TARGETS=plc_targets(), HMI_TARGETS=",".join(area["plc_ops_ip"] for area in RAIL_AREAS)))
+    set_environment(server_url, project, "railroad-historian", environment(SCENARIO=SCENARIO, NODE_MODE="historian", IP_ADDRESS=HISTORIAN_IP, NETMASK=NETMASK, PLC_TARGETS=plc_targets(), HMI_TARGETS=",".join(area["plc_ops_ip"] for area in RAIL_AREAS)))
     set_environment(
         server_url,
         project,
@@ -545,18 +563,14 @@ def apply_environments(server_url: str, project: Project) -> None:
             SCADA_DIAGRAM_CONFIG="tsec/diagrams.yaml",
         ),
     )
-    set_start_command(
-        server_url,
-        project,
-        "zeek-sensor",
-        sensor_start_command("zeek", ZEEK_IP),
-    )
-    set_start_command(
-        server_url,
-        project,
-        "suricata-sensor",
-        sensor_start_command("suricata", SURICATA_IP),
-    )
+    for tool, address in (("zeek", ZEEK_IP), ("suricata", SURICATA_IP)):
+        name = f"{tool}-sensor"
+        node = project.get_node(name)
+        node.write_file(
+            path="/etc/network/module6-monitor.sh",
+            data=sensor_start_script(tool, address),
+        )
+        set_start_command(server_url, project, name, "/bin/sh /etc/network/module6-monitor.sh")
 
 
 def configure_nodes(project: Project) -> None:
